@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RavenSys — Software para tu negocio</title>
+<title>RavenTechs — Software para tu negocio</title>
 <meta name="description" content="Apps SaaS argentinas para gestión de ahorro, vehículos, seguridad, ventas, salud y agenda. Simples, rápidas y listas para usar.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -119,10 +119,70 @@
   }
 
   .hero-raven {
-    width: 90px;
-    height: 90px;
+    width: 160px;
+    height: 160px;
     margin-bottom: 2rem;
+  }
+  .raven-svg {
+    width: 160px;
+    height: 160px;
+  }
+  /* Ala izquierda */
+  .wing-left {
+    transform-origin: 72px 60px;
+    animation: wingLeft 3.5s ease-in-out infinite;
+  }
+  /* Ala derecha */
+  .wing-right {
+    transform-origin: 88px 60px;
+    animation: wingRight 3.5s ease-in-out infinite;
+  }
+  @keyframes wingLeft {
+    0%,100% { transform: rotate(0deg) translateY(0px); }
+    25%      { transform: rotate(-12deg) translateY(-4px); }
+    75%      { transform: rotate(6deg) translateY(2px); }
+  }
+  @keyframes wingRight {
+    0%,100% { transform: rotate(0deg) translateY(0px); }
+    25%      { transform: rotate(12deg) translateY(-4px); }
+    75%      { transform: rotate(-6deg) translateY(2px); }
+  }
+  /* Ojo pulsante */
+  .raven-eye {
+    animation: eyeGlow 2.5s ease-in-out infinite;
+  }
+  @keyframes eyeGlow {
+    0%,100% { opacity:1; filter: drop-shadow(0 0 2px #CC0000); }
+    50%      { opacity:0.4; filter: drop-shadow(0 0 6px #CC0000); }
+  }
+  /* Circuitos */
+  .circuit-line {
+    stroke-dasharray: 40;
+    stroke-dashoffset: 40;
+    animation: drawCircuit 3s ease-in-out infinite;
+  }
+  .circuit-line:nth-child(2) { animation-delay: .5s; }
+  .circuit-line:nth-child(3) { animation-delay: 1s; }
+  .circuit-line:nth-child(4) { animation-delay: 1.5s; }
+  @keyframes drawCircuit {
+    0%    { stroke-dashoffset: 40; opacity: 0; }
+    20%   { opacity: 1; }
+    60%   { stroke-dashoffset: 0; opacity: 1; }
+    100%  { stroke-dashoffset: 0; opacity: 0; }
+  }
+  /* Cuerpo float general */
+  .raven-body-group {
     animation: float 4s ease-in-out infinite;
+  }
+  /* Puntos de datos pulsantes */
+  .data-dot {
+    animation: dataPulse 2s ease-in-out infinite;
+  }
+  .data-dot:nth-child(2){ animation-delay:.6s; }
+  .data-dot:nth-child(3){ animation-delay:1.2s; }
+  @keyframes dataPulse {
+    0%,100% { opacity:.3; r:1.5px; }
+    50%      { opacity:1; r:3px; }
   }
 
   @keyframes float {
@@ -513,7 +573,7 @@
 
 <!-- NAV -->
 <nav>
-  <a href="#" class="nav-logo" aria-label="RavenSys inicio">
+  <a href="#" class="nav-logo" aria-label="RavenTechs inicio">
     <svg class="raven-icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <path d="M28 8 C28 8 24 6 20 7 C16 8 14 10 12 13 C10 16 10 20 11 23 C12 26 14 28 17 29 L14 32 L18 30 L17 33 L21 30 C24 29 26 27 27 24 C28 21 28 17 26 14 C24 11 28 8 28 8Z" fill="#CC0000"/>
       <circle cx="23" cy="12" r="2" fill="#FF4444"/>
@@ -528,7 +588,7 @@
 <section class="hero" id="inicio">
   <p class="hero-eyebrow">Software argentino para PyMEs</p>
 
-  <svg class="hero-raven" viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Logo RavenSys: cuervo estilizado">
+  <svg class="hero-raven" viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Logo RavenTechs: cuervo estilizado">
     <path d="M72 18 C72 18 62 12 52 15 C42 18 36 24 30 32 C24 40 23 50 26 59 C29 68 35 74 44 77 L36 83 L46 78 L44 85 L54 78 C62 76 68 70 70 62 C72 54 71 44 66 36 C61 28 72 18 72 18Z" fill="#CC0000" opacity="0.9"/>
     <circle cx="58" cy="27" r="4.5" fill="#FF4444"/>
     <path d="M30 32 C22 29 16 34 18 40 L27 37 Z" fill="#CC0000"/>
@@ -572,6 +632,7 @@
         <div class="feat"><span class="feat-dot" style="background:#22C55E"></span>Descuentos por zona en tiempo real</div>
         <div class="feat"><span class="feat-dot" style="background:#22C55E"></span>Acceso a descuentos de días futuros</div>
         <div class="feat"><span class="feat-dot" style="background:#22C55E"></span>Programa de fidelización</div>
+        <div class="feat"><span class="feat-dot" style="background:#22C55E"></span>Geolocalización en tiempo real para mostrar descuentos por zona</div>
       </div>
       <div class="card-footer">
         <span class="card-demo" style="color:#22C55E">Ver app →</span>
@@ -593,6 +654,7 @@
         <div class="feat"><span class="feat-dot" style="background:#3B82F6"></span>Alertas de vencimientos de documentación</div>
         <div class="feat"><span class="feat-dot" style="background:#3B82F6"></span>Historial completo de service</div>
         <div class="feat"><span class="feat-dot" style="background:#3B82F6"></span>Todos los datos del vehículo en un lugar</div>
+        <div class="feat"><span class="feat-dot" style="background:#3B82F6"></span>Sincronización en tiempo real con Firebase Cloud</div>
       </div>
       <div class="card-footer">
         <span class="card-demo" style="color:#3B82F6">Ver app →</span>
@@ -614,6 +676,7 @@
         <div class="feat"><span class="feat-dot"></span>Historial y seguimiento de clientes</div>
         <div class="feat"><span class="feat-dot"></span>Presupuestos en PDF y WhatsApp</div>
         <div class="feat"><span class="feat-dot"></span>Stock de mercadería</div>
+        <div class="feat"><span class="feat-dot"></span>Generación automática de PDFs y envío directo por WhatsApp</div>
       </div>
       <div class="card-footer">
         <span class="card-demo">Ver app →</span>
@@ -635,6 +698,7 @@
         <div class="feat"><span class="feat-dot" style="background:#F59E0B"></span>Ventas en tiempo real por negocio</div>
         <div class="feat"><span class="feat-dot" style="background:#F59E0B"></span>Multi-negocio desde un solo dashboard</div>
         <div class="feat"><span class="feat-dot" style="background:#F59E0B"></span>Registro de empleados por local</div>
+        <div class="feat"><span class="feat-dot" style="background:#F59E0B"></span>Dashboard sincronizado en tiempo real entre todos los locales</div>
       </div>
       <div class="card-footer">
         <span class="card-demo" style="color:#F59E0B">Ver app →</span>
@@ -656,6 +720,7 @@
         <div class="feat"><span class="feat-dot" style="background:#A855F7"></span>Checklist de medicaciones del día</div>
         <div class="feat"><span class="feat-dot" style="background:#A855F7"></span>Acceso compartido con familiar o cuidador</div>
         <div class="feat"><span class="feat-dot" style="background:#A855F7"></span>Turnos, estudios y recetas digitales</div>
+        <div class="feat"><span class="feat-dot" style="background:#A855F7"></span>Acceso compartido seguro vía autenticación Google o email</div>
       </div>
       <div class="card-footer">
         <span class="card-demo" style="color:#A855F7">Ver app →</span>
@@ -677,6 +742,7 @@
         <div class="feat"><span class="feat-dot" style="background:#14B8A6"></span>Alertas de exámenes por colores</div>
         <div class="feat"><span class="feat-dot" style="background:#14B8A6"></span>Tipo de examen y materia</div>
         <div class="feat"><span class="feat-dot" style="background:#14B8A6"></span>Recordatorios automáticos</div>
+        <div class="feat"><span class="feat-dot" style="background:#14B8A6"></span>Alertas inteligentes que se intensifican según proximidad del examen</div>
       </div>
       <div class="card-footer">
         <span class="card-demo" style="color:#14B8A6">Ver app →</span>
@@ -698,6 +764,7 @@
         <div class="feat"><span class="feat-dot" style="background:#E8634A"></span>Chat por voz o texto con IA</div>
         <div class="feat"><span class="feat-dot" style="background:#E8634A"></span>Consejos personalizados del día</div>
         <div class="feat"><span class="feat-dot" style="background:#E8634A"></span>Registro de estado de ánimo diario</div>
+        <div class="feat"><span class="feat-dot" style="background:#E8634A"></span>IA conversacional con Groq llama-3.1 adaptada al contexto del usuario</div>
       </div>
       <div class="card-footer">
         <span class="card-demo" style="color:#E8634A">Ver app →</span>
@@ -719,6 +786,7 @@
         <div class="feat"><span class="feat-dot" style="background:#1E8C6E"></span>Registro por voz con clasificación automática</div>
         <div class="feat"><span class="feat-dot" style="background:#1E8C6E"></span>Motor de descubrimientos con IA</div>
         <div class="feat"><span class="feat-dot" style="background:#1E8C6E"></span>Asistente conversacional de hábitos</div>
+        <div class="feat"><span class="feat-dot" style="background:#1E8C6E"></span>Motor de IA con Groq llama-3.1 que cruza hasta 80 registros en tiempo real</div>
       </div>
       <div class="card-footer">
         <span class="card-demo" style="color:#1E8C6E">Ver app →</span>
@@ -730,10 +798,10 @@
 </div>
 </div>
 
-<!-- POR QUÉ RAVENSYS -->
+<!-- POR QUÉ RAVENTECHS -->
 <div style="background: var(--bg2); border-top: 0.5px solid var(--border); border-bottom: 0.5px solid var(--border);">
 <div class="section">
-  <p class="section-label">Por qué RavenSys</p>
+  <p class="section-label">Por qué RavenTechs</p>
   <h2 class="section-title">Hecho en Argentina,<br>para Argentina</h2>
   <div class="divider" style="margin-top:1rem;"></div>
   <div class="why-grid">
@@ -771,13 +839,13 @@
     ventas@raventechsapp.com
   </a>
   <br>
-  <a href="mailto:ventas@raventechsapp.com?subject=Demo RavenSys&body=Hola, me interesa probar:" class="btn-primary" style="display:inline-block; margin-top:0.5rem;">Solicitar demo gratis</a>
+  <a href="mailto:ventas@raventechsapp.com?subject=Demo RavenTechs&body=Hola, me interesa probar:" class="btn-primary" style="display:inline-block; margin-top:0.5rem;">Solicitar demo gratis</a>
 </div>
 
 <!-- FOOTER -->
 <footer>
   <a href="#inicio" class="footer-logo">Raven<span>Sys</span></a>
-  <p class="footer-copy">© 2025 RavenSys — Software argentino para PyMEs</p>
+  <p class="footer-copy">© 2025 RavenTechs — Software argentino para PyMEs</p>
   <a href="https://github.com/raventechs" target="_blank" rel="noopener" class="footer-copy" style="color:var(--muted); text-decoration:none; display:flex; align-items:center; gap:6px;">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg>
     raventechs
