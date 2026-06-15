@@ -588,11 +588,62 @@
 <section class="hero" id="inicio">
   <p class="hero-eyebrow">Software argentino para PyMEs</p>
 
-  <svg class="hero-raven" viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Logo RavenTechs: cuervo estilizado">
-    <path d="M72 18 C72 18 62 12 52 15 C42 18 36 24 30 32 C24 40 23 50 26 59 C29 68 35 74 44 77 L36 83 L46 78 L44 85 L54 78 C62 76 68 70 70 62 C72 54 71 44 66 36 C61 28 72 18 72 18Z" fill="#CC0000" opacity="0.9"/>
-    <circle cx="58" cy="27" r="4.5" fill="#FF4444"/>
-    <path d="M30 32 C22 29 16 34 18 40 L27 37 Z" fill="#CC0000"/>
-    <path d="M44 77 C40 80 37 82 35 84" stroke="#991000" stroke-width="1.5" stroke-linecap="round"/>
+  <svg class="hero-raven" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g class="raven-body-group">
+    <!-- Ala izquierda -->
+    <g class="wing-left">
+      <path d="M72 60 C55 50, 28 55, 18 72 C28 68, 45 66, 60 72 Z" fill="#1A1A2E" stroke="#CC0000" stroke-width="0.8" opacity="0.9"/>
+      <path d="M68 65 C52 58, 30 62, 20 76 C30 72, 48 70, 62 76 Z" fill="#0A0A1A" stroke="#660000" stroke-width="0.5" opacity="0.6"/>
+      <line x1="40" y1="64" x2="34" y2="72" stroke="#CC0000" stroke-width="0.5" opacity="0.5"/>
+      <line x1="52" y1="62" x2="46" y2="70" stroke="#CC0000" stroke-width="0.5" opacity="0.5"/>
+    </g>
+    <!-- Ala derecha -->
+    <g class="wing-right">
+      <path d="M88 60 C105 50, 132 55, 142 72 C132 68, 115 66, 100 72 Z" fill="#1A1A2E" stroke="#CC0000" stroke-width="0.8" opacity="0.9"/>
+      <path d="M92 65 C108 58, 130 62, 140 76 C130 72, 112 70, 98 76 Z" fill="#0A0A1A" stroke="#660000" stroke-width="0.5" opacity="0.6"/>
+      <line x1="120" y1="64" x2="126" y2="72" stroke="#CC0000" stroke-width="0.5" opacity="0.5"/>
+      <line x1="108" y1="62" x2="114" y2="70" stroke="#CC0000" stroke-width="0.5" opacity="0.5"/>
+    </g>
+    <!-- Cuerpo -->
+    <ellipse cx="80" cy="82" rx="22" ry="26" fill="#13131C" stroke="#CC0000" stroke-width="1.2"/>
+    <!-- Cabeza -->
+    <ellipse cx="80" cy="52" rx="18" ry="16" fill="#13131C" stroke="#CC0000" stroke-width="1.2"/>
+    <!-- Pico -->
+    <path d="M62 52 L54 55 L62 57 Z" fill="#CC0000" opacity="0.9"/>
+    <line x1="54" y1="55" x2="58" y2="55" stroke="#FF4444" stroke-width="0.8"/>
+    <!-- Ojo pulsante -->
+    <circle cx="72" cy="48" r="5" fill="#0A0A0F" stroke="#CC0000" stroke-width="1"/>
+    <circle class="raven-eye" cx="72" cy="48" r="2.5" fill="#CC0000"/>
+    <circle cx="72" cy="48" r="1" fill="#FF8888"/>
+    <!-- Placa cabeza -->
+    <line x1="76" y1="42" x2="90" y2="42" stroke="#330000" stroke-width="1" opacity="0.8"/>
+    <line x1="78" y1="44" x2="92" y2="44" stroke="#330000" stroke-width="0.5" opacity="0.5"/>
+    <!-- Circuitos -->
+    <g stroke="#CC0000" stroke-width="0.8" fill="none" opacity="0.7">
+      <line class="circuit-line" x1="80" y1="68" x2="80" y2="80"/>
+      <line class="circuit-line" x1="80" y1="80" x2="90" y2="80"/>
+      <line class="circuit-line" x1="80" y1="80" x2="70" y2="88"/>
+      <line class="circuit-line" x1="70" y1="88" x2="70" y2="96"/>
+    </g>
+    <!-- Nodos -->
+    <g fill="#CC0000">
+      <circle class="data-dot" cx="80" cy="68" r="1.5"/>
+      <circle class="data-dot" cx="90" cy="80" r="1.5"/>
+      <circle class="data-dot" cx="70" cy="96" r="1.5"/>
+    </g>
+    <!-- Garras -->
+    <line x1="74" y1="106" x2="68" y2="118" stroke="#CC0000" stroke-width="1.2"/>
+    <line x1="86" y1="106" x2="92" y2="118" stroke="#CC0000" stroke-width="1.2"/>
+    <line x1="68" y1="118" x2="62" y2="122" stroke="#CC0000" stroke-width="1"/>
+    <line x1="68" y1="118" x2="68" y2="124" stroke="#CC0000" stroke-width="1"/>
+    <line x1="68" y1="118" x2="74" y2="122" stroke="#CC0000" stroke-width="1"/>
+    <line x1="92" y1="118" x2="86" y2="122" stroke="#CC0000" stroke-width="1"/>
+    <line x1="92" y1="118" x2="92" y2="124" stroke="#CC0000" stroke-width="1"/>
+    <line x1="92" y1="118" x2="98" y2="122" stroke="#CC0000" stroke-width="1"/>
+    <!-- Brillos -->
+    <ellipse cx="74" cy="46" rx="3" ry="2" fill="white" opacity="0.06"/>
+    <ellipse cx="76" cy="76" rx="4" ry="6" fill="white" opacity="0.03"/>
+  </g>
   </svg>
 
   <h1>Tu negocio,<br><em>en una sola app.</em></h1>
@@ -844,7 +895,7 @@
 
 <!-- FOOTER -->
 <footer>
-  <a href="#inicio" class="footer-logo">Raven<span>Sys</span></a>
+  <a href="#inicio" class="footer-logo">Raven<span>Techs</span></a>
   <p class="footer-copy">© 2025 RavenTechs — Software argentino para PyMEs</p>
   <a href="https://github.com/raventechs" target="_blank" rel="noopener" class="footer-copy" style="color:var(--muted); text-decoration:none; display:flex; align-items:center; gap:6px;">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg>
