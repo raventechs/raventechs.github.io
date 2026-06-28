@@ -1,10 +1,24 @@
 <!DOCTYPE html>
+<!--
+  ════════════════════════════════════════════════════════════
+  RAVENTECHS — LANDING — v1.1
+  Fecha de esta versión: 2026-06-27
+  Cambios respecto a v1.0: agregadas las tarjetas de legalAR y
+  EmpresAR (10 apps en total). Actualizada la descripción de Rodix
+  (equipo de choferes + checklist de insumos) y de SaludAR
+  (notificaciones push reales al celular). Contador de "Apps
+  disponibles hoy" actualizado de 8 a 10, y meta description
+  ampliada para incluir legal y gestión multi-sucursal.
+  PENDIENTE: confirmar la URL real del repo de EmpresAR (hoy
+  apunta a un placeholder: raventechs.github.io/garrafar/).
+  ════════════════════════════════════════════════════════════
+-->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RavenTechs — Software para tu negocio</title>
-<meta name="description" content="Apps SaaS argentinas para gestión de ahorro, vehículos, seguridad, ventas, salud y agenda. Simples, rápidas y listas para usar.">
+<meta name="description" content="Apps SaaS argentinas para gestión de ahorro, vehículos, seguridad, ventas, salud, agenda, consultas legales y gestión multi-sucursal. Simples, rápidas y listas para usar.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
@@ -700,12 +714,12 @@
           <span class="card-tag">Gestión de vehículos</span>
         </div>
       </div>
-      <p class="card-desc">Controlá uno, dos o toda una flota de vehículos. Nunca más un vencimiento encima: patente, seguro, VTV y más. Tener todo en fecha te ahorra multas y dolores de cabeza.</p>
+      <p class="card-desc">Controlá uno, dos o toda una flota de vehículos. Nunca más un vencimiento encima: patente, seguro, VTV y más. Invitá choferes a tu equipo para que carguen sus propios controles, y activá un checklist diario de insumos para flotas especiales como ambulancias.</p>
       <div class="card-features">
         <div class="feat"><span class="feat-dot" style="background:#3B82F6"></span>Alertas de vencimientos de documentación</div>
         <div class="feat"><span class="feat-dot" style="background:#3B82F6"></span>Historial completo de service</div>
-        <div class="feat"><span class="feat-dot" style="background:#3B82F6"></span>Todos los datos del vehículo en un lugar</div>
-        <div class="feat"><span class="feat-dot" style="background:#3B82F6"></span>Sincronización en tiempo real con Firebase Cloud</div>
+        <div class="feat"><span class="feat-dot" style="background:#3B82F6"></span>Equipo de choferes con invitación por link, cada uno con su acceso controlado</div>
+        <div class="feat"><span class="feat-dot" style="background:#3B82F6"></span>Checklist diario de insumos (ideal para ambulancias) con registro de quién confirmó cada revisión</div>
       </div>
       <div class="card-footer">
         <span class="card-demo" style="color:#3B82F6">Ver app →</span>
@@ -732,6 +746,28 @@
       <div class="card-footer">
         <span class="card-demo">Ver app →</span>
         <svg class="card-arrow" viewBox="0 0 20 20" fill="none" stroke="#CC0000" stroke-width="1.5"><path d="M3 17L17 3M17 3H7M17 3v10"/></svg>
+      </div>
+    </a>
+
+    <!-- legalAR -->
+    <a href="https://raventechs.lat/legalar/" target="_blank" rel="noopener" class="app-card" style="--card-accent:#1B2A4A; --card-bg:rgba(27,42,74,0.12);">
+      <div class="card-header">
+        <div class="card-icon">⚖️</div>
+        <div>
+          <div class="card-name">legalAR</div>
+          <span class="card-tag">Consulta legal orientativa</span>
+        </div>
+      </div>
+      <p class="card-desc">Pensado para abogados: describí una situación por texto o por voz y recibí una orientación basada en legislación argentina, en lenguaje técnico y en palabras simples para explicarle al cliente. No reemplaza al profesional, es una herramienta de apoyo.</p>
+      <div class="card-features">
+        <div class="feat"><span class="feat-dot" style="background:#1B2A4A"></span>Consulta por texto o por voz</div>
+        <div class="feat"><span class="feat-dot" style="background:#1B2A4A"></span>Respuesta en lenguaje técnico y en lenguaje simple</div>
+        <div class="feat"><span class="feat-dot" style="background:#1B2A4A"></span>Caso de referencia y bibliografía citada</div>
+        <div class="feat"><span class="feat-dot" style="background:#1B2A4A"></span>Historial de consultas guardado y buscable</div>
+      </div>
+      <div class="card-footer">
+        <span class="card-demo" style="color:#1B2A4A">Ver app →</span>
+        <svg class="card-arrow" viewBox="0 0 20 20" fill="none" stroke="#1B2A4A" stroke-width="1.5"><path d="M3 17L17 3M17 3H7M17 3v10"/></svg>
       </div>
     </a>
 
@@ -766,12 +802,12 @@
           <span class="card-tag">Salud personal</span>
         </div>
       </div>
-      <p class="card-desc">Seguimiento de medicación diaria con checklist para ir tachando cada toma. Podés dar acceso a un familiar para que controle tu medicación a distancia. Turnos médicos, estudios, recetas y fotos en un solo lugar.</p>
+      <p class="card-desc">Seguimiento de medicación diaria con checklist para ir tachando cada toma, con avisos push directo al celular cuando se acerca el horario. Podés dar acceso a un familiar para que controle tu medicación a distancia. Turnos médicos, estudios, recetas y fotos en un solo lugar.</p>
       <div class="card-features">
         <div class="feat"><span class="feat-dot" style="background:#A855F7"></span>Checklist de medicaciones del día</div>
         <div class="feat"><span class="feat-dot" style="background:#A855F7"></span>Acceso compartido con familiar o cuidador</div>
         <div class="feat"><span class="feat-dot" style="background:#A855F7"></span>Turnos, estudios y recetas digitales</div>
-        <div class="feat"><span class="feat-dot" style="background:#A855F7"></span>Notificaciones automáticas de tomas pendientes durante el día</div>
+        <div class="feat"><span class="feat-dot" style="background:#A855F7"></span>Notificaciones push al celular antes de cada toma, y aviso de turnos un día antes</div>
       </div>
       <div class="card-footer">
         <span class="card-demo" style="color:#A855F7">Ver app →</span>
@@ -845,6 +881,28 @@
       </div>
     </a>
 
+    <!-- EmpresAR — REEMPLAZAR LA URL DEL HREF ABAJO POR LA REAL ANTES DE PUBLICAR -->
+    <a href="https://raventechs.github.io/garrafar/" target="_blank" rel="noopener" class="app-card" style="--card-accent:#D97706; --card-bg:rgba(217,119,6,0.12);">
+      <div class="card-header">
+        <div class="card-icon">🏢</div>
+        <div>
+          <div class="card-name">EmpresAR</div>
+          <span class="card-tag">Gestión multi-sucursal</span>
+        </div>
+      </div>
+      <p class="card-desc">Base de gestión pensada para empresas medianas y grandes con varias sucursales. Hoy funciona para distribución de garrafas, pero el armado está pensado para adaptarse a cualquier rubro que necesite coordinar stock, pedidos y equipos en distintos puntos desde un solo panel central.</p>
+      <div class="card-features">
+        <div class="feat"><span class="feat-dot" style="background:#D97706"></span>Gestión por sucursal con visión centralizada</div>
+        <div class="feat"><span class="feat-dot" style="background:#D97706"></span>Control de stock y pedidos en tiempo real</div>
+        <div class="feat"><span class="feat-dot" style="background:#D97706"></span>Equipos y roles diferenciados por punto de trabajo</div>
+        <div class="feat"><span class="feat-dot" style="background:#D97706"></span>Base adaptable: distribución, logística, servicios o retail con sucursales</div>
+      </div>
+      <div class="card-footer">
+        <span class="card-demo" style="color:#D97706">Ver app →</span>
+        <svg class="card-arrow" viewBox="0 0 20 20" fill="none" stroke="#D97706" stroke-width="1.5"><path d="M3 17L17 3M17 3H7M17 3v10"/></svg>
+      </div>
+    </a>
+
   </div>
 </div>
 </div>
@@ -862,9 +920,9 @@
       <p class="why-text">Funcionan desde el navegador en cualquier dispositivo. Sin descargas, sin actualizaciones manuales.</p>
     </div>
     <div class="why-item">
-      <div class="why-num">8</div>
+      <div class="why-num">10</div>
       <div class="why-title">Apps disponibles hoy</div>
-      <p class="why-text">Finanzas, vehículos, seguridad, ventas, salud, agenda, compañía digital y hábitos con IA. Cada una enfocada en resolver un problema real.</p>
+      <p class="why-text">Finanzas, vehículos, seguridad, ventas, salud, agenda, legal, gestión multi-sucursal, compañía digital y hábitos con IA. Cada una enfocada en resolver un problema real.</p>
     </div>
     <div class="why-item">
       <div class="why-num">24h</div>
