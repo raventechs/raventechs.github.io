@@ -1,23 +1,17 @@
 <!DOCTYPE html>
 <!--
   ════════════════════════════════════════════════════════════
-  RAVENTECHS — LANDING — v1.2
+  RAVENTECHS — LANDING — v1.3
   Fecha de esta versión: 2026-06-29
-  Cambios respecto a v1.1: agregado acceso oculto interno —
-  3 clicks en el logo del cuervo (nav) + PIN 1990 abre un panel
-  con dos secciones: "Herramientas" (Generador de Prompts,
-  legalAR) y "Listado de apps" (orden interno con estado de
-  cada app, no público). Rediseñado el cuervo (nav + Hero):
-  antes era redondo/orgánico con bordes rojos, ahora es angular
-  (cabeza y cuerpo poligonales, alas tipo placas segmentadas),
-  bordes blanco/gris claro, y el rojo queda solo para el ojo
-  pulsante y los nodos de circuito. Las animaciones (aleteo,
-  glow del ojo, circuitos, float) se mantienen, solo se
-  reescribieron las formas internas.
-  PENDIENTE: confirmar la URL real del repo de EmpresAR (hoy
-  apunta a un placeholder: raventechs.github.io/garrafar/).
-  Actualizar el listado interno de apps si cambia el estado de
-  alguna (hoy completado a mano según lo conversado).
+  Cambios respecto a v1.1: agregadas tarjetas de PizzAR
+  (https://raventechs.lat/pizzAr/) y PanAR
+  (https://raventechs.lat/panAr/). Contador de apps actualizado
+  de 10 a 12. Agregado el panel interno oculto (3 clicks en el
+  cuervo nav + PIN 1990) con listado de herramientas y estado de
+  cada app, incluyendo PizzAR y PanAR.
+  PENDIENTE: cuervo nav/hero angular (está en v1.2 pero este
+  archivo era la v1.1 del usuario — aplicar ese diseño cuando
+  se retome). URL de EmpresAR sigue con placeholder garrafar/.
   ════════════════════════════════════════════════════════════
 -->
 <html lang="es">
@@ -73,17 +67,11 @@
     align-items: center;
     gap: 10px;
     text-decoration: none;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    font: inherit;
   }
 
   .raven-icon {
-    width: 40px;
-    height: 40px;
-    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
   }
 
   .nav-brand {
@@ -156,12 +144,12 @@
   }
   /* Ala izquierda */
   .wing-left {
-    transform-origin: 62px 58px;
+    transform-origin: 72px 60px;
     animation: wingLeft 3.5s ease-in-out infinite;
   }
   /* Ala derecha */
   .wing-right {
-    transform-origin: 98px 58px;
+    transform-origin: 88px 60px;
     animation: wingRight 3.5s ease-in-out infinite;
   }
   @keyframes wingLeft {
@@ -594,207 +582,22 @@
     .why-grid { grid-template-columns: 1fr 1fr; }
     footer { flex-direction: column; text-align: center; }
   }
-
-  /* ── ACCESO OCULTO: 3 CLICKS EN EL LOGO + PIN ───────────────── */
-  .hidden-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 1000;
-    background: rgba(5,5,10,0.92);
-    backdrop-filter: blur(6px);
-    align-items: center;
-    justify-content: center;
-    padding: 1.5rem;
-  }
-  .hidden-overlay.active { display: flex; }
-
-  .pin-box {
-    background: var(--bg2);
-    border: 0.5px solid var(--border);
-    border-radius: 12px;
-    padding: 2.5rem 2rem;
-    max-width: 320px;
-    width: 100%;
-    text-align: center;
-  }
-  .pin-box h3 {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 1.2rem;
-    letter-spacing: 0.05em;
-    margin-bottom: 1.25rem;
-    color: var(--white);
-  }
-  .pin-box input {
-    width: 100%;
-    background: var(--bg);
-    border: 0.5px solid var(--border);
-    border-radius: 6px;
-    color: var(--white);
-    font-size: 1.4rem;
-    letter-spacing: 0.3em;
-    text-align: center;
-    padding: 12px;
-    margin-bottom: 1rem;
-  }
-  .pin-box input:focus { outline: none; border-color: var(--border-hover); }
-  .pin-error {
-    color: var(--red);
-    font-size: 0.8rem;
-    margin-bottom: 0.75rem;
-    min-height: 1em;
-  }
-  .pin-actions { display: flex; gap: 0.6rem; }
-  .pin-actions button {
-    flex: 1;
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    border-radius: 6px;
-    padding: 10px;
-    cursor: pointer;
-    border: none;
-    font-size: 0.9rem;
-  }
-  .pin-confirm { background: var(--red); color: #fff; }
-  .pin-cancel { background: var(--bg3); color: var(--muted); }
-
-  /* Panel de herramientas internas */
-  .tools-panel {
-    background: var(--bg2);
-    border: 0.5px solid var(--border);
-    border-radius: 12px;
-    max-width: 760px;
-    width: 100%;
-    max-height: 88vh;
-    overflow-y: auto;
-    padding: 2rem;
-  }
-  .tools-panel-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 0.5px solid var(--border);
-  }
-  .tools-panel-header h2 {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 1.4rem;
-    letter-spacing: 0.04em;
-  }
-  .tools-panel-header h2 span { color: var(--red); }
-  .tools-close {
-    background: var(--bg3);
-    border: none;
-    color: var(--muted);
-    width: 32px; height: 32px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1rem;
-  }
-  .tools-section-title {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--red);
-    margin: 1.5rem 0 0.75rem;
-  }
-  .tools-section-title:first-of-type { margin-top: 0; }
-  .tool-row, .listapp-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    background: var(--bg3);
-    border: 0.5px solid var(--border);
-    border-radius: 8px;
-    padding: 0.85rem 1rem;
-    margin-bottom: 0.5rem;
-  }
-  .tool-row-name, .listapp-name {
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 600;
-    font-size: 0.95rem;
-  }
-  .tool-row-desc, .listapp-status {
-    font-size: 0.78rem;
-    color: var(--muted);
-    margin-top: 2px;
-  }
-  .tool-row-link {
-    flex-shrink: 0;
-    background: var(--red);
-    color: #fff;
-    text-decoration: none;
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 600;
-    font-size: 0.8rem;
-    letter-spacing: 0.05em;
-    padding: 7px 14px;
-    border-radius: 5px;
-  }
-  .listapp-link {
-    flex-shrink: 0;
-    color: var(--muted);
-    text-decoration: none;
-    font-size: 0.8rem;
-    border: 0.5px solid var(--border);
-    padding: 6px 12px;
-    border-radius: 5px;
-  }
-  .listapp-link:hover { border-color: var(--border-hover); color: var(--white); }
-  .status-dot {
-    display: inline-block;
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    margin-right: 5px;
-  }
 </style>
 </head>
 <body>
 
 <!-- NAV -->
 <nav>
-  <button type="button" id="ravenLogoBtn" class="nav-logo" aria-label="RavenTechs inicio">
-    <svg class="raven-icon" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <g class="wing-left">
-        <polygon points="62,58 40,46 14,52 8,68 30,62 48,66" fill="#0C0C12" stroke="#D8D8E0" stroke-width="1"/>
-        <polygon points="48,66 30,62 16,72 36,72 50,74" fill="#080808" stroke="#999999" stroke-width="0.6" opacity="0.8"/>
-        <line x1="34" y1="56" x2="22" y2="58" stroke="#D8D8E0" stroke-width="0.6"/>
-        <line x1="40" y1="62" x2="26" y2="66" stroke="#D8D8E0" stroke-width="0.6"/>
-      </g>
-      <g class="wing-right">
-        <polygon points="98,58 120,46 146,52 152,68 130,62 112,66" fill="#0C0C12" stroke="#D8D8E0" stroke-width="1"/>
-        <polygon points="112,66 130,62 144,72 124,72 110,74" fill="#080808" stroke="#999999" stroke-width="0.6" opacity="0.8"/>
-        <line x1="126" y1="56" x2="138" y2="58" stroke="#D8D8E0" stroke-width="0.6"/>
-        <line x1="120" y1="62" x2="134" y2="66" stroke="#D8D8E0" stroke-width="0.6"/>
-      </g>
-      <polygon points="80,52 96,64 92,96 80,108 68,96 64,64" fill="#0C0C12" stroke="#D8D8E0" stroke-width="1.2"/>
-      <polygon points="80,32 94,42 92,58 80,64 68,58 66,42" fill="#0C0C12" stroke="#D8D8E0" stroke-width="1.2"/>
-      <polygon points="50,46 60,42 60,50 50,52" fill="#D8D8E0" opacity="0.9"/>
-      <polygon points="74,40 86,40 84,46 76,46" fill="#0A0A0F" stroke="#D8D8E0" stroke-width="0.8"/>
-      <circle cx="80" cy="43" r="3.2" fill="#0A0A0F" stroke="#D8D8E0" stroke-width="0.8"/>
-      <circle class="raven-eye" cx="80" cy="43" r="1.6" fill="#CC0000"/>
-      <line x1="80" y1="64" x2="80" y2="74" stroke="#D8D8E0" stroke-width="0.6" opacity="0.7"/>
-      <line x1="80" y1="74" x2="88" y2="78" stroke="#D8D8E0" stroke-width="0.6" opacity="0.7"/>
-      <line x1="80" y1="74" x2="72" y2="80" stroke="#D8D8E0" stroke-width="0.6" opacity="0.7"/>
-      <circle cx="88" cy="78" r="1.3" fill="#CC0000" opacity="0.8"/>
-      <circle cx="72" cy="80" r="1.3" fill="#CC0000" opacity="0.8"/>
-      <line x1="74" y1="106" x2="68" y2="120" stroke="#D8D8E0" stroke-width="1.2"/>
-      <line x1="86" y1="106" x2="92" y2="120" stroke="#D8D8E0" stroke-width="1.2"/>
-      <polygon points="68,120 60,124 64,118" fill="#D8D8E0"/>
-      <polygon points="68,120 68,128 64,124" fill="#D8D8E0"/>
-      <polygon points="92,120 100,124 96,118" fill="#D8D8E0"/>
-      <polygon points="92,120 92,128 96,124" fill="#D8D8E0"/>
+  <a href="#" class="nav-logo" aria-label="RavenTechs inicio">
+    <svg class="raven-icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M28 8 C28 8 24 6 20 7 C16 8 14 10 12 13 C10 16 10 20 11 23 C12 26 14 28 17 29 L14 32 L18 30 L17 33 L21 30 C24 29 26 27 27 24 C28 21 28 17 26 14 C24 11 28 8 28 8Z" fill="#CC0000"/>
+      <circle cx="23" cy="12" r="2" fill="#FF4444"/>
+      <path d="M11 13 C8 12 6 14 7 16 L10 15 Z" fill="#CC0000"/>
     </svg>
     <span class="nav-brand">Raven<span>Techs</span></span>
-  </button>
+  </a>
   <a href="#contacto" class="nav-cta">Probar gratis</a>
 </nav>
-
 
 <!-- HERO -->
 <section class="hero" id="inicio">
@@ -804,49 +607,54 @@
   <g class="raven-body-group">
     <!-- Ala izquierda -->
     <g class="wing-left">
-      <polygon points="62,58 40,46 14,52 8,68 30,62 48,66" fill="#0C0C12" stroke="#D8D8E0" stroke-width="1"/>
-      <polygon points="48,66 30,62 16,72 36,72 50,74" fill="#080808" stroke="#999999" stroke-width="0.6" opacity="0.8"/>
-      <line x1="34" y1="56" x2="22" y2="58" stroke="#D8D8E0" stroke-width="0.6"/>
-      <line x1="40" y1="62" x2="26" y2="66" stroke="#D8D8E0" stroke-width="0.6"/>
+      <path d="M72 60 C55 50, 28 55, 18 72 C28 68, 45 66, 60 72 Z" fill="#1A1A2E" stroke="#CC0000" stroke-width="0.8" opacity="0.9"/>
+      <path d="M68 65 C52 58, 30 62, 20 76 C30 72, 48 70, 62 76 Z" fill="#0A0A1A" stroke="#660000" stroke-width="0.5" opacity="0.6"/>
+      <line x1="40" y1="64" x2="34" y2="72" stroke="#CC0000" stroke-width="0.5" opacity="0.5"/>
+      <line x1="52" y1="62" x2="46" y2="70" stroke="#CC0000" stroke-width="0.5" opacity="0.5"/>
     </g>
     <!-- Ala derecha -->
     <g class="wing-right">
-      <polygon points="98,58 120,46 146,52 152,68 130,62 112,66" fill="#0C0C12" stroke="#D8D8E0" stroke-width="1"/>
-      <polygon points="112,66 130,62 144,72 124,72 110,74" fill="#080808" stroke="#999999" stroke-width="0.6" opacity="0.8"/>
-      <line x1="126" y1="56" x2="138" y2="58" stroke="#D8D8E0" stroke-width="0.6"/>
-      <line x1="120" y1="62" x2="134" y2="66" stroke="#D8D8E0" stroke-width="0.6"/>
+      <path d="M88 60 C105 50, 132 55, 142 72 C132 68, 115 66, 100 72 Z" fill="#1A1A2E" stroke="#CC0000" stroke-width="0.8" opacity="0.9"/>
+      <path d="M92 65 C108 58, 130 62, 140 76 C130 72, 112 70, 98 76 Z" fill="#0A0A1A" stroke="#660000" stroke-width="0.5" opacity="0.6"/>
+      <line x1="120" y1="64" x2="126" y2="72" stroke="#CC0000" stroke-width="0.5" opacity="0.5"/>
+      <line x1="108" y1="62" x2="114" y2="70" stroke="#CC0000" stroke-width="0.5" opacity="0.5"/>
     </g>
     <!-- Cuerpo -->
-    <polygon points="80,52 96,64 92,96 80,108 68,96 64,64" fill="#0C0C12" stroke="#D8D8E0" stroke-width="1.2"/>
+    <ellipse cx="80" cy="82" rx="22" ry="26" fill="#13131C" stroke="#CC0000" stroke-width="1.2"/>
     <!-- Cabeza -->
-    <polygon points="80,32 94,42 92,58 80,64 68,58 66,42" fill="#0C0C12" stroke="#D8D8E0" stroke-width="1.2"/>
+    <ellipse cx="80" cy="52" rx="18" ry="16" fill="#13131C" stroke="#CC0000" stroke-width="1.2"/>
     <!-- Pico -->
-    <polygon points="50,46 60,42 60,50 50,52" fill="#D8D8E0" opacity="0.9"/>
-    <!-- Placa cabeza -->
-    <polygon points="74,40 86,40 84,46 76,46" fill="#0A0A0F" stroke="#D8D8E0" stroke-width="0.8"/>
+    <path d="M62 52 L54 55 L62 57 Z" fill="#CC0000" opacity="0.9"/>
+    <line x1="54" y1="55" x2="58" y2="55" stroke="#FF4444" stroke-width="0.8"/>
     <!-- Ojo pulsante -->
-    <circle cx="80" cy="43" r="3.2" fill="#0A0A0F" stroke="#D8D8E0" stroke-width="0.8"/>
-    <circle class="raven-eye" cx="80" cy="43" r="1.6" fill="#CC0000"/>
+    <circle cx="72" cy="48" r="5" fill="#0A0A0F" stroke="#CC0000" stroke-width="1"/>
+    <circle class="raven-eye" cx="72" cy="48" r="2.5" fill="#CC0000"/>
+    <circle cx="72" cy="48" r="1" fill="#FF8888"/>
+    <!-- Placa cabeza -->
+    <line x1="76" y1="42" x2="90" y2="42" stroke="#330000" stroke-width="1" opacity="0.8"/>
+    <line x1="78" y1="44" x2="92" y2="44" stroke="#330000" stroke-width="0.5" opacity="0.5"/>
     <!-- Circuitos -->
-    <g stroke="#D8D8E0" stroke-width="0.7" fill="none" opacity="0.7">
-      <line class="circuit-line" x1="80" y1="64" x2="80" y2="74"/>
-      <line class="circuit-line" x1="80" y1="74" x2="88" y2="78"/>
-      <line class="circuit-line" x1="80" y1="74" x2="72" y2="80"/>
-      <line class="circuit-line" x1="72" y1="80" x2="72" y2="90"/>
+    <g stroke="#CC0000" stroke-width="0.8" fill="none" opacity="0.7">
+      <line class="circuit-line" x1="80" y1="68" x2="80" y2="80"/>
+      <line class="circuit-line" x1="80" y1="80" x2="90" y2="80"/>
+      <line class="circuit-line" x1="80" y1="80" x2="70" y2="88"/>
+      <line class="circuit-line" x1="70" y1="88" x2="70" y2="96"/>
     </g>
     <!-- Nodos -->
     <g fill="#CC0000">
-      <circle class="data-dot" cx="88" cy="78" r="1.3" opacity="0.8"/>
-      <circle class="data-dot" cx="72" cy="80" r="1.3" opacity="0.8"/>
-      <circle class="data-dot" cx="72" cy="90" r="1.3" opacity="0.8"/>
+      <circle class="data-dot" cx="80" cy="68" r="1.5"/>
+      <circle class="data-dot" cx="90" cy="80" r="1.5"/>
+      <circle class="data-dot" cx="70" cy="96" r="1.5"/>
     </g>
     <!-- Garras -->
-    <line x1="74" y1="106" x2="68" y2="120" stroke="#D8D8E0" stroke-width="1.2"/>
-    <line x1="86" y1="106" x2="92" y2="120" stroke="#D8D8E0" stroke-width="1.2"/>
-    <polygon points="68,120 60,124 64,118" fill="#D8D8E0"/>
-    <polygon points="68,120 68,128 64,124" fill="#D8D8E0"/>
-    <polygon points="92,120 100,124 96,118" fill="#D8D8E0"/>
-    <polygon points="92,120 92,128 96,124" fill="#D8D8E0"/>
+    <line x1="74" y1="106" x2="68" y2="118" stroke="#CC0000" stroke-width="1.2"/>
+    <line x1="86" y1="106" x2="92" y2="118" stroke="#CC0000" stroke-width="1.2"/>
+    <line x1="68" y1="118" x2="62" y2="122" stroke="#CC0000" stroke-width="1"/>
+    <line x1="68" y1="118" x2="68" y2="124" stroke="#CC0000" stroke-width="1"/>
+    <line x1="68" y1="118" x2="74" y2="122" stroke="#CC0000" stroke-width="1"/>
+    <line x1="92" y1="118" x2="86" y2="122" stroke="#CC0000" stroke-width="1"/>
+    <line x1="92" y1="118" x2="92" y2="124" stroke="#CC0000" stroke-width="1"/>
+    <line x1="92" y1="118" x2="98" y2="122" stroke="#CC0000" stroke-width="1"/>
     <!-- Brillos -->
     <ellipse cx="74" cy="46" rx="3" ry="2" fill="white" opacity="0.06"/>
     <ellipse cx="76" cy="76" rx="4" ry="6" fill="white" opacity="0.03"/>
@@ -854,7 +662,7 @@
   </svg>
 
   <h1>Tu negocio,<br><em>en una sola app.</em></h1>
-  <p class="hero-sub">6 soluciones SaaS diseñadas para el mercado argentino. Sin complicaciones, sin servidores. Empezás en minutos.</p>
+  <p class="hero-sub">12 soluciones SaaS diseñadas para el mercado argentino. Sin complicaciones, sin servidores. Empezás en minutos.</p>
 
   <div class="hero-actions">
     <a href="#apps" class="btn-primary">Ver las apps</a>
@@ -1096,6 +904,50 @@
       </div>
     </a>
 
+    <!-- PizzAR -->
+    <a href="https://raventechs.lat/pizzAr/" target="_blank" rel="noopener" class="app-card" style="--card-accent:#E03C26; --card-bg:rgba(224,60,38,0.12);">
+      <div class="card-header">
+        <div class="card-icon">🍕</div>
+        <div>
+          <div class="card-name">PizzAR</div>
+          <span class="card-tag">Caja registradora · Pizzería</span>
+        </div>
+      </div>
+      <p class="card-desc">Caja registradora pensada para pizzerías: vendé en el local con carrito y selector de tamaño, llevá el menú completo con tamaños y precios libres, y mirá reportes e historial de ventas por fecha. Con rol diferenciado para el empleado de Punto de Venta.</p>
+      <div class="card-features">
+        <div class="feat"><span class="feat-dot" style="background:#E03C26"></span>Venta rápida con carrito y selector de tamaño</div>
+        <div class="feat"><span class="feat-dot" style="background:#E03C26"></span>Reportes e historial de ventas por fecha</div>
+        <div class="feat"><span class="feat-dot" style="background:#E03C26"></span>Roles: Dueño (todo) y Punto de Venta (solo Caja y Menú)</div>
+        <div class="feat"><span class="feat-dot" style="background:#E03C26"></span>Control de stock con descuento automático por receta de cada variante</div>
+      </div>
+      <div class="card-footer">
+        <span class="card-demo" style="color:#E03C26">Ver app →</span>
+        <svg class="card-arrow" viewBox="0 0 20 20" fill="none" stroke="#E03C26" stroke-width="1.5"><path d="M3 17L17 3M17 3H7M17 3v10"/></svg>
+      </div>
+    </a>
+
+    <!-- PanAR -->
+    <a href="https://raventechs.lat/panAr/" target="_blank" rel="noopener" class="app-card" style="--card-accent:#F2994A; --card-bg:rgba(242,153,74,0.12);">
+      <div class="card-header">
+        <div class="card-icon">🥖</div>
+        <div>
+          <div class="card-name">PanAR</div>
+          <span class="card-tag">Caja registradora · Panadería</span>
+        </div>
+      </div>
+      <p class="card-desc">El mismo motor de PizzAR adaptado a panaderías y confiterías: panes por peso, facturas por unidad o docena, tortas por porción o enteras, y bebidas. Stock de insumos (harina, manteca, dulce de leche) con descuento automático al vender.</p>
+      <div class="card-features">
+        <div class="feat"><span class="feat-dot" style="background:#F2994A"></span>Catálogo por peso, unidad/docena y porción/entera</div>
+        <div class="feat"><span class="feat-dot" style="background:#F2994A"></span>Reportes e historial de ventas por fecha</div>
+        <div class="feat"><span class="feat-dot" style="background:#F2994A"></span>Roles: Dueño (todo) y Punto de Venta (solo Caja y Menú)</div>
+        <div class="feat"><span class="feat-dot" style="background:#F2994A"></span>Control de stock de insumos con receta por variante de cada producto</div>
+      </div>
+      <div class="card-footer">
+        <span class="card-demo" style="color:#F2994A">Ver app →</span>
+        <svg class="card-arrow" viewBox="0 0 20 20" fill="none" stroke="#F2994A" stroke-width="1.5"><path d="M3 17L17 3M17 3H7M17 3v10"/></svg>
+      </div>
+    </a>
+
   </div>
 </div>
 </div>
@@ -1113,9 +965,9 @@
       <p class="why-text">Funcionan desde el navegador en cualquier dispositivo. Sin descargas, sin actualizaciones manuales.</p>
     </div>
     <div class="why-item">
-      <div class="why-num">10</div>
+      <div class="why-num">12</div>
       <div class="why-title">Apps disponibles hoy</div>
-      <p class="why-text">Finanzas, vehículos, seguridad, ventas, salud, agenda, legal, gestión multi-sucursal, compañía digital y hábitos con IA. Cada una enfocada en resolver un problema real.</p>
+      <p class="why-text">Finanzas, vehículos, seguridad, ventas, salud, agenda, legal, multi-sucursal, compañía digital, hábitos con IA y cajas registradoras para pizzería y panadería. Cada una enfocada en resolver un problema real.</p>
     </div>
     <div class="why-item">
       <div class="why-num">24h</div>
@@ -1167,6 +1019,34 @@
   });
 </script>
 
+<style>
+  .hidden-overlay { display:none; position:fixed; inset:0; z-index:1000; background:rgba(5,5,10,0.92); backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:1.5rem; }
+  .hidden-overlay.active { display:flex; }
+  .pin-box { background:var(--bg2); border:0.5px solid var(--border); border-radius:12px; padding:2.5rem 2rem; max-width:320px; width:100%; text-align:center; }
+  .pin-box h3 { font-family:'Rajdhani',sans-serif; font-size:1.2rem; letter-spacing:0.05em; margin-bottom:1.25rem; color:var(--white); }
+  .pin-box input { width:100%; background:var(--bg); border:0.5px solid var(--border); border-radius:6px; color:var(--white); font-size:1.4rem; letter-spacing:0.3em; text-align:center; padding:12px; margin-bottom:1rem; }
+  .pin-box input:focus { outline:none; border-color:var(--border-hover); }
+  .pin-error { color:var(--red); font-size:0.8rem; margin-bottom:0.75rem; min-height:1em; }
+  .pin-actions { display:flex; gap:0.6rem; }
+  .pin-actions button { flex:1; font-family:'Rajdhani',sans-serif; font-weight:600; letter-spacing:0.05em; border-radius:6px; padding:10px; cursor:pointer; border:none; font-size:0.9rem; }
+  .pin-confirm { background:var(--red); color:#fff; }
+  .pin-cancel { background:var(--bg3); color:var(--muted); }
+  .tools-panel { background:var(--bg2); border:0.5px solid var(--border); border-radius:12px; max-width:760px; width:100%; max-height:88vh; overflow-y:auto; padding:2rem; }
+  .tools-panel-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:0.5px solid var(--border); }
+  .tools-panel-header h2 { font-family:'Rajdhani',sans-serif; font-size:1.4rem; letter-spacing:0.04em; }
+  .tools-panel-header h2 span { color:var(--red); }
+  .tools-close { background:var(--bg3); border:none; color:var(--muted); width:32px; height:32px; border-radius:6px; cursor:pointer; font-size:1rem; }
+  .tools-section-title { font-family:'Rajdhani',sans-serif; font-size:0.75rem; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--red); margin:1.5rem 0 0.75rem; }
+  .tools-section-title:first-of-type { margin-top:0; }
+  .tool-row, .listapp-row { display:flex; align-items:center; justify-content:space-between; gap:1rem; background:var(--bg3); border:0.5px solid var(--border); border-radius:8px; padding:0.85rem 1rem; margin-bottom:0.5rem; }
+  .tool-row-name, .listapp-name { font-family:'Rajdhani',sans-serif; font-weight:600; font-size:0.95rem; }
+  .tool-row-desc, .listapp-status { font-size:0.78rem; color:var(--muted); margin-top:2px; }
+  .tool-row-link { flex-shrink:0; background:var(--red); color:#fff; text-decoration:none; font-family:'Rajdhani',sans-serif; font-weight:600; font-size:0.8rem; letter-spacing:0.05em; padding:7px 14px; border-radius:5px; }
+  .listapp-link { flex-shrink:0; color:var(--muted); text-decoration:none; font-size:0.8rem; border:0.5px solid var(--border); padding:6px 12px; border-radius:5px; }
+  .listapp-link:hover { border-color:var(--border-hover); color:var(--white); }
+  .status-dot { display:inline-block; width:6px; height:6px; border-radius:50%; margin-right:5px; }
+</style>
+
 <!-- ACCESO OCULTO: MODAL DE PIN -->
 <div class="hidden-overlay" id="pinOverlay">
   <div class="pin-box">
@@ -1187,34 +1067,22 @@
       <h2>Panel <span>interno</span></h2>
       <button class="tools-close" id="toolsCloseBtn" aria-label="Cerrar">✕</button>
     </div>
-
     <p class="tools-section-title">Herramientas</p>
     <div id="toolsList"></div>
-
     <p class="tools-section-title">Listado de apps (orden interno)</p>
     <div id="appsListInternal"></div>
   </div>
 </div>
 
 <script>
-  /* ── DATOS INTERNOS: herramientas y estado real de apps ── */
   const HERRAMIENTAS_INTERNAS = [
-    {
-      nombre: 'Generador de Prompts',
-      desc: 'Convierte una idea simple en un prompt detallado + diagrama de pasos.',
-      url: 'https://inspiring-mermaid-bc3ac4.netlify.app/'
-    },
-    {
-      nombre: 'legalAR',
-      desc: 'Consulta legal orientativa (uso interno / sobrino).',
-      url: 'https://raventechs.lat/legalar/'
-    }
+    { nombre: 'Generador de Prompts', desc: 'Convierte una idea simple en un prompt detallado + diagrama de pasos.', url: 'https://inspiring-mermaid-bc3ac4.netlify.app/' },
+    { nombre: 'legalAR', desc: 'Consulta legal orientativa (uso interno / sobrino).', url: 'https://raventechs.lat/legalar/' }
   ];
 
-  // colores de estado: ok = estable/auditado, progreso = con pendientes, pendiente = sin auditar
   const APPS_INTERNAS = [
     { nombre: 'Rodix', estado: 'ok', nota: 'v1.8.2 — estable, en producción con cliente real', url: 'https://raventechs.github.io/vehigest-ar/' },
-    { nombre: 'SaludAR', estado: 'progreso', nota: 'Push confirmado; falta una prueba final de timing', url: 'https://raventechs.github.io/saludar/' },
+    { nombre: 'SaludAR', estado: 'progreso', nota: 'Push confirmado; falta prueba final de timing', url: 'https://raventechs.github.io/saludar/' },
     { nombre: 'SecurePro', estado: 'progreso', nota: 'Auditado; falta probar invitación de equipo en vivo', url: 'https://raventechs.github.io/securepro/' },
     { nombre: 'PuntoVenta', estado: 'progreso', nota: 'Morosidad lista; falta CRUD completo de empleados', url: 'https://raventechs.github.io/puntoventa/' },
     { nombre: 'MiAgenda', estado: 'ok', nota: 'v2.1 — agenda grupal en uso real', url: 'https://raventechs.github.io/miagenda/' },
@@ -1224,91 +1092,56 @@
     { nombre: 'AhorrAR', estado: 'pendiente', nota: 'Sin auditar todavía con el estándar definitivo', url: 'https://raventechs.github.io/ahorrar/' },
     { nombre: 'Traductor de Hábitos', estado: 'pendiente', nota: 'Sin estado de auditoría registrado aún', url: 'https://raventechs.github.io/raventechs-traductor-habitos/' },
     { nombre: 'CentralbotAr', estado: 'pendiente', nota: 'En armado — falta conectar webhook con Meta', url: '#' },
-    { nombre: 'Generador de Prompts', estado: 'ok', nota: 'Subido y probado, funcionando', url: 'https://inspiring-mermaid-bc3ac4.netlify.app/' }
+    { nombre: 'Generador de Prompts', estado: 'ok', nota: 'Subido y probado, funcionando', url: 'https://inspiring-mermaid-bc3ac4.netlify.app/' },
+    { nombre: 'PizzAR', estado: 'ok', nota: 'v2.4 — caja, stock con receta por tamaño y roles funcionando', url: 'https://raventechs.lat/pizzAr/' },
+    { nombre: 'PanAR', estado: 'progreso', nota: 'v1.0 — clon de PizzAR para panadería, pendiente Firebase propio', url: 'https://raventechs.lat/panAr/' }
   ];
 
   const colorEstado = { ok: '#22C55E', progreso: '#F59E0B', pendiente: '#7777AA' };
 
   function renderPanel() {
-    const toolsList = document.getElementById('toolsList');
-    toolsList.innerHTML = HERRAMIENTAS_INTERNAS.map(t => `
+    document.getElementById('toolsList').innerHTML = HERRAMIENTAS_INTERNAS.map(t => `
       <div class="tool-row">
-        <div>
-          <div class="tool-row-name">${t.nombre}</div>
-          <div class="tool-row-desc">${t.desc}</div>
-        </div>
+        <div><div class="tool-row-name">${t.nombre}</div><div class="tool-row-desc">${t.desc}</div></div>
         <a class="tool-row-link" href="${t.url}" target="_blank" rel="noopener">Abrir</a>
-      </div>
-    `).join('');
-
-    const appsList = document.getElementById('appsListInternal');
-    appsList.innerHTML = APPS_INTERNAS.map(a => `
+      </div>`).join('');
+    document.getElementById('appsListInternal').innerHTML = APPS_INTERNAS.map(a => `
       <div class="listapp-row">
-        <div>
-          <div class="listapp-name"><span class="status-dot" style="background:${colorEstado[a.estado]}"></span>${a.nombre}</div>
-          <div class="listapp-status">${a.nota}</div>
-        </div>
+        <div><div class="listapp-name"><span class="status-dot" style="background:${colorEstado[a.estado]}"></span>${a.nombre}</div><div class="listapp-status">${a.nota}</div></div>
         <a class="listapp-link" href="${a.url}" target="_blank" rel="noopener">Ver</a>
-      </div>
-    `).join('');
+      </div>`).join('');
   }
   renderPanel();
 
-  /* ── LÓGICA DE 3 CLICKS + PIN ── */
   const PIN_CORRECTO = '1990';
-  let clickCount = 0;
-  let clickTimer = null;
-
-  const ravenBtn = document.getElementById('ravenLogoBtn');
+  let clickCount = 0, clickTimer = null;
+  const ravenLogoBtn = document.querySelector('button.nav-logo') || document.getElementById('ravenLogoBtn');
   const pinOverlay = document.getElementById('pinOverlay');
   const pinInput = document.getElementById('pinInput');
   const pinError = document.getElementById('pinError');
   const toolsOverlay = document.getElementById('toolsOverlay');
 
-  ravenBtn.addEventListener('click', () => {
-    clickCount++;
-    clearTimeout(clickTimer);
-    if (clickCount >= 3) {
-      clickCount = 0;
-      abrirPin();
-      return;
-    }
-    clickTimer = setTimeout(() => { clickCount = 0; }, 1200);
-  });
-
-  function abrirPin() {
-    pinError.textContent = '';
-    pinInput.value = '';
-    pinOverlay.classList.add('active');
-    setTimeout(() => pinInput.focus(), 50);
-  }
-  function cerrarPin() {
-    pinOverlay.classList.remove('active');
+  if (ravenLogoBtn) {
+    ravenLogoBtn.addEventListener('click', () => {
+      clickCount++;
+      clearTimeout(clickTimer);
+      if (clickCount >= 3) { clickCount = 0; abrirPin(); return; }
+      clickTimer = setTimeout(() => { clickCount = 0; }, 1200);
+    });
   }
 
+  function abrirPin() { pinError.textContent=''; pinInput.value=''; pinOverlay.classList.add('active'); setTimeout(()=>pinInput.focus(),50); }
+  function cerrarPin() { pinOverlay.classList.remove('active'); }
   function validarPin() {
-    if (pinInput.value === PIN_CORRECTO) {
-      cerrarPin();
-      toolsOverlay.classList.add('active');
-    } else {
-      pinError.textContent = 'PIN incorrecto';
-      pinInput.value = '';
-      pinInput.focus();
-    }
+    if (pinInput.value === PIN_CORRECTO) { cerrarPin(); toolsOverlay.classList.add('active'); }
+    else { pinError.textContent='PIN incorrecto'; pinInput.value=''; pinInput.focus(); }
   }
 
   document.getElementById('pinConfirmBtn').addEventListener('click', validarPin);
   document.getElementById('pinCancelBtn').addEventListener('click', cerrarPin);
-  pinInput.addEventListener('keydown', e => { if (e.key === 'Enter') validarPin(); });
-
-  document.getElementById('toolsCloseBtn').addEventListener('click', () => {
-    toolsOverlay.classList.remove('active');
-  });
-
-  // cerrar overlays clickeando fuera del cuadro
-  [pinOverlay, toolsOverlay].forEach(ov => {
-    ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('active'); });
-  });
+  pinInput.addEventListener('keydown', e => { if (e.key==='Enter') validarPin(); });
+  document.getElementById('toolsCloseBtn').addEventListener('click', () => toolsOverlay.classList.remove('active'));
+  [pinOverlay, toolsOverlay].forEach(ov => ov.addEventListener('click', e => { if (e.target===ov) ov.classList.remove('active'); }));
 </script>
 </body>
 </html>
