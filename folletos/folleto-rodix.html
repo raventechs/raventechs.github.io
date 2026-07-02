@@ -20,12 +20,12 @@
   --glow:rgba(16,185,129,0.15);
 }
 html{scroll-behavior:smooth;}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
+html{overflow-x:hidden;}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
 
 /* HERO */
 .hero{
   min-height:100vh;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;padding:60px 24px 40px;text-align:center;
+  justify-content:center;padding:60px 20px 40px;text-align:center;max-width:100%;
   background:radial-gradient(ellipse 80% 60% at 50% 0%, var(--glow) 0%, transparent 70%);
   position:relative;overflow:hidden;
 }
@@ -75,11 +75,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
   background:var(--bg3);border-radius:16px;padding:14px;min-height:160px;
   border:1px solid var(--border);
 }
-.phone-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.phone-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;min-width:0;overflow:hidden;}
 .phone-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;}
 .phone-line{height:7px;border-radius:4px;background:rgba(255,255,255,0.1);flex:1;}
-.phone-line.accent{background:rgba(16,185,129,0.4);width:60%;flex:none;}
-.phone-line.short{width:40%;flex:none;}
+.phone-line.accent{background:var(--accent-line,rgba(100,180,255,0.4));flex:3;min-width:0;}
+.phone-line.short{flex:2;min-width:0;}
 .phone-card{
   background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);
   border-radius:10px;padding:10px;margin-top:10px;
@@ -114,7 +114,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
   color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin-bottom:24px;text-align:center;
 }
 .feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-@media(max-width:400px){.feat-grid{grid-template-columns:1fr;}}
+@media(max-width:600px){.feat-grid{grid-template-columns:1fr;}}
 .feat{
   background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px;
   opacity:0;transform:translateY(20px);transition:all .4s ease;
@@ -153,7 +153,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
   <span class="hero-emoji">🚚</span>
   <h1>Tu flota controlada,
 sin llamadas ni papeles.</h1>
-  <p>Sabé en tiempo real el estado de cada vehículo, documentación e insumos — desde cualquier celular del equipo.</p>
+  <p>Sabé en tiempo real el estado de cada vehículo, documentación, insumos e historial de service — con el costo total de mantenimiento por unidad.</p>
   <a href="https://raventechs.lat/vehigest-ar/" class="cta-btn" target="_blank">Probá Rodix gratis →</a>
 
   <div class="phone-wrap">
@@ -195,6 +195,8 @@ sin llamadas ni papeles.</h1>
     <div class="feat reveal"><span class="feat-icon">⚠️</span><div class="feat-title">Alertas automáticas</div><div class="feat-desc">VTV, service, seguro — antes del vencimiento</div></div>
     <div class="feat reveal"><span class="feat-icon">👷</span><div class="feat-title">Roles chofer / admin</div><div class="feat-desc">Acceso diferenciado por función</div></div>
     <div class="feat reveal"><span class="feat-icon">📲</span><div class="feat-title">Acceso por WhatsApp</div><div class="feat-desc">Link único para cada integrante del equipo</div></div>
+    <div class="feat reveal"><span class="feat-icon">🔧</span><div class="feat-title">Historial de service</div><div class="feat-desc">Cada reparación registrada con fecha, taller y costo</div></div>
+    <div class="feat reveal"><span class="feat-icon">💰</span><div class="feat-title">Gasto acumulado por vehículo</div><div class="feat-desc">Sabé cuánto te costó mantener cada unidad de tu flota</div></div>
   </div>
 </section>
 

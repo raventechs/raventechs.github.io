@@ -20,12 +20,12 @@
   --glow:rgba(124,58,237,0.15);
 }
 html{scroll-behavior:smooth;}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
+html{overflow-x:hidden;}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
 
 /* HERO */
 .hero{
   min-height:100vh;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;padding:60px 24px 40px;text-align:center;
+  justify-content:center;padding:60px 20px 40px;text-align:center;max-width:100%;
   background:radial-gradient(ellipse 80% 60% at 50% 0%, var(--glow) 0%, transparent 70%);
   position:relative;overflow:hidden;
 }
@@ -75,11 +75,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
   background:var(--bg3);border-radius:16px;padding:14px;min-height:160px;
   border:1px solid var(--border);
 }
-.phone-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.phone-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;min-width:0;overflow:hidden;}
 .phone-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;}
 .phone-line{height:7px;border-radius:4px;background:rgba(255,255,255,0.1);flex:1;}
-.phone-line.accent{background:rgba(124,58,237,0.4);width:60%;flex:none;}
-.phone-line.short{width:40%;flex:none;}
+.phone-line.accent{background:var(--accent-line,rgba(100,180,255,0.4));flex:3;min-width:0;}
+.phone-line.short{flex:2;min-width:0;}
 .phone-card{
   background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.2);
   border-radius:10px;padding:10px;margin-top:10px;
@@ -114,7 +114,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
   color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin-bottom:24px;text-align:center;
 }
 .feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-@media(max-width:400px){.feat-grid{grid-template-columns:1fr;}}
+@media(max-width:600px){.feat-grid{grid-template-columns:1fr;}}
 .feat{
   background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px;
   opacity:0;transform:translateY(20px);transition:all .4s ease;
@@ -149,11 +149,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
 <body>
 
 <section class="hero">
-  <div class="badge">🏪 Comercios y kioscos</div>
+  <div class="badge">🏪 Comercios — hasta 30 sucursales</div>
   <span class="hero-emoji">🏪</span>
-  <h1>Tu negocio organizado,
-tus clientes al día.</h1>
-  <p>Registrá ventas, controlá quién te debe y cerrá el día sabiendo exactamente cómo quedaste.</p>
+  <h1>Hasta 30 sucursales controladas
+desde un solo lugar.</h1>
+  <p>Gestioná hasta 30 sucursales desde un único panel: ventas, cuentas corrientes y reportes centralizados — todo desde el celular.</p>
   <a href="https://raventechs.lat/puntoventa/" class="cta-btn" target="_blank">Probá PuntoVenta gratis →</a>
 
   <div class="phone-wrap">
@@ -195,6 +195,8 @@ tus clientes al día.</h1>
     <div class="feat reveal"><span class="feat-icon">📊</span><div class="feat-title">Reportes de ventas</div><div class="feat-desc">Diarios, semanales y por período</div></div>
     <div class="feat reveal"><span class="feat-icon">👥</span><div class="feat-title">Multi-empleado</div><div class="feat-desc">Cada uno con su acceso y sus ventas</div></div>
     <div class="feat reveal"><span class="feat-icon">📋</span><div class="feat-title">Exportación CSV</div><div class="feat-desc">Tus datos siempre disponibles</div></div>
+    <div class="feat reveal"><span class="feat-icon">📲</span><div class="feat-title">Resumen diario por WhatsApp</div><div class="feat-desc">Ventas, gastos y saldo del día — automático al cierre</div></div>
+    <div class="feat reveal"><span class="feat-icon">🏪</span><div class="feat-title">Hasta 30 sucursales</div><div class="feat-desc">Control centralizado de toda la cadena de locales</div></div>
   </div>
 </section>
 
