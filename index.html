@@ -1,16 +1,11 @@
 <!DOCTYPE html>
 <!--
   ════════════════════════════════════════════════════════════
-  RAVENTECHS — LANDING — v1.4
-  Fecha de esta versión: 2026-06-29
-  Cambios respecto a v1.3: corregido el cuervo — nav y hero
-  ahora tienen el diseño angular (poligonal, bordes blanco/gris,
-  ojo rojo) en vez del redondeado viejo que había quedado al
-  tomar v1.1 como base. Nav-logo convertido a <button> para
-  soportar los 3 clicks del panel oculto. Panel interno (3 clicks
-  + PIN 1990) confirmado presente y funcional con PizzAR y PanAR
-  incluidos en el listado.
-  ──
+  RAVENTECHS — LANDING — v1.5
+  Fecha: 2026-07-02
+  Cambios: agregadas cards lavAR y CarnéAR al grid público.
+           Panel interno actualizado con ambas apps.
+  PENDIENTE: subir screenshots reales cuando estén disponibles.
 -->
 <html lang="es">
 <head>
@@ -45,7 +40,6 @@
     min-height: 100vh;
   }
 
-  /* NAV */
   nav {
     position: fixed;
     top: 0; left: 0; right: 0;
@@ -72,11 +66,7 @@
     font: inherit;
   }
 
-  .raven-icon {
-    width: 40px;
-    height: 40px;
-    flex-shrink: 0;
-  }
+  .raven-icon { width: 40px; height: 40px; flex-shrink: 0; }
 
   .nav-brand {
     font-family: 'Rajdhani', sans-serif;
@@ -85,7 +75,6 @@
     letter-spacing: 0.08em;
     color: var(--white);
   }
-
   .nav-brand span { color: var(--red); }
 
   .nav-cta {
@@ -102,7 +91,6 @@
   }
   .nav-cta:hover { background: #aa0000; }
 
-  /* HERO */
   .hero {
     min-height: 100vh;
     display: flex;
@@ -118,11 +106,9 @@
   .hero::before {
     content: '';
     position: absolute;
-    top: 50%;
-    left: 50%;
+    top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    width: 700px;
-    height: 700px;
+    width: 700px; height: 700px;
     background: radial-gradient(circle, rgba(204,0,0,0.07) 0%, transparent 70%);
     pointer-events: none;
   }
@@ -137,77 +123,23 @@
     margin-bottom: 1.5rem;
   }
 
-  .hero-raven {
-    width: 160px;
-    height: 160px;
-    margin-bottom: 2rem;
-  }
-  .raven-svg {
-    width: 160px;
-    height: 160px;
-  }
-  /* Ala izquierda */
-  .wing-left {
-    transform-origin: 72px 60px;
-    animation: wingLeft 3.5s ease-in-out infinite;
-  }
-  /* Ala derecha */
-  .wing-right {
-    transform-origin: 88px 60px;
-    animation: wingRight 3.5s ease-in-out infinite;
-  }
-  @keyframes wingLeft {
-    0%,100% { transform: rotate(0deg) translateY(0px); }
-    25%      { transform: rotate(-12deg) translateY(-4px); }
-    75%      { transform: rotate(6deg) translateY(2px); }
-  }
-  @keyframes wingRight {
-    0%,100% { transform: rotate(0deg) translateY(0px); }
-    25%      { transform: rotate(12deg) translateY(-4px); }
-    75%      { transform: rotate(-6deg) translateY(2px); }
-  }
-  /* Ojo pulsante */
-  .raven-eye {
-    animation: eyeGlow 2.5s ease-in-out infinite;
-  }
-  @keyframes eyeGlow {
-    0%,100% { opacity:1; filter: drop-shadow(0 0 2px #CC0000); }
-    50%      { opacity:0.4; filter: drop-shadow(0 0 6px #CC0000); }
-  }
-  /* Circuitos */
-  .circuit-line {
-    stroke-dasharray: 40;
-    stroke-dashoffset: 40;
-    animation: drawCircuit 3s ease-in-out infinite;
-  }
-  .circuit-line:nth-child(2) { animation-delay: .5s; }
-  .circuit-line:nth-child(3) { animation-delay: 1s; }
-  .circuit-line:nth-child(4) { animation-delay: 1.5s; }
-  @keyframes drawCircuit {
-    0%    { stroke-dashoffset: 40; opacity: 0; }
-    20%   { opacity: 1; }
-    60%   { stroke-dashoffset: 0; opacity: 1; }
-    100%  { stroke-dashoffset: 0; opacity: 0; }
-  }
-  /* Cuerpo float general */
-  .raven-body-group {
-    animation: float 4s ease-in-out infinite;
-  }
-  /* Puntos de datos pulsantes */
-  .data-dot {
-    animation: dataPulse 2s ease-in-out infinite;
-  }
-  .data-dot:nth-child(2){ animation-delay:.6s; }
-  .data-dot:nth-child(3){ animation-delay:1.2s; }
-  @keyframes dataPulse {
-    0%,100% { opacity:.3; r:1.5px; }
-    50%      { opacity:1; r:3px; }
-  }
+  .hero-raven { width: 160px; height: 160px; margin-bottom: 2rem; }
+  .raven-svg  { width: 160px; height: 160px; }
 
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-  }
+  .wing-left  { transform-origin: 72px 60px; animation: wingLeft 3.5s ease-in-out infinite; }
+  .wing-right { transform-origin: 88px 60px; animation: wingRight 3.5s ease-in-out infinite; }
+  @keyframes wingLeft  { 0%,100%{transform:rotate(0deg) translateY(0px);} 25%{transform:rotate(-12deg) translateY(-4px);} 75%{transform:rotate(6deg) translateY(2px);} }
+  @keyframes wingRight { 0%,100%{transform:rotate(0deg) translateY(0px);} 25%{transform:rotate(12deg) translateY(-4px);} 75%{transform:rotate(-6deg) translateY(2px);} }
+  .raven-eye { animation: eyeGlow 2.5s ease-in-out infinite; }
+  @keyframes eyeGlow { 0%,100%{opacity:1;filter:drop-shadow(0 0 2px #CC0000);} 50%{opacity:0.4;filter:drop-shadow(0 0 6px #CC0000);} }
+  .circuit-line { stroke-dasharray:40; stroke-dashoffset:40; animation:drawCircuit 3s ease-in-out infinite; }
+  .circuit-line:nth-child(2){animation-delay:.5s;} .circuit-line:nth-child(3){animation-delay:1s;} .circuit-line:nth-child(4){animation-delay:1.5s;}
+  @keyframes drawCircuit { 0%{stroke-dashoffset:40;opacity:0;} 20%{opacity:1;} 60%{stroke-dashoffset:0;opacity:1;} 100%{stroke-dashoffset:0;opacity:0;} }
+  .raven-body-group { animation: float 4s ease-in-out infinite; }
+  .data-dot { animation: dataPulse 2s ease-in-out infinite; }
+  .data-dot:nth-child(2){animation-delay:.6s;} .data-dot:nth-child(3){animation-delay:1.2s;}
+  @keyframes dataPulse { 0%,100%{opacity:.3;r:1.5px;} 50%{opacity:1;r:3px;} }
+  @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
 
   h1 {
     font-family: 'Rajdhani', sans-serif;
@@ -218,11 +150,7 @@
     margin-bottom: 1.5rem;
     max-width: 820px;
   }
-
-  h1 em {
-    font-style: normal;
-    color: var(--red);
-  }
+  h1 em { font-style: normal; color: var(--red); }
 
   .hero-sub {
     font-size: 1.1rem;
@@ -232,99 +160,56 @@
     line-height: 1.7;
   }
 
-  .hero-actions {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
+  .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
 
   .btn-primary {
-    background: var(--red);
-    color: #fff;
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 700;
-    font-size: 1rem;
-    letter-spacing: 0.08em;
-    text-decoration: none;
-    padding: 14px 32px;
-    border-radius: 4px;
+    background: var(--red); color: #fff;
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1rem;
+    letter-spacing: 0.08em; text-decoration: none;
+    padding: 14px 32px; border-radius: 4px;
     transition: background 0.2s, transform 0.1s;
   }
   .btn-primary:hover { background: #aa0000; transform: translateY(-1px); }
 
   .btn-ghost {
-    background: transparent;
-    color: var(--white);
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 600;
-    font-size: 1rem;
-    letter-spacing: 0.06em;
-    text-decoration: none;
-    padding: 14px 32px;
-    border-radius: 4px;
+    background: transparent; color: var(--white);
+    font-family: 'Rajdhani', sans-serif; font-weight: 600; font-size: 1rem;
+    letter-spacing: 0.06em; text-decoration: none;
+    padding: 14px 32px; border-radius: 4px;
     border: 0.5px solid var(--border);
     transition: border-color 0.2s, transform 0.1s;
   }
   .btn-ghost:hover { border-color: var(--muted); transform: translateY(-1px); }
 
   .scroll-hint {
-    position: absolute;
-    bottom: 2.5rem;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    color: var(--muted);
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
+    position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    color: var(--muted); font-size: 0.75rem; letter-spacing: 0.1em;
     font-family: 'Rajdhani', sans-serif;
     animation: fade-bounce 2s ease-in-out infinite;
   }
-
   @keyframes fade-bounce {
-    0%, 100% { opacity: 0.4; transform: translateX(-50%) translateY(0); }
-    50% { opacity: 1; transform: translateX(-50%) translateY(4px); }
+    0%,100%{opacity:0.4;transform:translateX(-50%) translateY(0);}
+    50%{opacity:1;transform:translateX(-50%) translateY(4px);}
   }
 
-  /* APPS SECTION */
-  .section {
-    padding: 5rem 2rem;
-    max-width: 1120px;
-    margin: 0 auto;
-  }
+  .section { padding: 5rem 2rem; max-width: 1120px; margin: 0 auto; }
 
   .section-label {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.2em;
-    color: var(--red);
-    text-transform: uppercase;
-    margin-bottom: 0.75rem;
-    text-align: center;
+    font-family: 'Rajdhani', sans-serif; font-size: 0.75rem; font-weight: 600;
+    letter-spacing: 0.2em; color: var(--red); text-transform: uppercase;
+    margin-bottom: 0.75rem; text-align: center;
   }
-
   .section-title {
     font-family: 'Rajdhani', sans-serif;
     font-size: clamp(1.8rem, 4vw, 2.8rem);
-    font-weight: 700;
-    text-align: center;
-    margin-bottom: 0.5rem;
-    letter-spacing: -0.01em;
+    font-weight: 700; text-align: center; margin-bottom: 0.5rem; letter-spacing: -0.01em;
   }
-
   .section-sub {
-    color: var(--muted);
-    text-align: center;
-    max-width: 480px;
-    margin: 0 auto 3.5rem;
-    font-size: 0.95rem;
+    color: var(--muted); text-align: center; max-width: 480px;
+    margin: 0 auto 3.5rem; font-size: 0.95rem;
   }
 
-  /* CARDS GRID */
   .cards-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -332,253 +217,87 @@
   }
 
   .app-card {
-    background: var(--bg2);
-    border: 0.5px solid var(--border);
-    border-radius: 10px;
-    padding: 1.75rem;
-    text-decoration: none;
-    color: inherit;
-    display: block;
-    position: relative;
-    overflow: hidden;
+    background: var(--bg2); border: 0.5px solid var(--border);
+    border-radius: 10px; padding: 1.75rem;
+    text-decoration: none; color: inherit;
+    display: block; position: relative; overflow: hidden;
     transition: border-color 0.25s, transform 0.2s;
   }
-
   .app-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0;
-    width: 3px;
-    height: 100%;
+    content: ''; position: absolute; top: 0; left: 0;
+    width: 3px; height: 100%;
     background: var(--card-accent, var(--red));
     border-radius: 10px 0 0 10px;
-    opacity: 0;
-    transition: opacity 0.25s;
+    opacity: 0; transition: opacity 0.25s;
   }
-
-  .app-card:hover {
-    border-color: var(--border-hover);
-    transform: translateY(-3px);
-  }
-
+  .app-card:hover { border-color: var(--border-hover); transform: translateY(-3px); }
   .app-card:hover::before { opacity: 1; }
 
-  .card-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 1rem;
-  }
-
+  .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; }
   .card-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 8px;
+    width: 44px; height: 44px; border-radius: 8px;
     background: var(--card-bg, rgba(204,0,0,0.1));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.4rem;
-    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; flex-shrink: 0;
   }
-
-  .card-name {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 1.3rem;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-  }
-
+  .card-name { font-family: 'Rajdhani', sans-serif; font-size: 1.3rem; font-weight: 700; letter-spacing: 0.02em; }
   .card-tag {
-    display: inline-block;
-    background: rgba(120,120,180,0.12);
-    color: var(--muted);
-    font-size: 0.7rem;
-    font-weight: 500;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    padding: 3px 8px;
-    border-radius: 3px;
-    margin-top: 2px;
+    display: inline-block; background: rgba(120,120,180,0.12); color: var(--muted);
+    font-size: 0.7rem; font-weight: 500; letter-spacing: 0.12em;
+    text-transform: uppercase; padding: 3px 8px; border-radius: 3px; margin-top: 2px;
   }
-
-  .card-desc {
-    font-size: 0.9rem;
-    color: var(--muted);
-    line-height: 1.65;
-    margin-bottom: 1.25rem;
-  }
-
-  .card-features {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-bottom: 1.5rem;
-  }
-
-  .feat {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.82rem;
-    color: #9999BB;
-  }
-
-  .feat-dot {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: var(--card-accent, var(--red));
-    flex-shrink: 0;
-  }
-
+  .card-desc { font-size: 0.9rem; color: var(--muted); line-height: 1.65; margin-bottom: 1.25rem; }
+  .card-features { display: flex; flex-direction: column; gap: 6px; margin-bottom: 1.5rem; }
+  .feat { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: #9999BB; }
+  .feat-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--card-accent, var(--red)); flex-shrink: 0; }
   .card-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-top: 0.5px solid var(--border);
-    padding-top: 1rem;
+    display: flex; align-items: center; justify-content: space-between;
+    border-top: 0.5px solid var(--border); padding-top: 1rem;
   }
-
   .card-demo {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 0.85rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    color: var(--card-accent, var(--red));
-    text-transform: uppercase;
+    font-family: 'Rajdhani', sans-serif; font-size: 0.85rem; font-weight: 600;
+    letter-spacing: 0.1em; color: var(--card-accent, var(--red)); text-transform: uppercase;
   }
+  .card-arrow { width: 20px; height: 20px; opacity: 0.4; transition: opacity 0.2s, transform 0.2s; }
+  .app-card:hover .card-arrow { opacity: 1; transform: translate(2px, -2px); }
 
-  .card-arrow {
-    width: 20px;
-    height: 20px;
-    opacity: 0.4;
-    transition: opacity 0.2s, transform 0.2s;
-  }
+  .divider { width: 48px; height: 2px; background: var(--red); margin: 0 auto; border-radius: 1px; }
 
-  .app-card:hover .card-arrow {
-    opacity: 1;
-    transform: translate(2px, -2px);
-  }
+  .why-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; margin-top: 3rem; }
+  .why-item { display: flex; flex-direction: column; gap: 0.75rem; }
+  .why-num { font-family: 'Rajdhani', sans-serif; font-size: 2.5rem; font-weight: 700; color: var(--red); line-height: 1; }
+  .why-title { font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 600; }
+  .why-text { font-size: 0.88rem; color: var(--muted); line-height: 1.65; }
 
-  /* DIVIDER */
-  .divider {
-    width: 48px;
-    height: 2px;
-    background: var(--red);
-    margin: 0 auto;
-    border-radius: 1px;
-  }
-
-  /* WHY SECTION */
-  .why-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 2rem;
-    margin-top: 3rem;
-  }
-
-  .why-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .why-num {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--red);
-    line-height: 1;
-  }
-
-  .why-title {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 1.1rem;
-    font-weight: 600;
-  }
-
-  .why-text {
-    font-size: 0.88rem;
-    color: var(--muted);
-    line-height: 1.65;
-  }
-
-  /* CTA SECTION */
   .cta-section {
     background: var(--bg2);
-    border-top: 0.5px solid var(--border);
-    border-bottom: 0.5px solid var(--border);
-    padding: 5rem 2rem;
-    text-align: center;
+    border-top: 0.5px solid var(--border); border-bottom: 0.5px solid var(--border);
+    padding: 5rem 2rem; text-align: center;
   }
-
-  .cta-section h2 {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: clamp(1.8rem, 4vw, 2.8rem);
-    font-weight: 700;
-    margin-bottom: 1rem;
-  }
-
-  .cta-section p {
-    color: var(--muted);
-    max-width: 440px;
-    margin: 0 auto 2rem;
-    font-size: 0.95rem;
-  }
+  .cta-section h2 { font-family: 'Rajdhani', sans-serif; font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 700; margin-bottom: 1rem; }
+  .cta-section p { color: var(--muted); max-width: 440px; margin: 0 auto 2rem; font-size: 0.95rem; }
 
   .email-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    background: var(--bg3);
-    border: 0.5px solid var(--border);
-    border-radius: 6px;
-    padding: 10px 16px;
-    font-size: 0.9rem;
-    margin-bottom: 1.5rem;
-    color: var(--white);
-    text-decoration: none;
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--bg3); border: 0.5px solid var(--border);
+    border-radius: 6px; padding: 10px 16px; font-size: 0.9rem;
+    margin-bottom: 1.5rem; color: var(--white); text-decoration: none;
     transition: border-color 0.2s;
   }
   .email-pill:hover { border-color: var(--red); }
+  .email-icon { width: 16px; height: 16px; opacity: 0.6; }
 
-  .email-icon {
-    width: 16px;
-    height: 16px;
-    opacity: 0.6;
-  }
-
-  /* FOOTER */
   footer {
     padding: 2.5rem 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 1rem;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 1rem;
     border-top: 0.5px solid var(--border);
-    max-width: 1120px;
-    margin: 0 auto;
+    max-width: 1120px; margin: 0 auto;
   }
-
-  .footer-logo {
-    font-family: 'Rajdhani', sans-serif;
-    font-weight: 700;
-    font-size: 1.1rem;
-    color: var(--white);
-    text-decoration: none;
-    letter-spacing: 0.06em;
-  }
-
+  .footer-logo { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1.1rem; color: var(--white); text-decoration: none; letter-spacing: 0.06em; }
   .footer-logo span { color: var(--red); }
+  .footer-copy { font-size: 0.8rem; color: var(--muted); }
 
-  .footer-copy {
-    font-size: 0.8rem;
-    color: var(--muted);
-  }
-
-  /* RESPONSIVE */
   @media (max-width: 600px) {
     nav { padding: 0 1rem; }
     .section { padding: 3.5rem 1.25rem; }
@@ -594,18 +313,8 @@
 <nav>
   <button type="button" id="ravenLogoBtn" class="nav-logo" aria-label="RavenTechs inicio">
     <svg class="raven-icon" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <g class="wing-left">
-        <polygon points="62,58 40,46 14,52 8,68 30,62 48,66" fill="#0C0C12" stroke="#D8D8E0" stroke-width="1"/>
-        <polygon points="48,66 30,62 16,72 36,72 50,74" fill="#080808" stroke="#999999" stroke-width="0.6" opacity="0.8"/>
-        <line x1="34" y1="56" x2="22" y2="58" stroke="#D8D8E0" stroke-width="0.6"/>
-        <line x1="40" y1="62" x2="26" y2="66" stroke="#D8D8E0" stroke-width="0.6"/>
-      </g>
-      <g class="wing-right">
-        <polygon points="98,58 120,46 146,52 152,68 130,62 112,66" fill="#0C0C12" stroke="#D8D8E0" stroke-width="1"/>
-        <polygon points="112,66 130,62 144,72 124,72 110,74" fill="#080808" stroke="#999999" stroke-width="0.6" opacity="0.8"/>
-        <line x1="126" y1="56" x2="138" y2="58" stroke="#D8D8E0" stroke-width="0.6"/>
-        <line x1="120" y1="62" x2="134" y2="66" stroke="#D8D8E0" stroke-width="0.6"/>
-      </g>
+      <g class="wing-left"><polygon points="62,58 40,46 14,52 8,68 30,62 48,66" fill="#0C0C12" stroke="#D8D8E0" stroke-width="1"/><polygon points="48,66 30,62 16,72 36,72 50,74" fill="#080808" stroke="#999999" stroke-width="0.6" opacity="0.8"/><line x1="34" y1="56" x2="22" y2="58" stroke="#D8D8E0" stroke-width="0.6"/><line x1="40" y1="62" x2="26" y2="66" stroke="#D8D8E0" stroke-width="0.6"/></g>
+      <g class="wing-right"><polygon points="98,58 120,46 146,52 152,68 130,62 112,66" fill="#0C0C12" stroke="#D8D8E0" stroke-width="1"/><polygon points="112,66 130,62 144,72 124,72 110,74" fill="#080808" stroke="#999999" stroke-width="0.6" opacity="0.8"/><line x1="126" y1="56" x2="138" y2="58" stroke="#D8D8E0" stroke-width="0.6"/><line x1="120" y1="62" x2="134" y2="66" stroke="#D8D8E0" stroke-width="0.6"/></g>
       <polygon points="80,52 96,64 92,96 80,108 68,96 64,64" fill="#0C0C12" stroke="#D8D8E0" stroke-width="1.2"/>
       <polygon points="80,32 94,42 92,58 80,64 68,58 66,42" fill="#0C0C12" stroke="#D8D8E0" stroke-width="1.2"/>
       <polygon points="50,46 60,42 60,50 50,52" fill="#D8D8E0" opacity="0.9"/>
@@ -619,10 +328,8 @@
       <circle cx="72" cy="80" r="1.3" fill="#CC0000" opacity="0.8"/>
       <line x1="74" y1="106" x2="68" y2="120" stroke="#D8D8E0" stroke-width="1.2"/>
       <line x1="86" y1="106" x2="92" y2="120" stroke="#D8D8E0" stroke-width="1.2"/>
-      <polygon points="68,120 60,124 64,118" fill="#D8D8E0"/>
-      <polygon points="68,120 68,128 64,124" fill="#D8D8E0"/>
-      <polygon points="92,120 100,124 96,118" fill="#D8D8E0"/>
-      <polygon points="92,120 92,128 96,124" fill="#D8D8E0"/>
+      <polygon points="68,120 60,124 64,118" fill="#D8D8E0"/><polygon points="68,120 68,128 64,124" fill="#D8D8E0"/>
+      <polygon points="92,120 100,124 96,118" fill="#D8D8E0"/><polygon points="92,120 92,128 96,124" fill="#D8D8E0"/>
     </svg>
     <span class="nav-brand">Raven<span>Techs</span></span>
   </button>
@@ -632,68 +339,41 @@
 <!-- HERO -->
 <section class="hero" id="inicio">
   <p class="hero-eyebrow">Software argentino para PyMEs</p>
-
   <svg class="hero-raven" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
   <g class="raven-body-group">
-    <!-- Ala izquierda -->
-    <g class="wing-left">
-      <polygon points="62,58 40,46 14,52 8,68 30,62 48,66" fill="#0C0C12" stroke="#D8D8E0" stroke-width="1"/>
-      <polygon points="48,66 30,62 16,72 36,72 50,74" fill="#080808" stroke="#999999" stroke-width="0.6" opacity="0.8"/>
-      <line x1="34" y1="56" x2="22" y2="58" stroke="#D8D8E0" stroke-width="0.6"/>
-      <line x1="40" y1="62" x2="26" y2="66" stroke="#D8D8E0" stroke-width="0.6"/>
-    </g>
-    <!-- Ala derecha -->
-    <g class="wing-right">
-      <polygon points="98,58 120,46 146,52 152,68 130,62 112,66" fill="#0C0C12" stroke="#D8D8E0" stroke-width="1"/>
-      <polygon points="112,66 130,62 144,72 124,72 110,74" fill="#080808" stroke="#999999" stroke-width="0.6" opacity="0.8"/>
-      <line x1="126" y1="56" x2="138" y2="58" stroke="#D8D8E0" stroke-width="0.6"/>
-      <line x1="120" y1="62" x2="134" y2="66" stroke="#D8D8E0" stroke-width="0.6"/>
-    </g>
-    <!-- Cuerpo -->
+    <g class="wing-left"><polygon points="62,58 40,46 14,52 8,68 30,62 48,66" fill="#0C0C12" stroke="#D8D8E0" stroke-width="1"/><polygon points="48,66 30,62 16,72 36,72 50,74" fill="#080808" stroke="#999999" stroke-width="0.6" opacity="0.8"/><line x1="34" y1="56" x2="22" y2="58" stroke="#D8D8E0" stroke-width="0.6"/><line x1="40" y1="62" x2="26" y2="66" stroke="#D8D8E0" stroke-width="0.6"/></g>
+    <g class="wing-right"><polygon points="98,58 120,46 146,52 152,68 130,62 112,66" fill="#0C0C12" stroke="#D8D8E0" stroke-width="1"/><polygon points="112,66 130,62 144,72 124,72 110,74" fill="#080808" stroke="#999999" stroke-width="0.6" opacity="0.8"/><line x1="126" y1="56" x2="138" y2="58" stroke="#D8D8E0" stroke-width="0.6"/><line x1="120" y1="62" x2="134" y2="66" stroke="#D8D8E0" stroke-width="0.6"/></g>
     <polygon points="80,52 96,64 92,96 80,108 68,96 64,64" fill="#0C0C12" stroke="#D8D8E0" stroke-width="1.2"/>
-    <!-- Cabeza -->
     <polygon points="80,32 94,42 92,58 80,64 68,58 66,42" fill="#0C0C12" stroke="#D8D8E0" stroke-width="1.2"/>
-    <!-- Pico -->
     <polygon points="50,46 60,42 60,50 50,52" fill="#D8D8E0" opacity="0.9"/>
-    <!-- Placa cabeza -->
     <polygon points="74,40 86,40 84,46 76,46" fill="#0A0A0F" stroke="#D8D8E0" stroke-width="0.8"/>
-    <!-- Ojo pulsante -->
     <circle cx="80" cy="43" r="3.2" fill="#0A0A0F" stroke="#D8D8E0" stroke-width="0.8"/>
     <circle class="raven-eye" cx="80" cy="43" r="1.6" fill="#CC0000"/>
-    <!-- Circuitos -->
     <g stroke="#D8D8E0" stroke-width="0.7" fill="none" opacity="0.7">
       <line class="circuit-line" x1="80" y1="64" x2="80" y2="74"/>
       <line class="circuit-line" x1="80" y1="74" x2="88" y2="78"/>
       <line class="circuit-line" x1="80" y1="74" x2="72" y2="80"/>
       <line class="circuit-line" x1="72" y1="80" x2="72" y2="90"/>
     </g>
-    <!-- Nodos -->
     <g fill="#CC0000">
       <circle class="data-dot" cx="88" cy="78" r="1.3" opacity="0.8"/>
       <circle class="data-dot" cx="72" cy="80" r="1.3" opacity="0.8"/>
       <circle class="data-dot" cx="72" cy="90" r="1.3" opacity="0.8"/>
     </g>
-    <!-- Garras -->
     <line x1="74" y1="106" x2="68" y2="120" stroke="#D8D8E0" stroke-width="1.2"/>
     <line x1="86" y1="106" x2="92" y2="120" stroke="#D8D8E0" stroke-width="1.2"/>
-    <polygon points="68,120 60,124 64,118" fill="#D8D8E0"/>
-    <polygon points="68,120 68,128 64,124" fill="#D8D8E0"/>
-    <polygon points="92,120 100,124 96,118" fill="#D8D8E0"/>
-    <polygon points="92,120 92,128 96,124" fill="#D8D8E0"/>
-    <!-- Brillos -->
+    <polygon points="68,120 60,124 64,118" fill="#D8D8E0"/><polygon points="68,120 68,128 64,124" fill="#D8D8E0"/>
+    <polygon points="92,120 100,124 96,118" fill="#D8D8E0"/><polygon points="92,120 92,128 96,124" fill="#D8D8E0"/>
     <ellipse cx="74" cy="46" rx="3" ry="2" fill="white" opacity="0.06"/>
     <ellipse cx="76" cy="76" rx="4" ry="6" fill="white" opacity="0.03"/>
   </g>
   </svg>
-
   <h1>Tu negocio,<br><em>en una sola app.</em></h1>
-  <p class="hero-sub">12 soluciones SaaS diseñadas para el mercado argentino. Sin complicaciones, sin servidores. Empezás en minutos.</p>
-
+  <p class="hero-sub">15 soluciones SaaS diseñadas para el mercado argentino. Sin complicaciones, sin servidores. Empezás en minutos.</p>
   <div class="hero-actions">
     <a href="#apps" class="btn-primary">Ver las apps</a>
     <a href="#contacto" class="btn-ghost">Solicitar demo</a>
   </div>
-
   <div class="scroll-hint" aria-hidden="true">
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
     VER MÁS
@@ -708,6 +388,28 @@
   <p class="section-sub">Cada app funciona de forma independiente o en conjunto. Login con Google, modo claro/oscuro y datos en la nube.</p>
 
   <div class="cards-grid">
+
+    <!-- lavAR -->
+    <a href="https://raventechs.lat/lavar/" target="_blank" rel="noopener" class="app-card" style="--card-accent:#3B9EFF; --card-bg:rgba(59,158,255,0.12);">
+      <div class="card-header">
+        <div class="card-icon">🚗</div>
+        <div>
+          <div class="card-name">lavAR</div>
+          <span class="card-tag">Gestión de lavaderos</span>
+        </div>
+      </div>
+      <p class="card-desc">Sistema de caja para lavaderos de autos. Registrá ventas, cerrá el día y enviá el resumen por WhatsApp. Multi-sucursal con links únicos para cada empleado.</p>
+      <div class="card-features">
+        <div class="feat"><span class="feat-dot" style="background:#3B9EFF"></span>Caja en tiempo real con historial exportable</div>
+        <div class="feat"><span class="feat-dot" style="background:#3B9EFF"></span>Cierre de caja con resumen automático por WhatsApp</div>
+        <div class="feat"><span class="feat-dot" style="background:#3B9EFF"></span>Multi-sucursal: empleados acceden por link sin contraseña</div>
+        <div class="feat"><span class="feat-dot" style="background:#3B9EFF"></span>Fidelización por patente de vehículo (plus)</div>
+      </div>
+      <div class="card-footer">
+        <span class="card-demo" style="color:#3B9EFF">Ver app →</span>
+        <svg class="card-arrow" viewBox="0 0 20 20" fill="none" stroke="#3B9EFF" stroke-width="1.5"><path d="M3 17L17 3M17 3H7M17 3v10"/></svg>
+      </div>
+    </a>
 
     <!-- AhorrAR -->
     <a href="https://raventechs.github.io/ahorrar/" target="_blank" rel="noopener" class="app-card" style="--card-accent:#22C55E; --card-bg:rgba(34,197,94,0.12);">
@@ -740,12 +442,12 @@
           <span class="card-tag">Gestión de vehículos</span>
         </div>
       </div>
-      <p class="card-desc">Controlá uno, dos o toda una flota de vehículos. Nunca más un vencimiento encima: patente, seguro, VTV y más. Invitá choferes a tu equipo para que carguen sus propios controles, y activá un checklist diario de insumos para flotas especiales como ambulancias.</p>
+      <p class="card-desc">Controlá uno, dos o toda una flota. Nunca más un vencimiento encima: patente, seguro, VTV y más. Invitá choferes por link y activá un checklist diario de insumos.</p>
       <div class="card-features">
         <div class="feat"><span class="feat-dot" style="background:#3B82F6"></span>Alertas de vencimientos de documentación</div>
-        <div class="feat"><span class="feat-dot" style="background:#3B82F6"></span>Historial completo de service</div>
-        <div class="feat"><span class="feat-dot" style="background:#3B82F6"></span>Equipo de choferes con invitación por link, cada uno con su acceso controlado</div>
-        <div class="feat"><span class="feat-dot" style="background:#3B82F6"></span>Checklist diario de insumos (ideal para ambulancias) con registro de quién confirmó cada revisión</div>
+        <div class="feat"><span class="feat-dot" style="background:#3B82F6"></span>Historial completo de service y costo por vehículo</div>
+        <div class="feat"><span class="feat-dot" style="background:#3B82F6"></span>Equipo de choferes con invitación por link</div>
+        <div class="feat"><span class="feat-dot" style="background:#3B82F6"></span>Checklist diario de insumos con registro de confirmaciones</div>
       </div>
       <div class="card-footer">
         <span class="card-demo" style="color:#3B82F6">Ver app →</span>
@@ -776,7 +478,7 @@
     </a>
 
     <!-- legalAR -->
-    <a href="https://raventechs.lat/legalar/" target="_blank" rel="noopener" class="app-card" style="--card-accent:#1B2A4A; --card-bg:rgba(27,42,74,0.12);">
+    <a href="/folletos/folleto-legalar.html" class="app-card" style="--card-accent:#6B7FCC; --card-bg:rgba(107,127,204,0.12);">
       <div class="card-header">
         <div class="card-icon">⚖️</div>
         <div>
@@ -784,16 +486,16 @@
           <span class="card-tag">Consulta legal orientativa</span>
         </div>
       </div>
-      <p class="card-desc">Pensado para abogados: describí una situación por texto o por voz y recibí una orientación basada en legislación argentina, en lenguaje técnico y en palabras simples para explicarle al cliente. No reemplaza al profesional, es una herramienta de apoyo.</p>
+      <p class="card-desc">Describí una situación por texto o por voz y recibí orientación basada en legislación argentina. Herramienta de apoyo para abogados y profesionales.</p>
       <div class="card-features">
-        <div class="feat"><span class="feat-dot" style="background:#1B2A4A"></span>Consulta por texto o por voz</div>
-        <div class="feat"><span class="feat-dot" style="background:#1B2A4A"></span>Respuesta en lenguaje técnico y en lenguaje simple</div>
-        <div class="feat"><span class="feat-dot" style="background:#1B2A4A"></span>Caso de referencia y bibliografía citada</div>
-        <div class="feat"><span class="feat-dot" style="background:#1B2A4A"></span>Historial de consultas guardado y buscable</div>
+        <div class="feat"><span class="feat-dot" style="background:#6B7FCC"></span>Consulta por texto o por voz</div>
+        <div class="feat"><span class="feat-dot" style="background:#6B7FCC"></span>Respuesta en lenguaje técnico y en lenguaje simple</div>
+        <div class="feat"><span class="feat-dot" style="background:#6B7FCC"></span>Caso de referencia y bibliografía citada</div>
+        <div class="feat"><span class="feat-dot" style="background:#6B7FCC"></span>Historial de consultas guardado y buscable</div>
       </div>
       <div class="card-footer">
-        <span class="card-demo" style="color:#1B2A4A">Ver app →</span>
-        <svg class="card-arrow" viewBox="0 0 20 20" fill="none" stroke="#1B2A4A" stroke-width="1.5"><path d="M3 17L17 3M17 3H7M17 3v10"/></svg>
+        <span class="card-demo" style="color:#6B7FCC">Ver app →</span>
+        <svg class="card-arrow" viewBox="0 0 20 20" fill="none" stroke="#6B7FCC" stroke-width="1.5"><path d="M3 17L17 3M17 3H7M17 3v10"/></svg>
       </div>
     </a>
 
@@ -803,15 +505,15 @@
         <div class="card-icon">🛒</div>
         <div>
           <div class="card-name">PuntoVenta</div>
-          <span class="card-tag">Punto de venta</span>
+          <span class="card-tag">Punto de venta · Multi-sucursal</span>
         </div>
       </div>
-      <p class="card-desc">El dueño ve en tiempo real las ventas de todos sus negocios — efectivo, débito y crédito — desde un solo panel. Podés tener un local o cinco, siempre con el historial completo de cada uno.</p>
+      <p class="card-desc">El dueño ve en tiempo real las ventas de todos sus negocios desde un solo panel. Hasta 30 sucursales coordinadas, con historial completo y control de empleados por local.</p>
       <div class="card-features">
         <div class="feat"><span class="feat-dot" style="background:#F59E0B"></span>Ventas en tiempo real por negocio</div>
-        <div class="feat"><span class="feat-dot" style="background:#F59E0B"></span>Multi-negocio desde un solo dashboard</div>
-        <div class="feat"><span class="feat-dot" style="background:#F59E0B"></span>Registro de empleados por local</div>
-        <div class="feat"><span class="feat-dot" style="background:#F59E0B"></span>Historial de cierre de caja con exportación por fecha y medio de pago</div>
+        <div class="feat"><span class="feat-dot" style="background:#F59E0B"></span>Hasta 30 sucursales desde un solo dashboard</div>
+        <div class="feat"><span class="feat-dot" style="background:#F59E0B"></span>Registro de empleados y cuenta corriente de clientes</div>
+        <div class="feat"><span class="feat-dot" style="background:#F59E0B"></span>Resumen diario automático por WhatsApp al cierre</div>
       </div>
       <div class="card-footer">
         <span class="card-demo" style="color:#F59E0B">Ver app →</span>
@@ -828,12 +530,12 @@
           <span class="card-tag">Salud personal</span>
         </div>
       </div>
-      <p class="card-desc">Seguimiento de medicación diaria con checklist para ir tachando cada toma, con avisos push directo al celular cuando se acerca el horario. Podés dar acceso a un familiar para que controle tu medicación a distancia. Turnos médicos, estudios, recetas y fotos en un solo lugar.</p>
+      <p class="card-desc">Seguimiento de medicación diaria con checklist y avisos push al celular. Un familiar puede supervisar el tratamiento a distancia — ideal para adultos mayores o chicos con medicación crónica.</p>
       <div class="card-features">
-        <div class="feat"><span class="feat-dot" style="background:#A855F7"></span>Checklist de medicaciones del día</div>
-        <div class="feat"><span class="feat-dot" style="background:#A855F7"></span>Acceso compartido con familiar o cuidador</div>
+        <div class="feat"><span class="feat-dot" style="background:#A855F7"></span>Checklist de medicaciones del día con alarmas</div>
+        <div class="feat"><span class="feat-dot" style="background:#A855F7"></span>Supervisión a distancia desde el celular de un familiar</div>
         <div class="feat"><span class="feat-dot" style="background:#A855F7"></span>Turnos, estudios y recetas digitales</div>
-        <div class="feat"><span class="feat-dot" style="background:#A855F7"></span>Notificaciones push al celular antes de cada toma, y aviso de turnos un día antes</div>
+        <div class="feat"><span class="feat-dot" style="background:#A855F7"></span>Notificaciones push antes de cada toma y aviso de turnos</div>
       </div>
       <div class="card-footer">
         <span class="card-demo" style="color:#A855F7">Ver app →</span>
@@ -894,7 +596,7 @@
           <span class="card-tag">Hábitos &amp; bienestar</span>
         </div>
       </div>
-      <p class="card-desc">Registrá por voz lo que comés, cómo dormís y cómo te sentís. La IA cruza tus propios datos y te muestra patrones reales: "Los días que cenaste tarde, tu pulso nocturno fue más alto." Sin juicios, solo observaciones.</p>
+      <p class="card-desc">Registrá por voz lo que comés, cómo dormís y cómo te sentís. La IA cruza tus propios datos y te muestra patrones reales — sin juicios, solo observaciones.</p>
       <div class="card-features">
         <div class="feat"><span class="feat-dot" style="background:#1E8C6E"></span>Registro por voz con clasificación automática</div>
         <div class="feat"><span class="feat-dot" style="background:#1E8C6E"></span>Motor de descubrimientos con IA</div>
@@ -907,7 +609,7 @@
       </div>
     </a>
 
-    <!-- EmpresAR — REEMPLAZAR LA URL DEL HREF ABAJO POR LA REAL ANTES DE PUBLICAR -->
+    <!-- EmpresAR -->
     <a href="https://raventechs.github.io/garrafar/" target="_blank" rel="noopener" class="app-card" style="--card-accent:#D97706; --card-bg:rgba(217,119,6,0.12);">
       <div class="card-header">
         <div class="card-icon">🏢</div>
@@ -916,12 +618,12 @@
           <span class="card-tag">Gestión multi-sucursal</span>
         </div>
       </div>
-      <p class="card-desc">Base de gestión pensada para empresas medianas y grandes con varias sucursales. Hoy funciona para distribución de garrafas, pero el armado está pensado para adaptarse a cualquier rubro que necesite coordinar stock, pedidos y equipos en distintos puntos desde un solo panel central.</p>
+      <p class="card-desc">Base de gestión para empresas con varias sucursales. Stock, pedidos y equipos coordinados desde un solo panel central, adaptable a cualquier rubro.</p>
       <div class="card-features">
         <div class="feat"><span class="feat-dot" style="background:#D97706"></span>Gestión por sucursal con visión centralizada</div>
         <div class="feat"><span class="feat-dot" style="background:#D97706"></span>Control de stock y pedidos en tiempo real</div>
         <div class="feat"><span class="feat-dot" style="background:#D97706"></span>Equipos y roles diferenciados por punto de trabajo</div>
-        <div class="feat"><span class="feat-dot" style="background:#D97706"></span>Base adaptable: distribución, logística, servicios o retail con sucursales</div>
+        <div class="feat"><span class="feat-dot" style="background:#D97706"></span>Base adaptable: distribución, logística, servicios o retail</div>
       </div>
       <div class="card-footer">
         <span class="card-demo" style="color:#D97706">Ver app →</span>
@@ -938,12 +640,12 @@
           <span class="card-tag">Caja registradora · Pizzería</span>
         </div>
       </div>
-      <p class="card-desc">Caja registradora pensada para pizzerías: vendé en el local con carrito y selector de tamaño, llevá el menú completo con tamaños y precios libres, y mirá reportes e historial de ventas por fecha. Con rol diferenciado para el empleado de Punto de Venta.</p>
+      <p class="card-desc">Caja registradora para pizzerías: vendé con carrito y selector de tamaño, llevá el menú completo y mirá reportes e historial de ventas por fecha.</p>
       <div class="card-features">
         <div class="feat"><span class="feat-dot" style="background:#E03C26"></span>Venta rápida con carrito y selector de tamaño</div>
         <div class="feat"><span class="feat-dot" style="background:#E03C26"></span>Reportes e historial de ventas por fecha</div>
         <div class="feat"><span class="feat-dot" style="background:#E03C26"></span>Roles: Dueño (todo) y Punto de Venta (solo Caja y Menú)</div>
-        <div class="feat"><span class="feat-dot" style="background:#E03C26"></span>Control de stock con descuento automático por receta de cada variante</div>
+        <div class="feat"><span class="feat-dot" style="background:#E03C26"></span>Control de stock con descuento automático por receta</div>
       </div>
       <div class="card-footer">
         <span class="card-demo" style="color:#E03C26">Ver app →</span>
@@ -960,16 +662,61 @@
           <span class="card-tag">Caja registradora · Panadería</span>
         </div>
       </div>
-      <p class="card-desc">El mismo motor de PizzAR adaptado a panaderías y confiterías: panes por peso, facturas por unidad o docena, tortas por porción o enteras, y bebidas. Stock de insumos (harina, manteca, dulce de leche) con descuento automático al vender.</p>
+      <p class="card-desc">Motor de PizzAR adaptado a panaderías: panes por peso, facturas por unidad o docena, tortas por porción o enteras, y stock de insumos con descuento automático al vender.</p>
       <div class="card-features">
         <div class="feat"><span class="feat-dot" style="background:#F2994A"></span>Catálogo por peso, unidad/docena y porción/entera</div>
         <div class="feat"><span class="feat-dot" style="background:#F2994A"></span>Reportes e historial de ventas por fecha</div>
         <div class="feat"><span class="feat-dot" style="background:#F2994A"></span>Roles: Dueño (todo) y Punto de Venta (solo Caja y Menú)</div>
-        <div class="feat"><span class="feat-dot" style="background:#F2994A"></span>Control de stock de insumos con receta por variante de cada producto</div>
+        <div class="feat"><span class="feat-dot" style="background:#F2994A"></span>Control de stock de insumos con receta por variante</div>
       </div>
       <div class="card-footer">
         <span class="card-demo" style="color:#F2994A">Ver app →</span>
         <svg class="card-arrow" viewBox="0 0 20 20" fill="none" stroke="#F2994A" stroke-width="1.5"><path d="M3 17L17 3M17 3H7M17 3v10"/></svg>
+      </div>
+    </a>
+
+    <!-- CarnéAR -->
+    <a href="https://raventechs.lat/carnear/" target="_blank" rel="noopener" class="app-card" style="--card-accent:#E53935; --card-bg:rgba(229,57,53,0.12);">
+      <div class="card-header">
+        <div class="card-icon">🥩</div>
+        <div>
+          <div class="card-name">CarnéAR</div>
+          <span class="card-tag">Caja registradora · Carnicería</span>
+        </div>
+      </div>
+      <p class="card-desc">Caja registradora para carnicerías con catálogo de cortes argentinos. Controlá stock por tipo de carne, gastos, proveedores y el balance real del día.</p>
+      <div class="card-features">
+        <div class="feat"><span class="feat-dot" style="background:#E53935"></span>Catálogo de cortes: vacuna, cerdo, pollo y achuras</div>
+        <div class="feat"><span class="feat-dot" style="background:#E53935"></span>Stock por tipo de carne con alertas de faltante</div>
+        <div class="feat"><span class="feat-dot" style="background:#E53935"></span>Gastos y proveedores integrados (plus)</div>
+        <div class="feat"><span class="feat-dot" style="background:#E53935"></span>Roles cajero / dueño con resumen diario por WhatsApp</div>
+      </div>
+      <div class="card-footer">
+        <span class="card-demo" style="color:#E53935">Ver app →</span>
+        <svg class="card-arrow" viewBox="0 0 20 20" fill="none" stroke="#E53935" stroke-width="1.5"><path d="M3 17L17 3M17 3H7M17 3v10"/></svg>
+      </div>
+    </a>
+
+
+    <!-- estudiAR -->
+    <a href="/folletos/folleto-estudiar.html" class="app-card" style="--card-accent:#A855F7; --card-bg:rgba(168,85,247,0.12);">
+      <div class="card-header">
+        <div class="card-icon">📚</div>
+        <div>
+          <div class="card-name">estudiAR</div>
+          <span class="card-tag">Estudio con IA · Próximamente</span>
+        </div>
+      </div>
+      <p class="card-desc">Buscá cualquier tema y elegí cómo estudiarlo: 5 renglones de curiosidad, resumen SOS para el examen de mañana, o el modo completo con cuadro sinóptico e imágenes.</p>
+      <div class="card-features">
+        <div class="feat"><span class="feat-dot" style="background:#A855F7"></span>3 modos: Curiosidad, SOS Examen y Completo</div>
+        <div class="feat"><span class="feat-dot" style="background:#A855F7"></span>Cuadro sinóptico e imágenes generadas por IA</div>
+        <div class="feat"><span class="feat-dot" style="background:#A855F7"></span>Descarga en PDF en los tres modos</div>
+        <div class="feat"><span class="feat-dot" style="background:#A855F7"></span>Historial de búsquedas guardado en la nube</div>
+      </div>
+      <div class="card-footer">
+        <span class="card-demo" style="color:#A855F7">Ver preview →</span>
+        <svg class="card-arrow" viewBox="0 0 20 20" fill="none" stroke="#A855F7" stroke-width="1.5"><path d="M3 17L17 3M17 3H7M17 3v10"/></svg>
       </div>
     </a>
 
@@ -990,9 +737,9 @@
       <p class="why-text">Funcionan desde el navegador en cualquier dispositivo. Sin descargas, sin actualizaciones manuales.</p>
     </div>
     <div class="why-item">
-      <div class="why-num">12</div>
+      <div class="why-num">15</div>
       <div class="why-title">Apps disponibles hoy</div>
-      <p class="why-text">Finanzas, vehículos, seguridad, ventas, salud, agenda, legal, multi-sucursal, compañía digital, hábitos con IA y cajas registradoras para pizzería y panadería. Cada una enfocada en resolver un problema real.</p>
+      <p class="why-text">Finanzas, vehículos, seguridad, ventas, salud, agenda, legal, multi-sucursal, compañía digital, hábitos con IA, lavaderos, pizzería, panadería, carnicería y estudio con IA.</p>
     </div>
     <div class="why-item">
       <div class="why-num">24h</div>
@@ -1008,7 +755,7 @@
 </div>
 </div>
 
-<!-- CONTACTO / CTA -->
+<!-- CONTACTO -->
 <div class="cta-section" id="contacto">
   <p class="section-label">Contacto</p>
   <h2>¿Querés probarlo en tu negocio?</h2>
@@ -1036,10 +783,7 @@
     a.addEventListener('click', e => {
       const id = a.getAttribute('href').slice(1);
       const el = document.getElementById(id);
-      if (el) {
-        e.preventDefault();
-        el.scrollIntoView({ behavior: 'smooth' });
-      }
+      if (el) { e.preventDefault(); el.scrollIntoView({ behavior: 'smooth' }); }
     });
   });
 </script>
@@ -1072,7 +816,6 @@
   .status-dot { display:inline-block; width:6px; height:6px; border-radius:50%; margin-right:5px; }
 </style>
 
-<!-- ACCESO OCULTO: MODAL DE PIN -->
 <div class="hidden-overlay" id="pinOverlay">
   <div class="pin-box">
     <h3>🔒 Acceso interno</h3>
@@ -1085,7 +828,6 @@
   </div>
 </div>
 
-<!-- ACCESO OCULTO: PANEL DE HERRAMIENTAS + LISTADO DE APPS -->
 <div class="hidden-overlay" id="toolsOverlay">
   <div class="tools-panel">
     <div class="tools-panel-header">
@@ -1106,6 +848,7 @@
   ];
 
   const APPS_INTERNAS = [
+    { nombre: 'lavAR', estado: 'ok', nota: 'v2.1 — multi-sucursal, features plus, en producción', url: 'https://raventechs.lat/lavar/' },
     { nombre: 'Rodix', estado: 'ok', nota: 'v1.8.2 — estable, en producción con cliente real', url: 'https://raventechs.lat/vehigest-ar/' },
     { nombre: 'SaludAR', estado: 'progreso', nota: 'Push confirmado; falta prueba final de timing', url: 'https://raventechs.lat/saludar/' },
     { nombre: 'SecurePro', estado: 'progreso', nota: 'Auditado; falta probar invitación de equipo en vivo', url: 'https://raventechs.lat/securepro/' },
@@ -1119,7 +862,9 @@
     { nombre: 'CentralbotAr', estado: 'progreso', nota: 'En armado — falta conectar webhook con Meta', url: 'https://magnificent-jalebi-8408d5.netlify.app/centralbotar.html' },
     { nombre: 'Generador de Prompts', estado: 'ok', nota: 'Subido y probado, funcionando', url: 'https://inspiring-mermaid-bc3ac4.netlify.app/' },
     { nombre: 'PizzAR', estado: 'ok', nota: 'v2.4 — caja, stock con receta por tamaño y roles funcionando', url: 'https://raventechs.lat/pizzAr/' },
-    { nombre: 'PanAR', estado: 'progreso', nota: 'v1.0 — clon de PizzAR para panadería, pendiente Firebase propio', url: 'https://raventechs.lat/panar/' }
+    { nombre: 'PanAR', estado: 'progreso', nota: 'v1.0 — clon de PizzAR para panadería, pendiente Firebase propio', url: 'https://raventechs.lat/panar/' },
+    { nombre: 'CarnéAR', estado: 'progreso', nota: 'v1.3 — demo lista, pendiente checklist de robustez', url: 'https://raventechs.lat/carnear/' },
+    { nombre: 'estudiAR', estado: 'pendiente', nota: 'Congelada hasta completar proyecto ROBUSTEZ', url: '/folletos/folleto-estudiar.html' }
   ];
 
   const colorEstado = { ok: '#22C55E', progreso: '#F59E0B', pendiente: '#7777AA' };
@@ -1140,20 +885,18 @@
 
   const PIN_CORRECTO = '1990';
   let clickCount = 0, clickTimer = null;
-  const ravenLogoBtn = document.querySelector('button.nav-logo') || document.getElementById('ravenLogoBtn');
+  const ravenLogoBtn = document.getElementById('ravenLogoBtn');
   const pinOverlay = document.getElementById('pinOverlay');
   const pinInput = document.getElementById('pinInput');
   const pinError = document.getElementById('pinError');
   const toolsOverlay = document.getElementById('toolsOverlay');
 
-  if (ravenLogoBtn) {
-    ravenLogoBtn.addEventListener('click', () => {
-      clickCount++;
-      clearTimeout(clickTimer);
-      if (clickCount >= 3) { clickCount = 0; abrirPin(); return; }
-      clickTimer = setTimeout(() => { clickCount = 0; }, 1200);
-    });
-  }
+  ravenLogoBtn.addEventListener('click', () => {
+    clickCount++;
+    clearTimeout(clickTimer);
+    if (clickCount >= 3) { clickCount = 0; abrirPin(); return; }
+    clickTimer = setTimeout(() => { clickCount = 0; }, 1200);
+  });
 
   function abrirPin() { pinError.textContent=''; pinInput.value=''; pinOverlay.classList.add('active'); setTimeout(()=>pinInput.focus(),50); }
   function cerrarPin() { pinOverlay.classList.remove('active'); }
