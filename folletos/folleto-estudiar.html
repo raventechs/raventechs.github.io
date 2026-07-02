@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Folleto estudiAR — RavenTechs</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+html{overflow-x:hidden;}
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --accent:#a855f7;--accent2:#7c3aed;
+  --bg:#0a0c12;--bg2:#12151f;--bg3:#1a1f2e;
+  --card:#1a0a2e;--text:#eef0f6;--text2:#8b93ad;
+  --border:rgba(168,85,247,0.2);--glow:rgba(168,85,247,0.12);
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
+
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:60px 20px 40px;text-align:center;max-width:100%;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%,var(--glow) 0%,transparent 70%);
+  position:relative;overflow:hidden;}
+.badge{display:inline-flex;align-items:center;gap:8px;
+  background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.3);
+  color:var(--accent);padding:6px 16px;border-radius:100px;
+  font-size:12px;font-weight:600;letter-spacing:0.5px;margin-bottom:28px;text-transform:uppercase;}
+.hero-emoji{font-size:72px;margin-bottom:20px;display:block;animation:floatEmoji 3s ease-in-out infinite;}
+@keyframes floatEmoji{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+.hero h1{font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(36px,8vw,64px);font-weight:800;line-height:1.1;margin-bottom:20px;white-space:pre-line;
+  background:linear-gradient(135deg,#fff 0%,var(--accent) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero p{font-size:clamp(15px,4vw,18px);color:var(--text2);max-width:520px;line-height:1.6;margin-bottom:36px;}
+.cta-btn{display:inline-block;padding:15px 36px;border-radius:100px;
+  background:var(--accent);color:#fff;font-weight:700;font-size:16px;
+  text-decoration:none;transition:all .2s;box-shadow:0 0 32px rgba(168,85,247,0.4);
+  font-family:'Space Grotesk',sans-serif;}
+.cta-btn:hover{background:var(--accent2);transform:translateY(-2px);}
+
+.coming-soon{
+  display:inline-flex;align-items:center;gap:10px;
+  background:rgba(168,85,247,0.08);border:1px solid rgba(168,85,247,0.25);
+  border-radius:100px;padding:10px 24px;margin-top:16px;
+  font-size:14px;color:var(--text2);}
+.coming-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);
+  animation:pulse 1.5s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(0.8);}}
+
+.phone-wrap{margin:40px auto 0;width:200px;
+  animation:phoneBob 4s ease-in-out infinite;
+  filter:drop-shadow(0 20px 40px rgba(168,85,247,0.3));}
+@keyframes phoneBob{0%,100%{transform:translateY(0) rotate(-1deg);}50%{transform:translateY(-8px) rotate(1deg);}}
+.phone{background:#111;border-radius:28px;border:2px solid rgba(255,255,255,0.1);padding:12px 8px;}
+.phone-notch{width:60px;height:8px;background:#222;border-radius:4px;margin:0 auto 10px;}
+.phone-screen{background:var(--bg3);border-radius:16px;padding:14px;min-height:160px;border:1px solid var(--border);}
+.phone-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;min-width:0;overflow:hidden;}
+.phone-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;}
+.phone-line{height:7px;border-radius:4px;background:rgba(255,255,255,0.1);flex:1;min-width:0;}
+.phone-line.accent{background:rgba(168,85,247,0.4);flex:3;min-width:0;}
+.phone-line.short{flex:2;min-width:0;}
+.phone-card{background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.2);border-radius:10px;padding:10px;margin-top:10px;}
+.phone-num{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;color:var(--accent);}
+.phone-lbl{font-size:9px;color:var(--text2);margin-top:2px;}
+
+.modos{padding:60px 24px;max-width:680px;margin:0 auto;}
+.modos h2{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;
+  color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin-bottom:24px;text-align:center;}
+.modo-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;
+  padding:22px;margin-bottom:14px;position:relative;
+  opacity:0;transform:translateY(24px);transition:all .5s ease;}
+.modo-card.visible{opacity:1;transform:none;}
+.modo-header{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.modo-num{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:800;color:var(--accent);line-height:1;}
+.modo-name{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;}
+.modo-desc{font-size:14px;color:var(--text2);line-height:1.5;}
+
+.preguntas{padding:20px 24px 40px;max-width:680px;margin:0 auto;}
+.preguntas h2{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;
+  color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin-bottom:24px;text-align:center;}
+.pregunta-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;
+  padding:24px;margin-bottom:14px;position:relative;overflow:hidden;
+  opacity:0;transform:translateY(24px);transition:all .5s ease;}
+.pregunta-card.visible{opacity:1;transform:none;}
+.pregunta-card::before{content:'?';position:absolute;right:20px;top:50%;transform:translateY(-50%);
+  font-size:80px;font-weight:900;color:rgba(168,85,247,0.06);font-family:'Space Grotesk',sans-serif;line-height:1;}
+.pregunta-card p{font-size:16px;font-weight:600;color:var(--text);line-height:1.5;margin-bottom:8px;}
+.pregunta-card span{font-size:13px;color:var(--text2);}
+
+.features{padding:20px 24px 60px;max-width:680px;margin:0 auto;}
+.features h2{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;
+  color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin-bottom:24px;text-align:center;}
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:600px){.feat-grid{grid-template-columns:1fr;}}
+.feat{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px;
+  opacity:0;transform:translateY(20px);transition:all .4s ease;}
+.feat.visible{opacity:1;transform:none;}
+.feat:first-child{grid-column:1/-1;}
+.feat-icon{font-size:24px;margin-bottom:10px;display:block;}
+.feat-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.feat-desc{font-size:12px;color:var(--text2);line-height:1.4;}
+
+.footer-cta{padding:60px 24px;text-align:center;
+  background:radial-gradient(ellipse 60% 80% at 50% 100%,var(--glow) 0%,transparent 70%);}
+.footer-cta h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(24px,6vw,40px);
+  font-weight:800;margin-bottom:16px;color:var(--text);}
+.footer-cta p{color:var(--text2);font-size:15px;margin-bottom:32px;}
+.footer-brand{margin-top:40px;font-size:12px;color:var(--text2);}
+.footer-brand span{color:var(--accent);font-weight:600;}
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="badge">📚 Estudiantes 10–18 años</div>
+  <span class="hero-emoji">📚</span>
+  <h1>Estudiá mejor,\nen menos tiempo.</h1>
+  <p>Buscá cualquier tema y elegí cómo querés entenderlo: en 5 renglones, para el examen de mañana, o con el resumen completo con imágenes y cuadro sinóptico.</p>
+  <a href="#modos" class="cta-btn">Ver cómo funciona</a>
+  <div class="coming-soon"><div class="coming-dot"></div>Próximamente disponible</div>
+
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="phone-row"><div class="phone-dot"></div><div class="phone-line accent"></div></div>
+        <div class="phone-row" style="margin-bottom:12px"><div class="phone-line short"></div><div class="phone-line"></div></div>
+        <div class="phone-card">
+          <div class="phone-num">📚</div>
+          <div class="phone-lbl">estudiAR · en tu celular</div>
+        </div>
+        <div class="phone-row" style="margin-top:12px"><div class="phone-line"></div><div class="phone-line short"></div></div>
+        <div class="phone-row"><div class="phone-line accent short"></div><div class="phone-line"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="preguntas" id="modos">
+  <h2>Antes de seguir, respondé esto</h2>
+  <div class="pregunta-card reveal">
+    <p>¿Cuántas veces buscaste algo en Google y terminaste más confundido que antes?</p>
+    <span>¿O copiaste de Wikipedia sin entender nada de lo que leíste?</span>
+  </div>
+  <div class="pregunta-card reveal">
+    <p>¿Cuántas horas perdiste la noche antes de un examen sin saber por dónde empezar?</p>
+    <span>¿O llegaste al parcial sabiendo que no estudiaste lo que más importaba?</span>
+  </div>
+</section>
+
+<section class="modos" style="padding-top:0;">
+  <h2>Tres modos de estudio</h2>
+  <div class="modo-card reveal">
+    <div class="modo-header"><div class="modo-num">1</div><div class="modo-name">💡 Modo Curiosidad</div></div>
+    <div class="modo-desc">5 renglones con la esencia del tema. Sin fechas, sin contexto, sin relleno. Para cuando querés entender algo rápido o despertar el interés antes de profundizar.</div>
+  </div>
+  <div class="modo-card reveal">
+    <div class="modo-header"><div class="modo-num">2</div><div class="modo-name">🚨 Modo SOS Examen</div></div>
+    <div class="modo-desc">12 renglones con fechas, partes clave y lo que más preguntan los profesores. Para la noche antes del examen cuando no hay tiempo que perder.</div>
+  </div>
+  <div class="modo-card reveal">
+    <div class="modo-header"><div class="modo-num">3</div><div class="modo-name">📖 Modo Completo</div></div>
+    <div class="modo-desc">Resumen claro + cuadro sinóptico + 2 o 3 imágenes representativas. Basado en preguntas frecuentes de examen. Para estudiar en serio con tiempo.</div>
+  </div>
+</section>
+
+<section class="features">
+  <h2>Qué incluye estudiAR</h2>
+  <div class="feat-grid">
+    <div class="feat reveal"><span class="feat-icon">🤖</span><div class="feat-title">IA entrenada para estudiar</div><div class="feat-desc">Respuestas generadas con inteligencia artificial adaptadas a cada nivel educativo</div></div>
+    <div class="feat reveal"><span class="feat-icon">📥</span><div class="feat-title">Descarga en PDF</div><div class="feat-desc">Guardá el resumen en los tres modos para estudiar sin internet</div></div>
+    <div class="feat reveal"><span class="feat-icon">🔖</span><div class="feat-title">Historial de búsquedas</div><div class="feat-desc">Todas tus consultas guardadas y accesibles desde cualquier dispositivo</div></div>
+    <div class="feat reveal"><span class="feat-icon">🗂️</span><div class="feat-title">Cuadro sinóptico</div><div class="feat-desc">Generado automáticamente en el modo completo para organizar la información</div></div>
+    <div class="feat reveal"><span class="feat-icon">🖼️</span><div class="feat-title">Imágenes de referencia</div><div class="feat-desc">2 a 3 imágenes representativas del tema incluidas en el modo completo</div></div>
+    <div class="feat reveal"><span class="feat-icon">📱</span><div class="feat-title">100% desde el celular</div><div class="feat-desc">Sin instalar nada, funciona desde el navegador en cualquier dispositivo</div></div>
+  </div>
+</section>
+
+<section class="footer-cta">
+  <h2>Próximamente en RavenTechs.</h2>
+  <p>Mientras tanto, conocé las demás apps disponibles hoy.</p>
+  <a href="https://raventechs.lat" class="cta-btn">Ver todas las apps →</a>
+  <div class="footer-brand">Una app de <span>RavenTechs</span> · raventechs.lat</div>
+</section>
+
+<script>
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal, .pregunta-card, .feat, .modo-card').forEach(el => observer.observe(el));
+document.querySelectorAll('.feat').forEach((el, i) => { el.style.transitionDelay = (i * 0.08) + 's'; });
+</script>
+</body>
+</html>
