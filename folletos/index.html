@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Folletos — RavenTechs</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700;800&family=Inter:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:#0a0c12;color:#eef0f6;min-height:100vh;padding:40px 20px;}
+h1{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:800;text-align:center;margin-bottom:8px;
+  background:linear-gradient(135deg,#fff,#3b9eff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.sub{text-align:center;color:#8b93ad;font-size:14px;margin-bottom:36px;}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;max-width:700px;margin:0 auto;}
+.card{background:#12151f;border:1px solid #1e2a3a;border-radius:14px;padding:20px 16px;text-align:center;
+  text-decoration:none;color:#eef0f6;transition:all .2s;}
+.card:hover{border-color:var(--ac);transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.4);}
+.card-emoji{font-size:32px;margin-bottom:10px;display:block;}
+.card-name{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;margin-bottom:4px;}
+.card-rubro{font-size:11px;color:#8b93ad;}
+.footer{text-align:center;margin-top:40px;font-size:12px;color:#4a5268;}
+</style>
+</head>
+<body>
+<h1>RavenTechs — Apps</h1>
+<p class="sub">Seleccioná una app para ver su folleto</p>
+<div class="grid">
+  <a class="card" href="folleto-lavar.html" style="--ac:#3b9eff"><span class="card-emoji">🚗</span><div class="card-name">lavAR</div><div class="card-rubro">Lavaderos</div></a>
+  <a class="card" href="folleto-pizzar.html" style="--ac:#ff6b2b"><span class="card-emoji">🍕</span><div class="card-name">PizzAR</div><div class="card-rubro">Pizzerías</div></a>
+  <a class="card" href="folleto-panar.html" style="--ac:#d4a017"><span class="card-emoji">🥖</span><div class="card-name">PanAR</div><div class="card-rubro">Panaderías</div></a>
+  <a class="card" href="folleto-carnear.html" style="--ac:#e53935"><span class="card-emoji">🥩</span><div class="card-name">CarnéAR</div><div class="card-rubro">Carnicerías</div></a>
+  <a class="card" href="folleto-puntoventa.html" style="--ac:#7c3aed"><span class="card-emoji">🏪</span><div class="card-name">PuntoVenta</div><div class="card-rubro">Comercios</div></a>
+  <a class="card" href="folleto-rodix.html" style="--ac:#10b981"><span class="card-emoji">🚚</span><div class="card-name">Rodix</div><div class="card-rubro">Flotas</div></a>
+  <a class="card" href="folleto-saludar.html" style="--ac:#06b6d4"><span class="card-emoji">💊</span><div class="card-name">SaludAR</div><div class="card-rubro">Medicación</div></a>
+  <a class="card" href="folleto-securepro.html" style="--ac:#f59e0b"><span class="card-emoji">🔒</span><div class="card-name">SecurePro</div><div class="card-rubro">Seguridad</div></a>
+  <a class="card" href="folleto-centralbotar.html" style="--ac:#25d366"><span class="card-emoji">🤖</span><div class="card-name">CentralbotAr</div><div class="card-rubro">Chatbot WA</div></a>
+</div>
+<div class="footer">raventechs.lat</div>
+</body>
+</html>
