@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <!--
-  RavenTechs — Consola Maestra v1.0
-  Acceso: solo rgaraventa@gmail.com
-  UID superadmin: OJobrR9kvDenfYhQ6gW0OrUaEy33
-  Hosted: raventechs.lat/admin (raventechs.github.io repo)
+  RavenTechs — Consola Maestra v1.4
+  Reescrita con Firebase compat (igual que las apps del portfolio)
+  Sin módulos ES — máxima compatibilidad
 -->
 <html lang="es">
 <head>
@@ -11,507 +10,420 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RavenTechs — Consola Maestra</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Firebase compat — mismo patrón que todas las apps del portfolio -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0d0d0d;--surface:#161616;--surface2:#202020;--surface3:#2a2a2a;
+  --bg:#0d0d0d;--surface:#161616;--surface2:#202020;
   --text:#f0f0f0;--muted:#888;--border:#2e2e2e;
-  --accent:#f0b84a;--accent2:#e07b39;--danger:#e74c3c;--green:#27ae60;
-  --radius:10px;--font:'Inter',sans-serif;
+  --accent:#f0b84a;--danger:#e74c3c;--green:#27ae60;
+  --radius:10px;
 }
-body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
-button{cursor:pointer;font-family:var(--font);transition:all .15s}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+button{cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
 
-/* LOGIN */
-#screen-login{display:none;min-height:100vh;align-items:center;justify-content:center;flex-direction:column;gap:16px}
-#screen-login.active{display:flex}
-.login-logo{font-size:48px;margin-bottom:8px}
-.login-title{font-size:1.4rem;font-weight:700;color:var(--accent)}
-.login-sub{font-size:0.85rem;color:var(--muted);margin-bottom:16px}
-.btn-google{background:#fff;color:#333;border:none;border-radius:8px;padding:12px 24px;font-size:0.9rem;font-weight:600;display:flex;align-items:center;gap:10px}
-.btn-google:hover{background:#f0f0f0}
-.login-error{color:var(--danger);font-size:0.8rem;margin-top:8px}
-
-/* APP */
-#screen-app{display:none;min-height:100vh;flex-direction:column}
-#screen-app.active{display:flex}
-
-/* TOPBAR */
-.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.topbar-brand{display:flex;align-items:center;gap:10px}
-.topbar-logo{font-size:22px}
-.topbar-title{font-weight:700;font-size:1rem;color:var(--accent)}
-.topbar-sub{font-size:0.75rem;color:var(--muted)}
-.btn-logout{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:6px 12px;font-size:0.8rem}
-.btn-logout:hover{border-color:var(--danger);color:var(--danger)}
-
-/* FILTROS */
-.filters{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.filter-label{font-size:0.75rem;color:var(--muted);font-weight:600;margin-right:4px}
-.app-chip{padding:6px 14px;border-radius:999px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-size:0.78rem;font-weight:600}
-.app-chip.active{background:var(--accent);color:#111;border-color:var(--accent)}
-.app-chip:hover:not(.active){border-color:var(--accent);color:var(--accent)}
-.search-input{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:7px 12px;font-size:0.82rem;width:200px}
-.search-input:focus{outline:none;border-color:var(--accent)}
-
-/* MAIN */
-main{flex:1;padding:20px;max-width:1200px;width:100%;margin:0 auto}
-
-/* STATS */
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center}
-.stat-num{font-size:1.8rem;font-weight:700;color:var(--accent)}
-.stat-label{font-size:0.72rem;color:var(--muted);margin-top:2px}
-
-/* TABLA CLIENTES */
-.section-title{font-size:0.85rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
-.client-table{width:100%;border-collapse:collapse}
-.client-table th{text-align:left;font-size:0.72rem;color:var(--muted);font-weight:600;padding:8px 12px;border-bottom:1px solid var(--border);text-transform:uppercase}
-.client-table td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:0.82rem;vertical-align:middle}
-.client-table tr:hover td{background:var(--surface2)}
-.app-badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:0.7rem;font-weight:700}
-.status-badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:0.7rem;font-weight:700}
-.status-active{background:rgba(39,174,96,.15);color:#27ae60}
-.status-demo{background:rgba(240,184,74,.15);color:#f0b84a}
-
-/* PANEL CLIENTE */
-.client-panel{position:fixed;right:0;top:0;width:420px;height:100vh;background:var(--surface);border-left:1px solid var(--border);z-index:200;display:none;flex-direction:column;overflow:hidden}
-.client-panel.open{display:flex}
-.panel-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.panel-title{font-weight:700;font-size:0.95rem}
-.panel-close{background:none;border:none;color:var(--muted);font-size:1.2rem}
-.panel-body{flex:1;overflow-y:auto;padding:16px 20px}
-.panel-section{margin-bottom:18px}
-.panel-section-title{font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
-.panel-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:0.82rem}
-.panel-row:last-child{border-bottom:none}
-.panel-row-label{color:var(--muted)}
-.panel-row-val{font-weight:600;text-align:right;max-width:200px;word-break:break-all}
-
-/* FEATURES TOGGLES */
-.feature-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)}
-.feature-row:last-child{border-bottom:none}
-.toggle{position:relative;width:40px;height:22px}
-.toggle input{opacity:0;width:0;height:0}
-.toggle-slider{position:absolute;inset:0;background:var(--border);border-radius:22px;cursor:pointer;transition:.2s}
-.toggle-slider::before{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
-.toggle input:checked+.toggle-slider{background:var(--accent)}
-.toggle input:checked+.toggle-slider::before{transform:translateX(18px)}
-.btn-save-features{width:100%;background:var(--accent);color:#111;border:none;border-radius:8px;padding:10px;font-weight:700;font-size:0.85rem;margin-top:10px}
-.btn-save-features:hover{opacity:.9}
-
-/* LOADING SPINNER */
-.spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+#loadingScreen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;z-index:9999}
+.spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.loading-row{text-align:center;padding:40px;color:var(--muted)}
 
-/* EMPTY */
-.empty-state{text-align:center;padding:60px 20px;color:var(--muted)}
-.empty-icon{font-size:40px;margin-bottom:10px}
+#screenLogin{display:none;min-height:100vh;align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:20px}
+#screenLogin.visible{display:flex}
+.login-logo{font-size:48px}
+.login-title{font-size:1.4rem;font-weight:700;color:var(--accent)}
+.login-sub{font-size:0.85rem;color:var(--muted);text-align:center}
+.btn-google{background:#fff;color:#333;border:none;border-radius:8px;padding:14px 28px;font-size:0.95rem;font-weight:600;display:flex;align-items:center;gap:10px;margin-top:8px}
+.login-error{color:var(--danger);font-size:0.82rem;margin-top:8px;text-align:center;max-width:300px}
+
+#screenApp{display:none;min-height:100vh;flex-direction:column}
+#screenApp.visible{display:flex}
+
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar-left{display:flex;align-items:center;gap:10px}
+.topbar-title{font-weight:700;font-size:1rem;color:var(--accent)}
+.topbar-sub{font-size:0.72rem;color:var(--muted)}
+.btn-sm{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:6px 12px;font-size:0.8rem}
+.btn-sm:hover{border-color:var(--danger);color:var(--danger)}
+
+.filters{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chip{padding:5px 12px;border-radius:999px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-size:0.75rem;font-weight:600;cursor:pointer}
+.chip.active{background:var(--accent);color:#111;border-color:var(--accent)}
+.search{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 12px;font-size:0.82rem;width:180px}
+.search:focus{outline:none;border-color:var(--accent)}
+
+main{flex:1;padding:16px;max-width:1100px;width:100%;margin:0 auto}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:16px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center}
+.stat-n{font-size:1.8rem;font-weight:700;color:var(--accent)}
+.stat-l{font-size:0.7rem;color:var(--muted);margin-top:2px}
+
+.sec-title{font-size:0.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
+
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:0.7rem;color:var(--muted);font-weight:600;padding:8px 12px;border-bottom:1px solid var(--border);text-transform:uppercase;white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:0.82rem;vertical-align:middle}
+tr:hover td{background:var(--surface2);cursor:pointer}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:0.7rem;font-weight:700}
+
+.panel{position:fixed;right:0;top:0;width:min(400px,100vw);height:100vh;background:var(--surface);border-left:1px solid var(--border);z-index:200;display:none;flex-direction:column}
+.panel.open{display:flex}
+.panel-head{padding:16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.panel-head h3{font-size:0.9rem;font-weight:700}
+.panel-close{background:none;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer}
+.panel-body{flex:1;overflow-y:auto;padding:16px}
+.psec-title{font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:8px;margin-top:16px}
+.psec-title:first-child{margin-top:0}
+.prow{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:0.82rem}
+.prow:last-child{border-bottom:none}
+.prow-l{color:var(--muted)}
+.prow-v{font-weight:600;text-align:right;max-width:200px;word-break:break-all}
+
+.feature-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:0.82rem}
+.feature-row:last-child{border-bottom:none}
+.toggle{position:relative;width:40px;height:22px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.tog-sl{position:absolute;inset:0;background:var(--border);border-radius:22px;cursor:pointer;transition:.2s}
+.tog-sl::before{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.toggle input:checked+.tog-sl{background:var(--accent)}
+.toggle input:checked+.tog-sl::before{transform:translateX(18px)}
+.btn-guardar{width:100%;background:var(--accent);color:#111;border:none;border-radius:8px;padding:11px;font-weight:700;font-size:0.85rem;margin-top:12px;cursor:pointer}
+
+.empty{text-align:center;padding:50px 20px;color:var(--muted)}
+.loading-msg{text-align:center;padding:40px;color:var(--muted);font-size:0.85rem}
 </style>
 </head>
 <body>
-<div id="loadingScreen" style="position:fixed;inset:0;background:#0d0d0d;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;z-index:9999;">
-  <div style="font-size:36px">🦅</div>
-  <div style="color:#f0b84a;font-weight:700;font-size:1rem;">RavenTechs</div>
-  <div style="width:32px;height:32px;border:3px solid #2e2e2e;border-top-color:#f0b84a;border-radius:50%;animation:spin .7s linear infinite;margin-top:8px;"></div>
+
+<div id="loadingScreen">
+  <div style="font-size:40px">🦅</div>
+  <div style="color:var(--accent);font-weight:700">RavenTechs</div>
+  <div class="spinner" style="margin-top:8px"></div>
 </div>
 
-<!-- LOGIN -->
-<div id="screen-login" class="active">
+<div id="screenLogin">
   <div class="login-logo">🦅</div>
-  <div class="login-title">RavenTechs</div>
-  <div class="login-sub">Consola Maestra — Acceso restringido</div>
-  <button class="btn-google" id="btnGoogle">
-    <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285f4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84c-.21 1.13-.84 2.07-1.8 2.71v2.26h2.92c1.71-1.57 2.68-3.88 2.68-6.61z"/><path fill="#34a853" d="M9 18c2.43 0 4.47-.81 5.96-2.18l-2.92-2.26c-.81.54-1.84.87-3.04.87-2.34 0-4.32-1.58-5.03-3.71H.96v2.33C2.44 15.98 5.48 18 9 18z"/><path fill="#fbbc05" d="M3.97 10.72A5.41 5.41 0 0 1 3.68 9c0-.6.1-1.18.29-1.72V4.95H.96A8.96 8.96 0 0 0 0 9c0 1.45.35 2.82.96 4.05l3.01-2.33z"/><path fill="#ea4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z"/></svg>
+  <div class="login-title">Consola Maestra</div>
+  <div class="login-sub">RavenTechs Admin — acceso restringido</div>
+  <button class="btn-google" id="btnLogin">
+    <svg width="18" height="18" viewBox="0 0 18 18">
+      <path fill="#4285f4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84c-.21 1.13-.84 2.07-1.8 2.71v2.26h2.92c1.71-1.57 2.68-3.88 2.68-6.61z"/>
+      <path fill="#34a853" d="M9 18c2.43 0 4.47-.81 5.96-2.18l-2.92-2.26c-.81.54-1.84.87-3.04.87-2.34 0-4.32-1.58-5.03-3.71H.96v2.33C2.44 15.98 5.48 18 9 18z"/>
+      <path fill="#fbbc05" d="M3.97 10.72A5.41 5.41 0 0 1 3.68 9c0-.6.1-1.18.29-1.72V4.95H.96A8.96 8.96 0 0 0 0 9c0 1.45.35 2.82.96 4.05l3.01-2.33z"/>
+      <path fill="#ea4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.44 2.02.96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58z"/>
+    </svg>
     Ingresar con Google
   </button>
   <div class="login-error" id="loginError"></div>
 </div>
 
-<!-- APP -->
-<div id="screen-app">
+<div id="screenApp">
   <div class="topbar">
-    <div class="topbar-brand">
-      <span class="topbar-logo">🦅</span>
+    <div class="topbar-left">
+      <span style="font-size:22px">🦅</span>
       <div>
         <div class="topbar-title">Consola Maestra</div>
         <div class="topbar-sub">RavenTechs Admin</div>
       </div>
     </div>
-    <button class="btn-logout" id="btnLogout">Cerrar sesión</button>
+    <button class="btn-sm" id="btnLogout">Salir</button>
   </div>
 
   <div class="filters">
-    <span class="filter-label">App:</span>
-    <button class="app-chip active" data-app="todas">Todas</button>
-    <button class="app-chip" data-app="PizzAR">🍕 PizzAR</button>
-    <button class="app-chip" data-app="PanAR">🥖 PanAR</button>
-    <button class="app-chip" data-app="CarneAR">🥩 CarneAR</button>
-    <button class="app-chip" data-app="lavAR">🚗 lavAR</button>
-    <button class="app-chip" data-app="Rodix">🚑 Rodix</button>
-    <button class="app-chip" data-app="SecurePro">🔒 SecurePro</button>
-    <button class="app-chip" data-app="PuntoVenta">🏪 PuntoVenta</button>
-    <input class="search-input" id="searchInput" placeholder="🔍 Buscar cliente...">
+    <span style="font-size:0.72rem;color:var(--muted);font-weight:600;margin-right:2px">App:</span>
+    <button class="chip active" data-app="todas">Todas</button>
+    <button class="chip" data-app="PizzAR">🍕 PizzAR</button>
+    <button class="chip" data-app="PanAR">🥖 PanAR</button>
+    <button class="chip" data-app="CarneAR">🥩 CarneAR</button>
+    <button class="chip" data-app="lavAR">🚗 lavAR</button>
+    <button class="chip" data-app="Rodix">🚑 Rodix</button>
+    <button class="chip" data-app="SecurePro">🔒 SecurePro</button>
+    <button class="chip" data-app="PuntoVenta">🏪 PuntoVenta</button>
+    <input class="search" id="searchInput" placeholder="🔍 Buscar...">
   </div>
 
   <main>
-    <div class="stats-grid" id="statsGrid">
-      <div class="stat-card"><div class="stat-num" id="statTotal">—</div><div class="stat-label">Clientes totales</div></div>
-      <div class="stat-card"><div class="stat-num" id="statActivos">—</div><div class="stat-label">Activos</div></div>
-      <div class="stat-card"><div class="stat-num" id="statDemo">—</div><div class="stat-label">En demo</div></div>
-      <div class="stat-card"><div class="stat-num" id="statApps">7</div><div class="stat-label">Apps en portfolio</div></div>
+    <div class="stats">
+      <div class="stat"><div class="stat-n" id="statTotal">—</div><div class="stat-l">Clientes totales</div></div>
+      <div class="stat"><div class="stat-n" id="statApps">7</div><div class="stat-l">Apps activas</div></div>
     </div>
-
-    <div class="section-title">Clientes</div>
-    <div id="tableContainer">
-      <div class="loading-row"><div class="spinner"></div><div style="margin-top:8px">Cargando clientes...</div></div>
-    </div>
+    <div class="sec-title">Clientes</div>
+    <div id="tableContainer"><div class="loading-msg">Cargando clientes de todas las apps...</div></div>
   </main>
 </div>
 
-<!-- PANEL LATERAL CLIENTE -->
-<div class="client-panel" id="clientPanel">
-  <div class="panel-header">
-    <div class="panel-title" id="panelTitle">Cliente</div>
+<div class="panel" id="panel">
+  <div class="panel-head">
+    <h3 id="panelTitle">Cliente</h3>
     <button class="panel-close" id="panelClose">✕</button>
   </div>
   <div class="panel-body" id="panelBody"></div>
 </div>
 
-<script type="module">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithCredential, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, collection, getDocs, doc, getDoc, setDoc, query, where, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-
-// ── SUPERADMIN ──
-// UIDs de rgaraventa@gmail.com en cada proyecto Firebase
-const SUPERADMIN_EMAIL = 'rgaraventa@gmail.com';
-const SUPERADMIN_UIDS = {
+<script>
+// ── SUPERADMIN UIDs por proyecto ──
+var SUPERADMIN_EMAIL = 'rgaraventa@gmail.com';
+var SUPERADMIN_UIDS = {
   PizzAR:     'OJobrR9kvDenfYhQ6gW0OrUaEy33',
   PanAR:      'sYwGXqiS1jYvqBrQSXEnIx5djgp2',
   CarneAR:    'pWh8kxI7B0ZJA60dOiMnBljjK0S2',
   lavAR:      'JppYs0lmT2h8YrNV63qBdAgRgo22',
   Rodix:      'pz9r6IT3SkUhjUgxegMFDu6fOOg1',
   SecurePro:  '6tELKUQHg6X0Btg46j5DGRMQwEK2',
-  PuntoVenta: 'pg6xcoaum7WYk29NnopP8tXLeMV2',
+  PuntoVenta: 'pg6xcoaum7WYk29NnopP8tXLeMV2'
 };
-// UID en el proyecto principal (PizzAR) — usado para validar el login
-const SUPERADMIN_UID = 'OJobrR9kvDenfYhQ6gW0OrUaEy33';
-const SUPERADMIN_EMAIL = 'rgaraventa@gmail.com';
 
-// ── FIREBASE CONFIGS DE CADA APP ──
-const APP_CONFIGS = {
+// ── FIREBASE CONFIGS ──
+var APP_CONFIGS = {
   PizzAR:     { emoji:'🍕', color:'#e74c3c', config:{ apiKey:'AIzaSyBSKWqpPwUsF-jq_GES1fCwiZZACz0Jz_I', authDomain:'pizzar-b48af.firebaseapp.com', projectId:'pizzar-b48af', storageBucket:'pizzar-b48af.firebasestorage.app', messagingSenderId:'688726516053', appId:'1:688726516053:web:2e11e63aec82225e82cfdc' } },
   PanAR:      { emoji:'🥖', color:'#e67e22', config:{ apiKey:'AIzaSyCM_V4a6QtXtCKzrCGF2eLVTLxT5aOGlCU', authDomain:'panar-b08f1.firebaseapp.com', projectId:'panar-b08f1', storageBucket:'panar-b08f1.firebasestorage.app', messagingSenderId:'984331564649', appId:'1:984331564649:web:a58cea3d04fdecccaa14f8' } },
   CarneAR:    { emoji:'🥩', color:'#c0392b', config:{ apiKey:'AIzaSyAffBjEK-m900oKRvI4k6w8eTcgbGxyJok', authDomain:'carnear-1d2c4.firebaseapp.com', projectId:'carnear-1d2c4', storageBucket:'carnear-1d2c4.firebasestorage.app', messagingSenderId:'982486541527', appId:'1:982486541527:web:9a7db609c7a983fc3dbc92' } },
   lavAR:      { emoji:'🚗', color:'#2980b9', config:{ apiKey:'AIzaSyDVcK9reiQuC6YUpX16DMjyYhtYiH40hbc', authDomain:'lavar-b8b84.firebaseapp.com', projectId:'lavar-b8b84', storageBucket:'lavar-b8b84.firebasestorage.app', messagingSenderId:'1064006581602', appId:'1:1064006581602:web:fb5f0eea1dcff93d7a003b' } },
   Rodix:      { emoji:'🚑', color:'#8e44ad', config:{ apiKey:'AIzaSyDH4GvbdtPqJwUlnRDqtOUoofkL4PTXiew', authDomain:'vehigest-ar.firebaseapp.com', projectId:'vehigest-ar', storageBucket:'vehigest-ar.firebasestorage.app', messagingSenderId:'150404378851', appId:'1:150404378851:web:940ba835e20c4edeb215d6' } },
   SecurePro:  { emoji:'🔒', color:'#16a085', config:{ apiKey:'AIzaSyDgpyUd8AExCLy29fwkjc5-mEALA57Wtig', authDomain:'pro-a247e.firebaseapp.com', projectId:'pro-a247e', storageBucket:'pro-a247e.firebasestorage.app', messagingSenderId:'3470750973', appId:'1:3470750973:web:f3d029ed18093ecaf1ba94' } },
-  PuntoVenta: { emoji:'🏪', color:'#f0b84a', config:{ apiKey:'AIzaSyAP9PEuKM9ck-a9ltWorlFunxPYXw7trtE', authDomain:'puntoventa-f316c.firebaseapp.com', projectId:'puntoventa-f316c', storageBucket:'puntoventa-f316c.firebasestorage.app', messagingSenderId:'229168693051', appId:'1:229168693051:web:9dcb7d95f39edc4c17011e' } },
+  PuntoVenta: { emoji:'🏪', color:'#f0b84a', config:{ apiKey:'AIzaSyAP9PEuKM9ck-a9ltWorlFunxPYXw7trtE', authDomain:'puntoventa-f316c.firebaseapp.com', projectId:'puntoventa-f316c', storageBucket:'puntoventa-f316c.firebasestorage.app', messagingSenderId:'229168693051', appId:'1:229168693051:web:9dcb7d95f39edc4c17011e' } }
 };
 
-// ── COLECCIONES DE USUARIOS POR APP ──
-const APP_USER_COLLECTION = {
-  PizzAR:     { col:'configuracion', emailField:'ownerEmail', uidField:null, tipo:'config' },
-  PanAR:      { col:'configuracion', emailField:'ownerEmail', uidField:null, tipo:'config' },
-  CarneAR:    { col:'negocios',      emailField:'email',      uidField:'uid', tipo:'subcol' },
-  lavAR:      { col:'usuarios',      emailField:'email',      uidField:'uid', tipo:'col' },
-  Rodix:      { col:'usuarios',      emailField:'email',      uidField:'uid', tipo:'col' },
-  SecurePro:  { col:'usuarios',      emailField:'email',      uidField:'uid', tipo:'col' },
-  PuntoVenta: { col:'usuarios',      emailField:'email',      uidField:'uid', tipo:'col' },
+// ── FEATURES POR APP ──
+var APP_FEATURES = {
+  PizzAR:     ['stockHabilitado','gastosHabilitado','recetasHabilitado'],
+  PanAR:      ['stockHabilitado','gastosHabilitado','recetasHabilitado'],
+  CarneAR:    ['stockHabilitado','gastosHabilitado','proveedoresHabilitado'],
+  lavAR:      ['fidelizacion','multiSucursal','gastos'],
+  Rodix:      ['multiFlota','alertasAvanzadas'],
+  SecurePro:  ['multiUsuario','presupuestosIlimitados'],
+  PuntoVenta: ['limiteNegocios','cuentaCorriente','empleados']
 };
 
-// ── INICIALIZAR FIREBASE POR APP ──
-const firebaseApps = {};
-const dbs = {};
-const appAuths = {};
-let googleCredential = null; // guardamos el credential para auth en cada proyecto
+// ── INICIALIZAR APPS FIREBASE ──
+var firebaseInstances = {};
+var googleCredential = null;
+var todosClientes = [];
+var filtroApp = 'todas';
 
-function getAppFirebase(appName) {
-  if (!firebaseApps[appName]) {
-    firebaseApps[appName] = initializeApp(APP_CONFIGS[appName].config, appName);
-    dbs[appName] = getFirestore(firebaseApps[appName]);
-    appAuths[appName] = getAuth(firebaseApps[appName]);
+function getFirebaseApp(appName) {
+  if (!firebaseInstances[appName]) {
+    var app = firebase.initializeApp(APP_CONFIGS[appName].config, appName);
+    firebaseInstances[appName] = {
+      app: app,
+      auth: firebase.auth(app),
+      db: firebase.firestore(app)
+    };
   }
-  return { app: firebaseApps[appName], db: dbs[appName], auth: appAuths[appName] };
+  return firebaseInstances[appName];
 }
 
-async function autenticarEnTodosLosProyectos(credential) {
-  const promesas = Object.keys(APP_CONFIGS).map(async appName => {
-    try {
-      const { auth } = getAppFirebase(appName);
-      await signInWithCredential(auth, credential);
-    } catch(e) {
-      console.warn(`Auth en ${appName}:`, e.message);
-    }
-  });
-  await Promise.allSettled(promesas);
+// ── APP PRINCIPAL PARA AUTH ──
+var mainApp = firebase.initializeApp(APP_CONFIGS.PizzAR.config, 'main');
+var mainAuth = firebase.auth(mainApp);
+
+// ── HELPERS UI ──
+function showLoading(v) { document.getElementById('loadingScreen').style.display = v ? 'flex' : 'none'; }
+function showLogin(v) {
+  var el = document.getElementById('screenLogin');
+  el.classList.toggle('visible', v);
+}
+function showApp(v) {
+  var el = document.getElementById('screenApp');
+  el.classList.toggle('visible', v);
 }
 
-// ── AUTH (app principal = PizzAR) ──
-const mainApp = initializeApp(APP_CONFIGS.PizzAR.config, 'main-auth');
-const mainAuth = getAuth(mainApp);
-
-// ── ESTADO ──
-let todosClientes = [];
-let filtroApp = 'todas';
-let busqueda = '';
-
-// ── LOGIN ──
-document.getElementById('btnGoogle').addEventListener('click', async () => {
-  try {
-    const provider = new GoogleAuthProvider();
-    const result = await signInWithPopup(mainAuth, provider);
-    // Guardar el credential para auth en todos los proyectos
-    googleCredential = GoogleAuthProvider.credentialFromResult(result);
-  } catch(e) {
+// ── AUTH ──
+document.getElementById('btnLogin').onclick = function() {
+  var provider = new firebase.auth.GoogleAuthProvider();
+  mainAuth.signInWithPopup(provider).then(function(result) {
+    googleCredential = firebase.auth.GoogleAuthProvider.credentialFromResult(result);
+  }).catch(function(e) {
     document.getElementById('loginError').textContent = e.message;
-  }
-});
+  });
+};
 
-document.getElementById('btnLogout').addEventListener('click', () => signOut(mainAuth));
+document.getElementById('btnLogout').onclick = function() {
+  mainAuth.signOut();
+};
 
-onAuthStateChanged(mainAuth, async user => {
-  // Ocultar loading screen cuando Firebase responde
-  const ls = document.getElementById('loadingScreen');
-  if (ls) ls.style.display = 'none';
-
+mainAuth.onAuthStateChanged(function(user) {
+  showLoading(false);
   if (user) {
-    if (user.uid !== SUPERADMIN_UID) {
-      document.getElementById('loginError').textContent = 'Acceso denegado. Solo para administradores RavenTechs.';
-      await signOut(mainAuth);
+    if (user.uid !== SUPERADMIN_UIDS.PizzAR) {
+      document.getElementById('loginError').textContent = 'Acceso denegado.';
+      mainAuth.signOut();
+      showLogin(true);
       return;
     }
-    document.getElementById('screen-login').classList.remove('active');
-    document.getElementById('screen-app').classList.add('active');
-    // Autenticar en todos los proyectos con el mismo credential de Google
-    if (googleCredential) {
-      await autenticarEnTodosLosProyectos(googleCredential);
-    }
-    await cargarTodosLosClientes();
+    showLogin(false);
+    showApp(true);
+    autenticarYCargar();
   } else {
-    document.getElementById('screen-app').classList.remove('active');
-    document.getElementById('screen-login').classList.add('active');
+    showApp(false);
+    showLogin(true);
+    todosClientes = [];
   }
 });
 
-// ── CARGAR CLIENTES DE TODAS LAS APPS ──
-async function cargarTodosLosClientes() {
-  todosClientes = [];
-  const promesas = Object.keys(APP_CONFIGS).map(appName => cargarClientesDeApp(appName));
-  await Promise.allSettled(promesas);
-  actualizarStats();
-  renderTabla();
-}
-
-async function cargarClientesDeApp(appName) {
-  try {
-    const { db } = getAppFirebase(appName);
-    const info = APP_USER_COLLECTION[appName];
-    let snap;
-
-    if (info.tipo === 'col') {
-      snap = await getDocs(collection(db, info.col));
-      snap.forEach(d => {
-        const data = d.data();
-        if (data[info.emailField] && data.uid !== SUPERADMIN_UID) {
-          todosClientes.push({
-            uid: d.id,
-            email: data[info.emailField] || '—',
-            nombre: data.nombre || data.displayName || data.nombreEmpresa || '—',
-            app: appName,
-            status: data.status || data.estado || 'activo',
-            features: data.features || {},
-            createdAt: data.createdAt || null,
-            raw: data
-          });
-        }
-      });
-    } else if (info.tipo === 'config') {
-      snap = await getDocs(collection(db, info.col));
-      const emails = new Set();
-      snap.forEach(d => {
-        const data = d.data();
-        const email = data[info.emailField] || data.email;
-        if (email && !emails.has(email)) {
-          emails.add(email);
-          todosClientes.push({
-            uid: data.uid || d.id,
-            email: email,
-            nombre: data.nombre || data.nombreLocal || '—',
-            app: appName,
-            status: 'activo',
-            features: data.features || {},
-            createdAt: data.createdAt || null,
-            raw: data
-          });
-        }
-      });
-    }
-  } catch(e) {
-    console.warn(`Error cargando ${appName}:`, e.message);
+// ── AUTH EN TODOS LOS PROYECTOS + CARGA DE CLIENTES ──
+function autenticarYCargar() {
+  if (!googleCredential) {
+    // Si no hay credential (recarga de página con sesión activa), cargamos igual
+    cargarTodosLosClientes();
+    return;
   }
+  var promesas = Object.keys(APP_CONFIGS).map(function(appName) {
+    return getFirebaseApp(appName).auth.signInWithCredential(googleCredential).catch(function(e) {
+      console.warn('Auth ' + appName + ':', e.message);
+    });
+  });
+  Promise.allSettled(promesas).then(function() {
+    cargarTodosLosClientes();
+  });
 }
 
-// ── STATS ──
-function actualizarStats() {
-  const filtrados = clientesFiltrados();
-  document.getElementById('statTotal').textContent = filtrados.length;
-  document.getElementById('statActivos').textContent = filtrados.filter(c => c.status === 'activo' || c.status === 'active').length;
-  document.getElementById('statDemo').textContent = filtrados.filter(c => c.status === 'demo').length;
+function cargarTodosLosClientes() {
+  todosClientes = [];
+  document.getElementById('tableContainer').innerHTML = '<div class="loading-msg">Cargando...</div>';
+  var promesas = Object.keys(APP_CONFIGS).map(function(appName) {
+    return cargarApp(appName);
+  });
+  Promise.allSettled(promesas).then(function() {
+    renderTabla();
+  });
 }
 
-function clientesFiltrados() {
-  return todosClientes.filter(c => {
-    const matchApp = filtroApp === 'todas' || c.app === filtroApp;
-    const matchBusqueda = !busqueda || c.email.toLowerCase().includes(busqueda) || c.nombre.toLowerCase().includes(busqueda);
-    return matchApp && matchBusqueda;
+function cargarApp(appName) {
+  var inst = getFirebaseApp(appName);
+  var db = inst.db;
+  var uid = SUPERADMIN_UIDS[appName];
+
+  var colecciones = {
+    PizzAR:     [{ col:'configuracion', tipo:'config' }],
+    PanAR:      [{ col:'configuracion', tipo:'config' }],
+    CarneAR:    [{ col:'negocios', tipo:'col', emailField:'email' }],
+    lavAR:      [{ col:'usuarios', tipo:'col', emailField:'email' }],
+    Rodix:      [{ col:'usuarios', tipo:'col', emailField:'email' }],
+    SecurePro:  [{ col:'usuarios', tipo:'col', emailField:'email' }],
+    PuntoVenta: [{ col:'usuarios', tipo:'col', emailField:'email' }]
+  };
+
+  var info = colecciones[appName][0];
+
+  return db.collection(info.col).get().then(function(snap) {
+    snap.forEach(function(d) {
+      var data = d.data();
+      var email = data.email || data.ownerEmail || '';
+      // Excluir el superadmin
+      if (!email || email === SUPERADMIN_EMAIL) return;
+      todosClientes.push({
+        uid: d.id,
+        email: email,
+        nombre: data.nombre || data.nombreLocal || data.displayName || '—',
+        app: appName,
+        features: data.features || {},
+        status: data.status || 'activo',
+        raw: data
+      });
+    });
+  }).catch(function(e) {
+    console.warn('Error cargando ' + appName + ':', e.message);
   });
 }
 
 // ── TABLA ──
+function clientesFiltrados() {
+  var busqueda = (document.getElementById('searchInput').value || '').toLowerCase();
+  return todosClientes.filter(function(c) {
+    var matchApp = filtroApp === 'todas' || c.app === filtroApp;
+    var matchBusq = !busqueda || c.email.toLowerCase().includes(busqueda) || c.nombre.toLowerCase().includes(busqueda);
+    return matchApp && matchBusq;
+  });
+}
+
 function renderTabla() {
-  const lista = clientesFiltrados();
-  const container = document.getElementById('tableContainer');
+  var lista = clientesFiltrados();
+  document.getElementById('statTotal').textContent = todosClientes.length;
 
   if (!lista.length) {
-    container.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div><div>Sin clientes en este filtro</div></div>';
+    document.getElementById('tableContainer').innerHTML = '<div class="empty">Sin clientes en este filtro</div>';
     return;
   }
 
-  const colores = Object.fromEntries(Object.entries(APP_CONFIGS).map(([k,v]) => [k, v.color]));
-  const emojis = Object.fromEntries(Object.entries(APP_CONFIGS).map(([k,v]) => [k, v.emoji]));
+  var rows = lista.map(function(c) {
+    var color = APP_CONFIGS[c.app].color;
+    var emoji = APP_CONFIGS[c.app].emoji;
+    var feats = Object.entries(c.features || {}).filter(function(e) { return e[1] === true; }).map(function(e) { return e[0]; });
+    return '<tr onclick="abrirPanel(\'' + c.uid + '\',\'' + c.app + '\')" style="cursor:pointer">' +
+      '<td><span class="badge" style="background:' + color + '22;color:' + color + '">' + emoji + ' ' + c.app + '</span></td>' +
+      '<td>' + c.email + '</td>' +
+      '<td>' + c.nombre + '</td>' +
+      '<td style="color:var(--muted);font-size:0.75rem">' + (feats.join(', ') || '—') + '</td>' +
+      '<td><button class="chip" style="font-size:0.7rem;padding:3px 10px" onclick="event.stopPropagation();abrirPanel(\'' + c.uid + '\',\'' + c.app + '\')">Ver →</button></td>' +
+      '</tr>';
+  }).join('');
 
-  container.innerHTML = `
-    <table class="client-table">
-      <thead>
-        <tr>
-          <th>App</th>
-          <th>Email</th>
-          <th>Nombre / Local</th>
-          <th>Estado</th>
-          <th>Features Plus</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        ${lista.map(c => `
-          <tr data-uid="${c.uid}" data-app="${c.app}" style="cursor:pointer">
-            <td><span class="app-badge" style="background:${colores[c.app]}22;color:${colores[c.app]}">${emojis[c.app]} ${c.app}</span></td>
-            <td>${c.email}</td>
-            <td>${c.nombre}</td>
-            <td><span class="status-badge ${c.status === 'demo' ? 'status-demo' : 'status-active'}">${c.status || 'activo'}</span></td>
-            <td style="color:var(--muted);font-size:0.75rem">${Object.entries(c.features||{}).filter(([k,v])=>v===true).map(([k])=>k).join(', ')||'—'}</td>
-            <td><button class="app-chip" style="font-size:0.72rem;padding:4px 10px" onclick="event.stopPropagation();abrirPanel('${c.uid}','${c.app}')">Ver →</button></td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>
-  `;
-
-  container.querySelectorAll('tr[data-uid]').forEach(row => {
-    row.addEventListener('click', () => abrirPanel(row.dataset.uid, row.dataset.app));
-  });
-
-  actualizarStats();
+  document.getElementById('tableContainer').innerHTML =
+    '<div class="table-wrap"><table>' +
+    '<thead><tr><th>App</th><th>Email</th><th>Nombre</th><th>Features Plus</th><th></th></tr></thead>' +
+    '<tbody>' + rows + '</tbody>' +
+    '</table></div>';
 }
 
-// ── PANEL LATERAL ──
-window.abrirPanel = async function(uid, appName) {
-  const cliente = todosClientes.find(c => c.uid === uid && c.app === appName);
-  if (!cliente) return;
+function abrirPanel(uid, appName) {
+  var c = todosClientes.find(function(x) { return x.uid === uid && x.app === appName; });
+  if (!c) return;
+  document.getElementById('panelTitle').textContent = APP_CONFIGS[appName].emoji + ' ' + c.email;
+  var feats = APP_FEATURES[appName] || [];
+  var body =
+    '<div class="psec-title">Datos del cliente</div>' +
+    '<div class="prow"><span class="prow-l">Email</span><span class="prow-v">' + c.email + '</span></div>' +
+    '<div class="prow"><span class="prow-l">Nombre</span><span class="prow-v">' + c.nombre + '</span></div>' +
+    '<div class="prow"><span class="prow-l">App</span><span class="prow-v">' + appName + '</span></div>' +
+    '<div class="prow"><span class="prow-l">Estado</span><span class="prow-v">' + (c.status || 'activo') + '</span></div>' +
+    '<div class="prow"><span class="prow-l">UID</span><span class="prow-v" style="font-size:0.68rem;color:var(--muted)">' + uid + '</span></div>' +
+    '<div class="psec-title">Features Plus</div>' +
+    feats.map(function(k) {
+      var checked = c.features && c.features[k] ? 'checked' : '';
+      return '<div class="feature-row"><span>' + k + '</span>' +
+        '<label class="toggle"><input type="checkbox" class="feat-toggle" data-key="' + k + '" ' + checked + '><span class="tog-sl"></span></label></div>';
+    }).join('') +
+    '<button class="btn-guardar" onclick="guardarFeatures(\'' + uid + '\',\'' + appName + '\')">Guardar features</button>';
+  document.getElementById('panelBody').innerHTML = body;
+  document.getElementById('panel').classList.add('open');
+}
 
-  document.getElementById('panelTitle').textContent = `${APP_CONFIGS[appName].emoji} ${cliente.email}`;
-  document.getElementById('clientPanel').classList.add('open');
-
-  const cfg = APP_CONFIGS[appName];
-  const featureKeys = {
-    PizzAR:     ['stockHabilitado','gastosHabilitado','recetasHabilitado'],
-    PanAR:      ['stockHabilitado','gastosHabilitado','recetasHabilitado'],
-    CarneAR:    ['stockHabilitado','gastosHabilitado','proveedoresHabilitado'],
-    lavAR:      ['fidelizacion','multiSucursal','gastos'],
-    Rodix:      ['multiFlota','alertasAvanzadas'],
-    SecurePro:  ['multiUsuario','presupuestosIlimitados'],
-    PuntoVenta: ['limiteNegocios','cuentaCorriente','empleados'],
-  };
-
-  const features = cliente.features || {};
-  const keys = featureKeys[appName] || [];
-
-  document.getElementById('panelBody').innerHTML = `
-    <div class="panel-section">
-      <div class="panel-section-title">Datos del cliente</div>
-      <div class="panel-row"><span class="panel-row-label">Email</span><span class="panel-row-val">${cliente.email}</span></div>
-      <div class="panel-row"><span class="panel-row-label">Nombre / Local</span><span class="panel-row-val">${cliente.nombre}</span></div>
-      <div class="panel-row"><span class="panel-row-label">App</span><span class="panel-row-val">${appName}</span></div>
-      <div class="panel-row"><span class="panel-row-label">Estado</span><span class="panel-row-val">${cliente.status || 'activo'}</span></div>
-      <div class="panel-row"><span class="panel-row-label">UID</span><span class="panel-row-val" style="font-size:0.7rem;color:var(--muted)">${uid}</span></div>
-    </div>
-    <div class="panel-section">
-      <div class="panel-section-title">Features Plus</div>
-      ${keys.map(k => `
-        <div class="feature-row">
-          <span style="font-size:0.82rem">${k}</span>
-          <label class="toggle">
-            <input type="checkbox" class="feature-toggle" data-key="${k}" ${features[k] ? 'checked' : ''}>
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-      `).join('')}
-      <button class="btn-save-features" onclick="guardarFeatures('${uid}','${appName}')">Guardar features</button>
-    </div>
-  `;
-};
-
-window.guardarFeatures = async function(uid, appName) {
-  const btn = document.querySelector('.btn-save-features');
+function guardarFeatures(uid, appName) {
+  var btn = document.querySelector('.btn-guardar');
   btn.textContent = 'Guardando...'; btn.disabled = true;
-
-  const toggles = document.querySelectorAll('.feature-toggle');
-  const nuevasFeatures = {};
-  toggles.forEach(t => { nuevasFeatures[t.dataset.key] = t.checked; });
-
-  try {
-    const { db } = getAppFirebase(appName);
-    const info = APP_USER_COLLECTION[appName];
-
-    if (info.tipo === 'col') {
-      await setDoc(doc(db, info.col, uid), { features: nuevasFeatures }, { merge: true });
-    } else {
-      await setDoc(doc(db, 'configuracion', 'general'), { features: nuevasFeatures }, { merge: true });
-    }
-
-    // Actualizar en memoria
-    const cliente = todosClientes.find(c => c.uid === uid && c.app === appName);
-    if (cliente) cliente.features = nuevasFeatures;
-
-    btn.textContent = '✅ Guardado';
-    setTimeout(() => { btn.textContent = 'Guardar features'; btn.disabled = false; }, 2000);
-  } catch(e) {
-    btn.textContent = 'Error: ' + e.message;
-    btn.disabled = false;
-  }
-};
+  var toggles = document.querySelectorAll('.feat-toggle');
+  var nuevas = {};
+  toggles.forEach(function(t) { nuevas[t.dataset.key] = t.checked; });
+  var db = getFirebaseApp(appName).db;
+  db.collection('configuracion').doc('general').set({ features: nuevas }, { merge: true })
+    .then(function() {
+      var c = todosClientes.find(function(x) { return x.uid === uid && x.app === appName; });
+      if (c) c.features = nuevas;
+      btn.textContent = '✅ Guardado';
+      setTimeout(function() { btn.textContent = 'Guardar features'; btn.disabled = false; }, 2000);
+    }).catch(function(e) { btn.textContent = 'Error'; btn.disabled = false; });
+}
 
 // ── FILTROS ──
-document.querySelectorAll('.app-chip[data-app]').forEach(chip => {
-  chip.addEventListener('click', () => {
-    document.querySelectorAll('.app-chip[data-app]').forEach(c => c.classList.remove('active'));
+document.querySelectorAll('.chip[data-app]').forEach(function(chip) {
+  chip.onclick = function() {
+    document.querySelectorAll('.chip[data-app]').forEach(function(c) { c.classList.remove('active'); });
     chip.classList.add('active');
     filtroApp = chip.dataset.app;
     renderTabla();
-  });
+  };
 });
 
-document.getElementById('searchInput').addEventListener('input', e => {
-  busqueda = e.target.value.toLowerCase().trim();
-  renderTabla();
-});
-
-document.getElementById('panelClose').addEventListener('click', () => {
-  document.getElementById('clientPanel').classList.remove('open');
-});
+document.getElementById('searchInput').oninput = function() { renderTabla(); };
+document.getElementById('panelClose').onclick = function() {
+  document.getElementById('panel').classList.remove('open');
+};
 </script>
 </body>
 </html>
