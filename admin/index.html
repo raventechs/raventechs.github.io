@@ -180,6 +180,18 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChang
 import { getFirestore, collection, getDocs, doc, getDoc, setDoc, query, where, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 // ── SUPERADMIN ──
+// UIDs de rgaraventa@gmail.com en cada proyecto Firebase
+const SUPERADMIN_EMAIL = 'rgaraventa@gmail.com';
+const SUPERADMIN_UIDS = {
+  PizzAR:     'OJobrR9kvDenfYhQ6gW0OrUaEy33',
+  PanAR:      'sYwGXqiS1jYvqBrQSXEnIx5djgp2',
+  CarneAR:    'pWh8kxI7B0ZJA60dOiMnBljjK0S2',
+  lavAR:      'JppYs0lmT2h8YrNV63qBdAgRgo22',
+  Rodix:      'pz9r6IT3SkUhjUgxegMFDu6fOOg1',
+  SecurePro:  '6tELKUQHg6X0Btg46j5DGRMQwEK2',
+  PuntoVenta: 'pg6xcoaum7WYk29NnopP8tXLeMV2',
+};
+// UID en el proyecto principal (PizzAR) — usado para validar el login
 const SUPERADMIN_UID = 'OJobrR9kvDenfYhQ6gW0OrUaEy33';
 const SUPERADMIN_EMAIL = 'rgaraventa@gmail.com';
 
@@ -208,13 +220,30 @@ const APP_USER_COLLECTION = {
 // ── INICIALIZAR FIREBASE POR APP ──
 const firebaseApps = {};
 const dbs = {};
+const appAuths = {};
+let googleCredential = null; // guardamos el credential para auth en cada proyecto
 
 function getAppFirebase(appName) {
   if (!firebaseApps[appName]) {
     firebaseApps[appName] = initializeApp(APP_CONFIGS[appName].config, appName);
     dbs[appName] = getFirestore(firebaseApps[appName]);
+    appAuths[appName] = getAuth(firebaseApps[appName]);
   }
-  return { app: firebaseApps[appName], db: dbs[appName] };
+  return { app: firebaseApps[appName], db: dbs[appName], auth: appAuths[appName] };
+}
+
+async function autenticarEnTodosLosProyectos(credential) {
+  // Autentica con el mismo Google credential en cada proyecto Firebase
+  const { signInWithCredential } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
+  const promesas = Object.keys(APP_CONFIGS).map(async appName => {
+    try {
+      const { auth } = getAppFirebase(appName);
+      await signInWithCredential(auth, credential);
+    } catch(e) {
+      console.warn(`Auth en ${appName}:`, e.message);
+    }
+  });
+  await Promise.allSettled(promesas);
 }
 
 // ── AUTH (app principal = PizzAR) ──
@@ -230,7 +259,9 @@ let busqueda = '';
 document.getElementById('btnGoogle').addEventListener('click', async () => {
   try {
     const provider = new GoogleAuthProvider();
-    await signInWithPopup(mainAuth, provider);
+    const result = await signInWithPopup(mainAuth, provider);
+    // Guardar el credential para auth en todos los proyectos
+    googleCredential = GoogleAuthProvider.credentialFromResult(result);
   } catch(e) {
     document.getElementById('loginError').textContent = e.message;
   }
@@ -247,6 +278,10 @@ onAuthStateChanged(mainAuth, async user => {
     }
     document.getElementById('screen-login').classList.remove('active');
     document.getElementById('screen-app').classList.add('active');
+    // Autenticar en todos los proyectos con el mismo credential de Google
+    if (googleCredential) {
+      await autenticarEnTodosLosProyectos(googleCredential);
+    }
     await cargarTodosLosClientes();
   } else {
     document.getElementById('screen-app').classList.remove('active');
