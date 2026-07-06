@@ -111,9 +111,14 @@ main{flex:1;padding:20px;max-width:1200px;width:100%;margin:0 auto}
 </style>
 </head>
 <body>
+<div id="loadingScreen" style="position:fixed;inset:0;background:#0d0d0d;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;z-index:9999;">
+  <div style="font-size:36px">🦅</div>
+  <div style="color:#f0b84a;font-weight:700;font-size:1rem;">RavenTechs</div>
+  <div style="width:32px;height:32px;border:3px solid #2e2e2e;border-top-color:#f0b84a;border-radius:50%;animation:spin .7s linear infinite;margin-top:8px;"></div>
+</div>
 
 <!-- LOGIN -->
-<div id="screen-login">
+<div id="screen-login" class="active">
   <div class="login-logo">🦅</div>
   <div class="login-title">RavenTechs</div>
   <div class="login-sub">Consola Maestra — Acceso restringido</div>
@@ -268,6 +273,10 @@ document.getElementById('btnGoogle').addEventListener('click', async () => {
 document.getElementById('btnLogout').addEventListener('click', () => signOut(mainAuth));
 
 onAuthStateChanged(mainAuth, async user => {
+  // Ocultar loading screen cuando Firebase responde
+  const ls = document.getElementById('loadingScreen');
+  if (ls) ls.style.display = 'none';
+
   if (user) {
     if (user.uid !== SUPERADMIN_UID) {
       document.getElementById('loginError').textContent = 'Acceso denegado. Solo para administradores RavenTechs.';
