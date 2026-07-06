@@ -176,7 +176,7 @@ main{flex:1;padding:20px;max-width:1200px;width:100%;margin:0 auto}
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithCredential, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, collection, getDocs, doc, getDoc, setDoc, query, where, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 // ── SUPERADMIN ──
@@ -233,8 +233,6 @@ function getAppFirebase(appName) {
 }
 
 async function autenticarEnTodosLosProyectos(credential) {
-  // Autentica con el mismo Google credential en cada proyecto Firebase
-  const { signInWithCredential } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
   const promesas = Object.keys(APP_CONFIGS).map(async appName => {
     try {
       const { auth } = getAppFirebase(appName);
