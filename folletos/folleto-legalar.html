@@ -9,87 +9,113 @@
 html{overflow-x:hidden;}
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --accent:#6b7fcc;--accent2:#4a5fa8;
+  --accent:#C9A84C;--accent2:#A8893A;
   --bg:#0a0c12;--bg2:#12151f;--bg3:#1a1f2e;
   --card:#0e1228;--text:#eef0f6;--text2:#8b93ad;
-  --border:rgba(107,127,204,0.2);--glow:rgba(107,127,204,0.12);
+  --border:rgba(201,168,76,0.2);--glow:rgba(201,168,76,0.1);
 }
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
 
+/* HERO */
 .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;padding:60px 20px 40px;text-align:center;max-width:100%;
+  justify-content:center;padding:60px 20px 40px;text-align:center;
   background:radial-gradient(ellipse 80% 60% at 50% 0%,var(--glow) 0%,transparent 70%);
   position:relative;overflow:hidden;}
 .badge{display:inline-flex;align-items:center;gap:8px;
-  background:rgba(107,127,204,0.12);border:1px solid rgba(107,127,204,0.3);
+  background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.3);
   color:var(--accent);padding:6px 16px;border-radius:100px;
   font-size:12px;font-weight:600;letter-spacing:0.5px;margin-bottom:28px;text-transform:uppercase;}
-.hero-emoji{font-size:72px;margin-bottom:20px;display:block;animation:floatEmoji 3s ease-in-out infinite;}
-@keyframes floatEmoji{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+.hero-icon{margin-bottom:20px;animation:floatIcon 3s ease-in-out infinite;}
+@keyframes floatIcon{0%,100%{transform:translateY(0) rotate(-6deg);}50%{transform:translateY(-10px) rotate(6deg);}}
 .hero h1{font-family:'Space Grotesk',sans-serif;
-  font-size:clamp(36px,8vw,64px);font-weight:800;line-height:1.1;margin-bottom:20px;
+  font-size:clamp(34px,8vw,60px);font-weight:800;line-height:1.1;margin-bottom:20px;
   background:linear-gradient(135deg,#fff 0%,var(--accent) 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.hero p{font-size:clamp(15px,4vw,18px);color:var(--text2);max-width:520px;line-height:1.6;margin-bottom:36px;}
+.hero p{font-size:clamp(15px,4vw,18px);color:var(--text2);max-width:540px;line-height:1.7;margin-bottom:36px;}
 .cta-btn{display:inline-block;padding:15px 36px;border-radius:100px;
-  background:var(--accent);color:#fff;font-weight:700;font-size:16px;
-  text-decoration:none;transition:all .2s;box-shadow:0 0 32px rgba(107,127,204,0.4);
+  background:var(--accent);color:#0a0c12;font-weight:700;font-size:16px;
+  text-decoration:none;transition:all .2s;box-shadow:0 0 32px rgba(201,168,76,0.3);
   font-family:'Space Grotesk',sans-serif;}
 .cta-btn:hover{background:var(--accent2);transform:translateY(-2px);}
 
-.phone-wrap{margin:40px auto 0;width:200px;
-  animation:phoneBob 4s ease-in-out infinite;
-  filter:drop-shadow(0 20px 40px rgba(107,127,204,0.3));}
-@keyframes phoneBob{0%,100%{transform:translateY(0) rotate(-1deg);}50%{transform:translateY(-8px) rotate(1deg);}}
-.phone{background:#111;border-radius:28px;border:2px solid rgba(255,255,255,0.1);padding:12px 8px;}
-.phone-notch{width:60px;height:8px;background:#222;border-radius:4px;margin:0 auto 10px;}
-.phone-screen{background:var(--bg3);border-radius:16px;padding:14px;min-height:160px;border:1px solid var(--border);}
-.phone-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;min-width:0;overflow:hidden;}
-.phone-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;}
-.phone-line{height:7px;border-radius:4px;background:rgba(255,255,255,0.1);flex:1;min-width:0;}
-.phone-line.accent{background:rgba(107,127,204,0.4);flex:3;min-width:0;}
-.phone-line.short{flex:2;min-width:0;}
-.phone-card{background:rgba(107,127,204,0.1);border:1px solid rgba(107,127,204,0.2);border-radius:10px;padding:10px;margin-top:10px;}
-.phone-num{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;color:var(--accent);}
-.phone-lbl{font-size:9px;color:var(--text2);margin-top:2px;}
+/* BALANZA ANIMADA */
+.balanza-wrap{margin:40px auto 0;width:160px;animation:phoneBob 4s ease-in-out infinite;}
+@keyframes phoneBob{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.balanza-svg{filter:drop-shadow(0 12px 32px rgba(201,168,76,0.25));}
+.plato{animation:balanceo 2.5s ease-in-out infinite;transform-origin:50% 0;}
+@keyframes balanceo{0%,100%{transform:rotate(-8deg);}50%{transform:rotate(8deg);}}
 
-.preguntas{padding:60px 24px;max-width:680px;margin:0 auto;}
-.preguntas h2{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;
-  color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin-bottom:28px;text-align:center;}
+/* MODOS */
+.modos{padding:60px 24px 20px;max-width:700px;margin:0 auto;}
+.section-label{font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;
+  color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin-bottom:24px;text-align:center;}
+.modos-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:560px){.modos-grid{grid-template-columns:1fr;}}
+.modo-card{background:var(--bg2);border:1.5px solid var(--border);border-radius:16px;
+  padding:24px;opacity:0;transform:translateY(24px);transition:all .5s ease;}
+.modo-card.visible{opacity:1;transform:none;}
+.modo-icon{font-size:36px;margin-bottom:12px;display:block;}
+.modo-name{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;
+  color:var(--text);margin-bottom:8px;}
+.modo-desc{font-size:13px;color:var(--text2);line-height:1.6;}
+.modo-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;}
+.modo-tag{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;
+  background:rgba(201,168,76,0.1);color:var(--accent);border:1px solid rgba(201,168,76,0.2);}
+
+/* PREGUNTAS */
+.preguntas{padding:40px 24px;max-width:680px;margin:0 auto;}
 .pregunta-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;
   padding:24px;margin-bottom:16px;position:relative;overflow:hidden;
   opacity:0;transform:translateY(24px);transition:all .5s ease;}
 .pregunta-card.visible{opacity:1;transform:none;}
 .pregunta-card::before{content:'?';position:absolute;right:20px;top:50%;transform:translateY(-50%);
-  font-size:80px;font-weight:900;color:rgba(107,127,204,0.06);font-family:'Space Grotesk',sans-serif;line-height:1;}
+  font-size:80px;font-weight:900;color:rgba(201,168,76,0.06);font-family:'Space Grotesk',sans-serif;line-height:1;}
 .pregunta-card p{font-size:16px;font-weight:600;color:var(--text);line-height:1.5;margin-bottom:8px;}
 .pregunta-card span{font-size:13px;color:var(--text2);}
 
-.modos{padding:20px 24px 40px;max-width:680px;margin:0 auto;}
-.modos h2{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;
-  color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin-bottom:24px;text-align:center;}
-.modo-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;
-  padding:22px;margin-bottom:14px;
-  opacity:0;transform:translateY(24px);transition:all .5s ease;}
-.modo-card.visible{opacity:1;transform:none;}
-.modo-header{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
-.modo-icon{font-size:28px;}
-.modo-name{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;color:var(--text);}
-.modo-desc{font-size:14px;color:var(--text2);line-height:1.5;}
-
-.features{padding:20px 24px 60px;max-width:680px;margin:0 auto;}
-.features h2{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;
-  color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin-bottom:24px;text-align:center;}
+/* FEATURES */
+.features{padding:20px 24px 20px;max-width:700px;margin:0 auto;}
 .feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-@media(max-width:600px){.feat-grid{grid-template-columns:1fr;}}
+@media(max-width:560px){.feat-grid{grid-template-columns:1fr;}}
 .feat{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px;
   opacity:0;transform:translateY(20px);transition:all .4s ease;}
 .feat.visible{opacity:1;transform:none;}
-.feat:first-child{grid-column:1/-1;}
 .feat-icon{font-size:24px;margin-bottom:10px;display:block;}
-.feat-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;}
-.feat-desc{font-size:12px;color:var(--text2);line-height:1.4;}
+.feat-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;
+  color:var(--text);margin-bottom:4px;}
+.feat-desc{font-size:12px;color:var(--text2);line-height:1.5;}
 
+/* PLUS */
+.plus-section{padding:40px 24px;max-width:700px;margin:0 auto;}
+.plus-card{background:linear-gradient(135deg,rgba(201,168,76,0.08) 0%,rgba(201,168,76,0.03) 100%);
+  border:1.5px solid rgba(201,168,76,0.3);border-radius:20px;padding:28px;
+  opacity:0;transform:translateY(24px);transition:all .5s ease;}
+.plus-card.visible{opacity:1;transform:none;}
+.plus-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+.plus-badge{background:var(--accent);color:#0a0c12;font-size:11px;font-weight:800;
+  padding:4px 12px;border-radius:20px;letter-spacing:.06em;}
+.plus-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;}
+.plus-items{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:500px){.plus-items{grid-template-columns:1fr;}}
+.plus-item{display:flex;align-items:flex-start;gap:10px;padding:12px;
+  background:rgba(255,255,255,0.03);border-radius:10px;}
+.plus-item-icon{font-size:20px;flex-shrink:0;}
+.plus-item-text{font-size:13px;color:var(--text2);line-height:1.5;}
+.plus-item-text strong{color:var(--text);display:block;margin-bottom:2px;}
+
+/* DIAGRAMA */
+.diagrama{padding:20px 24px 40px;max-width:700px;margin:0 auto;}
+.flow{display:flex;flex-direction:column;gap:0;align-items:center;}
+.flow-step{background:var(--bg2);border:1px solid var(--border);border-radius:12px;
+  padding:14px 20px;width:100%;max-width:420px;text-align:center;
+  opacity:0;transform:translateY(16px);transition:all .4s ease;}
+.flow-step.visible{opacity:1;transform:none;}
+.flow-step-num{font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:700;
+  color:var(--accent);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;}
+.flow-step-text{font-size:14px;font-weight:600;color:var(--text);}
+.flow-arrow{color:var(--accent);font-size:20px;padding:4px 0;opacity:.6;}
+
+/* FOOTER */
 .footer-cta{padding:60px 24px;text-align:center;
   background:radial-gradient(ellipse 60% 80% at 50% 100%,var(--glow) 0%,transparent 70%);}
 .footer-cta h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(24px,6vw,40px);
@@ -102,82 +128,132 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
 <body>
 
 <section class="hero">
-  <div class="badge">⚖️ Consulta legal orientativa</div>
-  <span class="hero-emoji">⚖️</span>
-  <h1>La respuesta legal que necesitás, en segundos.</h1>
-  <p>Describí una situación jurídica y recibí orientación basada en legislación argentina — en lenguaje técnico para el profesional y en lenguaje simple para explicarle al cliente.</p>
-  <a href="https://raventechs.lat/legalar/" class="cta-btn" target="_blank">Probá legalAR gratis →</a>
+  <div class="badge">⚖️ Consulta legal orientativa · Argentina</div>
+  <div class="hero-icon">
+    <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+      <line x1="40" y1="8" x2="40" y2="72" stroke="#C9A84C" stroke-width="3"/>
+      <line x1="6" y1="20" x2="74" y2="20" stroke="#C9A84C" stroke-width="3"/>
+      <line x1="6" y1="20" x2="22" y2="52" stroke="#C9A84C" stroke-width="2.5"/>
+      <line x1="74" y1="20" x2="58" y2="52" stroke="#C9A84C" stroke-width="2.5"/>
+      <path class="plato" d="M7 52 Q22 58 37 52" stroke="#C9A84C" stroke-width="2.5" fill="none"/>
+      <path d="M43 52 Q58 58 73 52" stroke="#C9A84C" stroke-width="2.5" fill="none"/>
+    </svg>
+  </div>
+  <h1>legal<span style="-webkit-text-fill-color:var(--accent)">AR</span></h1>
+  <p>Describí una situación jurídica y recibí orientación inmediata basada en la legislación argentina — en lenguaje técnico para el profesional, en lenguaje simple para el cliente.</p>
+  <a href="https://enchanting-gumption-2823cc.netlify.app" class="cta-btn" target="_blank">Probá legalAR gratis →</a>
+</section>
 
-  <div class="phone-wrap">
-    <div class="phone">
-      <div class="phone-notch"></div>
-      <div class="phone-screen">
-        <div class="phone-row"><div class="phone-dot"></div><div class="phone-line accent"></div></div>
-        <div class="phone-row" style="margin-bottom:12px"><div class="phone-line short"></div><div class="phone-line"></div></div>
-        <div class="phone-card">
-          <div class="phone-num">⚖️</div>
-          <div class="phone-lbl">legalAR · en tu celular</div>
-        </div>
-        <div class="phone-row" style="margin-top:12px"><div class="phone-line"></div><div class="phone-line short"></div></div>
-        <div class="phone-row"><div class="phone-line accent short"></div><div class="phone-line"></div></div>
+<section class="modos">
+  <div class="section-label">Dos perfiles, una sola app</div>
+  <div class="modos-grid">
+    <div class="modo-card reveal">
+      <span class="modo-icon">⚖️</span>
+      <div class="modo-name">Profesional</div>
+      <div class="modo-desc">Para abogados y operadores del derecho. Respuestas en lenguaje jurídico con citas normativas, jurisprudencia y bibliografía trazable.</div>
+      <div class="modo-tags">
+        <span class="modo-tag">Código Civil</span>
+        <span class="modo-tag">Jurisprudencia</span>
+        <span class="modo-tag">Doctrina</span>
+      </div>
+    </div>
+    <div class="modo-card reveal">
+      <span class="modo-icon">🧑</span>
+      <div class="modo-name">Ciudadano</div>
+      <div class="modo-desc">Para cualquier persona que necesite entender su situación legal. Respuestas en lenguaje cotidiano, sin tecnicismos, con pasos concretos a seguir.</div>
+      <div class="modo-tags">
+        <span class="modo-tag">Sin jerga</span>
+        <span class="modo-tag">Qué hacer</span>
+        <span class="modo-tag">Próximos pasos</span>
       </div>
     </div>
   </div>
 </section>
 
 <section class="preguntas">
-  <h2>Antes de seguir, respondé esto</h2>
+  <div class="section-label">Antes de seguir, respondé esto</div>
   <div class="pregunta-card reveal">
     <p>¿Cuánto tiempo perdés buscando jurisprudencia antes de darle una respuesta al cliente?</p>
     <span>¿O das una orientación de memoria y después verificás si era correcta?</span>
   </div>
   <div class="pregunta-card reveal">
-    <p>¿Podés explicarle a un cliente lego en derecho, en dos minutos, cuál es su situación legal real?</p>
+    <p>¿Podés explicarle a un cliente en dos minutos cuál es su situación legal real?</p>
     <span>¿O usás el mismo lenguaje técnico y el cliente sale sin entender qué va a pasar?</span>
   </div>
-</section>
-
-<section class="modos">
-  <h2>Dos niveles de respuesta en una sola consulta</h2>
-  <div class="modo-card reveal">
-    <div class="modo-header"><div class="modo-icon">📋</div><div class="modo-name">Lenguaje técnico — para el profesional</div></div>
-    <div class="modo-desc">Análisis jurídico con encuadre normativo, artículos aplicables, doctrina y jurisprudencia relevante. Para que el abogado tenga el punto de partida sólido en segundos.</div>
-  </div>
-  <div class="modo-card reveal">
-    <div class="modo-header"><div class="modo-icon">💬</div><div class="modo-name">Lenguaje simple — para explicarle al cliente</div></div>
-    <div class="modo-desc">La misma situación explicada en palabras cotidianas. Para que el cliente entienda exactamente qué le puede pasar, qué opciones tiene y cuáles son los próximos pasos.</div>
-  </div>
-  <div class="modo-card reveal">
-    <div class="modo-header"><div class="modo-icon">📚</div><div class="modo-name">Caso de referencia + bibliografía</div></div>
-    <div class="modo-desc">Un caso análogo y la bibliografía citada para respaldar la orientación. Todo trazable y verificable — no es una opinión, es un punto de partida fundamentado.</div>
+  <div class="pregunta-card reveal">
+    <p>¿Tenés registradas todas tus consultas anteriores para referencia futura?</p>
+    <span>¿O cada vez que aparece un caso similar tenés que empezar de cero?</span>
   </div>
 </section>
 
 <section class="features">
-  <h2>Qué incluye legalAR</h2>
+  <div class="section-label">Qué incluye legalAR</div>
   <div class="feat-grid">
-    <div class="feat reveal"><span class="feat-icon">🎙️</span><div class="feat-title">Consulta por voz o texto</div><div class="feat-desc">Describí el caso hablando o escribiendo — legalAR lo procesa igual de bien</div></div>
-    <div class="feat reveal"><span class="feat-icon">⚖️</span><div class="feat-title">Legislación argentina</div><div class="feat-desc">Respuestas basadas en el Código Civil, Penal, Laboral y normativa vigente</div></div>
-    <div class="feat reveal"><span class="feat-icon">🔖</span><div class="feat-title">Historial de consultas</div><div class="feat-desc">Todas tus consultas guardadas, buscables y disponibles desde cualquier dispositivo</div></div>
-    <div class="feat reveal"><span class="feat-icon">📋</span><div class="feat-title">Copiar con un toque</div><div class="feat-desc">Copiás el tema, respuesta, caso y bibliografía formateados listos para pegar</div></div>
-    <div class="feat reveal"><span class="feat-icon">🔗</span><div class="feat-title">Links de fuentes</div><div class="feat-desc">Cada respuesta incluye los links a las fuentes legales para verificar directamente</div></div>
-    <div class="feat reveal"><span class="feat-icon">📱</span><div class="feat-title">100% desde el celular</div><div class="feat-desc">Sin instalar nada — funciona desde el navegador en cualquier dispositivo</div></div>
+    <div class="feat reveal"><span class="feat-icon">🎙️</span><div class="feat-title">Consulta por voz o texto</div><div class="feat-desc">Dictá el caso o escribilo — legalAR lo procesa con IA en segundos</div></div>
+    <div class="feat reveal"><span class="feat-icon">🔄</span><div class="feat-title">Respuesta dual</div><div class="feat-desc">Técnica y simple en la misma pantalla — switcheás con un toque</div></div>
+    <div class="feat reveal"><span class="feat-icon">⛓</span><div class="feat-title">Diagrama del proceso</div><div class="feat-desc">El flujo legal del caso en un diagrama visual claro</div></div>
+    <div class="feat reveal"><span class="feat-icon">📚</span><div class="feat-title">Bibliografía con links</div><div class="feat-desc">Cada respuesta cita las fuentes reales verificables</div></div>
+    <div class="feat reveal"><span class="feat-icon">📋</span><div class="feat-title">Copiar con un toque</div><div class="feat-desc">Todo el análisis listo para pegar en cualquier doc</div></div>
+    <div class="feat reveal"><span class="feat-icon">📱</span><div class="feat-title">Sin instalar nada</div><div class="feat-desc">Funciona desde el navegador en cualquier dispositivo</div></div>
+  </div>
+</section>
+
+<section class="plus-section">
+  <div class="plus-card reveal">
+    <div class="plus-header">
+      <span class="plus-badge">PLUS</span>
+      <div class="plus-title">Historial completo + Backup</div>
+    </div>
+    <div class="plus-items">
+      <div class="plus-item">
+        <span class="plus-item-icon">🗂️</span>
+        <div class="plus-item-text"><strong>Carpetas por área</strong>Laboral, Civil, Familia, Penal, Contratos y más</div>
+      </div>
+      <div class="plus-item">
+        <span class="plus-item-icon">🔍</span>
+        <div class="plus-item-text"><strong>Búsqueda en historial</strong>Encontrá cualquier consulta anterior por tema o nota</div>
+      </div>
+      <div class="plus-item">
+        <span class="plus-item-icon">📝</span>
+        <div class="plus-item-text"><strong>Notas personales</strong>Agregá contexto propio a cada consulta guardada</div>
+      </div>
+      <div class="plus-item">
+        <span class="plus-item-icon">💾</span>
+        <div class="plus-item-text"><strong>Backup automático</strong>Descarga diaria en JSON + exportación CSV</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="diagrama">
+  <div class="section-label">Cómo funciona</div>
+  <div class="flow">
+    <div class="flow-step reveal"><div class="flow-step-num">01</div><div class="flow-step-text">Elegís tu perfil — Profesional o Ciudadano</div></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step reveal"><div class="flow-step-num">02</div><div class="flow-step-text">Describís la situación por voz o texto</div></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step reveal"><div class="flow-step-num">03</div><div class="flow-step-text">La IA analiza con legislación argentina vigente</div></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step reveal"><div class="flow-step-num">04</div><div class="flow-step-text">Recibís respuesta técnica + simple + caso + bibliografía</div></div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-step reveal"><div class="flow-step-num">05</div><div class="flow-step-text">Guardás, organizás y exportás — todo en un lugar</div></div>
   </div>
 </section>
 
 <section class="footer-cta">
-  <h2>Empezá a responder más rápido.</h2>
-  <p>Sin descargas, sin contratos. Abrís, consultás y tenés la respuesta.</p>
-  <a href="https://raventechs.lat/legalar/" class="cta-btn" target="_blank">Abrir legalAR →</a>
-  <div class="footer-brand">Una app de <span>RavenTechs</span> · raventechs.lat</div>
+  <h2>La respuesta legal que necesitás, en segundos.</h2>
+  <p>Sin descargas, sin contratos. Abrís, consultás y tenés la orientación.</p>
+  <a href="https://enchanting-gumption-2823cc.netlify.app" class="cta-btn" target="_blank">Abrir legalAR →</a>
+  <div class="footer-brand">Una app de <span>RavenTechs</span> · raventechs.github.io</div>
 </section>
 
 <script>
 const observer = new IntersectionObserver(entries => {
   entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
 }, { threshold: 0.1 });
-document.querySelectorAll('.reveal, .pregunta-card, .feat, .modo-card').forEach(el => observer.observe(el));
+document.querySelectorAll('.reveal, .flow-step, .feat, .modo-card, .pregunta-card, .plus-card').forEach(el => observer.observe(el));
 document.querySelectorAll('.feat').forEach((el, i) => { el.style.transitionDelay = (i * 0.08) + 's'; });
+document.querySelectorAll('.flow-step').forEach((el, i) => { el.style.transitionDelay = (i * 0.1) + 's'; });
 </script>
 </body>
 </html>
