@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RavenTechs — Protocolo de Finalización</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0b0c10;--surface:#13151c;--surface2:#1c1f2a;
+  --border:#252836;--text:#eef0f6;--muted:#6b7280;
+  --accent:#f0b84a;--ok:#22c55e;--danger:#ef4444;--warn:#f59e0b;
+  --font:'Inter',sans-serif;--display:'Sora',sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;padding:24px 16px 60px}
+.header{text-align:center;margin-bottom:32px}
+.header h1{font-family:var(--display);font-size:1.6rem;color:var(--accent);letter-spacing:-.02em}
+.header p{font-size:0.82rem;color:var(--muted);margin-top:6px}
+.app-selector{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:28px}
+.app-btn{padding:7px 16px;border-radius:999px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-size:0.78rem;font-weight:600;cursor:pointer;transition:all .15s}
+.app-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(240,184,74,.1)}
+.app-name{font-family:var(--display);font-size:1.1rem;font-weight:700;margin-bottom:4px}
+.app-url{font-size:0.72rem;color:var(--muted);margin-bottom:20px}
+.progress-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:20px;display:flex;align-items:center;gap:14px}
+.progress-bar-bg{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.progress-bar{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--ok),#16a34a);transition:width .5s}
+.progress-pct{font-size:0.88rem;font-weight:700;color:var(--ok);min-width:36px;text-align:right}
+.progress-frac{font-size:0.72rem;color:var(--muted)}
+.section{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:12px;overflow:hidden}
+.section-head{padding:13px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+.section-title{font-weight:700;font-size:0.88rem;display:flex;align-items:center;gap:8px}
+.section-badge{font-size:0.68rem;padding:3px 9px;border-radius:999px;font-weight:700}
+.badge-ok{background:rgba(34,197,94,.15);color:var(--ok)}
+.badge-warn{background:rgba(245,158,11,.15);color:var(--warn)}
+.badge-pending{background:rgba(107,114,128,.15);color:var(--muted)}
+.section-body{padding:8px 0}
+.check-row{display:flex;align-items:flex-start;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.check-row:last-child{border-bottom:none}
+.check-row:hover{background:var(--surface2)}
+.check-box{width:20px;height:20px;border-radius:6px;border:2px solid var(--border);background:transparent;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:all .15s}
+.check-row.done .check-box{background:var(--ok);border-color:var(--ok)}
+.check-row.done .check-label{color:var(--muted);text-decoration:line-through}
+.check-label{font-size:0.82rem;line-height:1.5;flex:1}
+.check-note{font-size:0.7rem;color:var(--muted);margin-top:2px}
+.check-tag{font-size:0.65rem;padding:2px 7px;border-radius:999px;font-weight:600;margin-left:6px;background:rgba(240,184,74,.1);color:var(--accent)}
+.section-chevron{color:var(--muted);font-size:0.9rem;transition:transform .2s}
+.section.collapsed .section-chevron{transform:rotate(-90deg)}
+.section.collapsed .section-body{display:none}
+.btn-reset{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:6px 14px;font-size:0.75rem;cursor:pointer;margin-top:16px;display:block;margin-left:auto}
+.btn-reset:hover{border-color:var(--danger);color:var(--danger)}
+.status-final{text-align:center;padding:20px;background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-top:8px;display:none}
+.status-final.show{display:block}
+.status-final .emoji{font-size:2.5rem;margin-bottom:8px}
+.status-final h3{font-family:var(--display);font-size:1.1rem;color:var(--ok)}
+.status-final p{font-size:0.8rem;color:var(--muted);margin-top:4px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🦅 Protocolo de Finalización</h1>
+  <p>RavenTechs — Checklist completo antes de vender una app</p>
+</div>
+
+<div class="app-selector" id="appSelector"></div>
+
+<div id="appInfo">
+  <div class="app-name" id="appNombre"></div>
+  <div class="app-url" id="appUrl"></div>
+</div>
+
+<div class="progress-wrap">
+  <div>
+    <div class="progress-frac" id="progressFrac">0 / 0 completados</div>
+  </div>
+  <div class="progress-bar-bg">
+    <div class="progress-bar" id="progressBar" style="width:0%"></div>
+  </div>
+  <div class="progress-pct" id="progressPct">0%</div>
+</div>
+
+<div id="checklist"></div>
+
+<div class="status-final" id="statusFinal">
+  <div class="emoji">🎉</div>
+  <h3>¡App lista para vender!</h3>
+  <p>Todos los puntos del protocolo están completados.</p>
+</div>
+
+<button class="btn-reset" onclick="resetApp()">↺ Reiniciar checklist de esta app</button>
+
+<script>
+const APPS = [
+  { id:'pizzar',      nombre:'PizzAR',      url:'raventechs.github.io/pizzAr/' },
+  { id:'panar',       nombre:'PanAR',       url:'raventechs.github.io/panar/' },
+  { id:'carnear',     nombre:'CarneAR',     url:'raventechs.github.io/carneAr/' },
+  { id:'lavar',       nombre:'lavAR',       url:'raventechs.github.io/lavar/' },
+  { id:'rodix',       nombre:'Rodix',       url:'raventechs.github.io/vehigest-ar/' },
+  { id:'securepro',   nombre:'SecurePro',   url:'raventechs.github.io/securepro/' },
+  { id:'puntoventa',  nombre:'PuntoVenta',  url:'raventechs.github.io/puntoventa/' },
+  { id:'empresar',    nombre:'EmpresAR',    url:'raventechs.github.io/Garrafar/' },
+  { id:'saludar',     nombre:'SaludAR',     url:'raventechs.github.io/saludar/' },
+  { id:'miagenda',    nombre:'MiAgenda',    url:'raventechs.github.io/miagenda/' },
+  { id:'mtc',         nombre:'MTC',         url:'(Netlify)' },
+  { id:'timbrear',    nombre:'TimbreAr',    url:'(GitHub Pages)' },
+  { id:'legalar',     nombre:'LegalAR',     url:'(Netlify/Cloudflare)' },
+  { id:'centralbotar',nombre:'CentralbotAR',url:'(Netlify/Cloudflare)' },
+];
+
+const SECTIONS = [
+  {
+    id: 'tecnico',
+    titulo: '🔧 Robustez Técnica',
+    items: [
+      { id:'p1', label:'PIN admin 2580 funciona (5 toques en logo → abre panel)' },
+      { id:'p2', label:'CSV exporta datos correctamente y el archivo se descarga' },
+      { id:'p3', label:'Service Worker — app funciona sin internet (modo offline)', note:'Probado con DevTools → Network → Offline' },
+      { id:'p4', label:'Alerta de presupuesto Firebase configurada ($5 USD)', note:'Firebase Console → Billing → Budgets & alerts' },
+      { id:'p5', label:'logError() registra en colección errores de Firestore' },
+      { id:'p6', label:'Menos de 2500 líneas o correctamente modularizado' },
+      { id:'sw_clone', label:'Service Worker: clon del response antes del return', note:'const clon = response.clone() ANTES de return response' },
+    ]
+  },
+  {
+    id: 'funcional',
+    titulo: '⚙️ Funcionalidad',
+    items: [
+      { id:'login', label:'Login Google funciona en la URL de producción' },
+      { id:'base_features', label:'Todas las features del Plan Base funcionan' },
+      { id:'plus_features', label:'Todas las features del Plan Plus funcionan' },
+      { id:'plus_toggle', label:'Features Plus se activan/desactivan desde panel admin (PIN 2580)' },
+      { id:'plus_firestore', label:'Flags de features se guardan en Firestore con dot-notation' },
+      { id:'persistencia', label:'Datos persisten entre sesiones (cerrar y reabrir app)' },
+      { id:'offline_data', label:'Datos guardados offline se sincronizan al reconectar' },
+      { id:'backup', label:'Backup JSON descargable funciona (si aplica a esta app)' },
+    ]
+  },
+  {
+    id: 'dispositivos',
+    titulo: '📱 Prueba en dispositivo real',
+    items: [
+      { id:'android', label:'Funciona en Chrome Android (celular real, no emulador)' },
+      { id:'ios', label:'Funciona en Safari iOS (celular real)' },
+      { id:'desktop', label:'Funciona en desktop (Chrome / Edge)' },
+      { id:'pwa', label:'PWA instalable desde el browser (botón "Agregar a pantalla de inicio")', note:'Solo si tiene manifest.json y SW' },
+      { id:'push', label:'Notificaciones push llegan al celular (si aplica)', note:'Probar con app cerrada en background' },
+      { id:'audio', label:'Audio funciona correctamente (si aplica)' },
+      { id:'camara', label:'Cámara / QR funciona correctamente (si aplica)' },
+    ]
+  },
+  {
+    id: 'comercial',
+    titulo: '💼 Comercial',
+    items: [
+      { id:'precio', label:'Precio definido para Plan Base y Plan Plus' },
+      { id:'folleto', label:'Folleto generado en /folletos/', note:'Con formato estándar RavenTechs' },
+      { id:'demo', label:'Demo cargada con datos de ejemplo reales' },
+      { id:'onboarding', label:'El cliente puede configurar solo sin ayuda (onboarding claro)' },
+      { id:'email_ventas', label:'Botón/link de contacto funciona (ventas@raventechsapp.com)' },
+      { id:'whatsapp', label:'WhatsApp de ventas configurado y probado' },
+      { id:'landing', label:'App aparece en la landing raventechs.ar (cuando esté activa)' },
+    ]
+  }
+];
+
+let appActual = APPS[0].id;
+
+// ── INIT ──
+function init() {
+  const selector = document.getElementById('appSelector');
+  APPS.forEach(app => {
+    const btn = document.createElement('button');
+    btn.className = 'app-btn' + (app.id === appActual ? ' active' : '');
+    btn.textContent = app.nombre;
+    btn.onclick = () => selectApp(app.id);
+    selector.appendChild(btn);
+  });
+  renderApp();
+}
+
+function selectApp(id) {
+  appActual = id;
+  document.querySelectorAll('.app-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', APPS[i].id === id);
+  });
+  renderApp();
+}
+
+function getKey(appId, itemId) { return `proto_${appId}_${itemId}`; }
+
+function isChecked(appId, itemId) { return localStorage.getItem(getKey(appId, itemId)) === '1'; }
+
+function toggleItem(appId, itemId) {
+  const key = getKey(appId, itemId);
+  localStorage.setItem(key, isChecked(appId, itemId) ? '0' : '1');
+  renderApp();
+}
+
+function renderApp() {
+  const app = APPS.find(a => a.id === appActual);
+  document.getElementById('appNombre').textContent = app.nombre;
+  document.getElementById('appUrl').textContent = app.url;
+
+  // Calcular progreso
+  let total = 0, done = 0;
+  SECTIONS.forEach(s => s.items.forEach(item => {
+    total++;
+    if (isChecked(appActual, item.id)) done++;
+  }));
+  const pct = total > 0 ? Math.round((done/total)*100) : 0;
+  document.getElementById('progressFrac').textContent = `${done} / ${total} completados`;
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+
+  // Render secciones
+  const cont = document.getElementById('checklist');
+  cont.innerHTML = '';
+
+  SECTIONS.forEach(sec => {
+    const secDone    = sec.items.filter(i => isChecked(appActual, i.id)).length;
+    const secTotal   = sec.items.length;
+    const allDone    = secDone === secTotal;
+    const someDone   = secDone > 0 && !allDone;
+
+    const div = document.createElement('div');
+    div.className = 'section';
+    div.innerHTML = `
+      <div class="section-head" onclick="toggleSection(this)">
+        <div class="section-title">
+          ${sec.titulo}
+          <span class="section-badge ${allDone?'badge-ok':someDone?'badge-warn':'badge-pending'}">
+            ${secDone}/${secTotal}
+          </span>
+        </div>
+        <span class="section-chevron">▾</span>
+      </div>
+      <div class="section-body">
+        ${sec.items.map(item => {
+          const checked = isChecked(appActual, item.id);
+          return `<div class="check-row ${checked?'done':''}" onclick="toggleItem('${appActual}','${item.id}')">
+            <div class="check-box">${checked?'<svg width="12" height="12" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3" fill="none" stroke="#fff" stroke-width="2"/></svg>':''}</div>
+            <div>
+              <div class="check-label">${item.label}</div>
+              ${item.note ? `<div class="check-note">${item.note}</div>` : ''}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>`;
+    cont.appendChild(div);
+  });
+
+  // Status final
+  const finalEl = document.getElementById('statusFinal');
+  finalEl.classList.toggle('show', pct === 100);
+}
+
+function toggleSection(head) {
+  head.closest('.section').classList.toggle('collapsed');
+}
+
+function resetApp() {
+  if (!confirm('¿Reiniciar toda la checklist de ' + APPS.find(a=>a.id===appActual).nombre + '?')) return;
+  SECTIONS.forEach(s => s.items.forEach(item => localStorage.removeItem(getKey(appActual, item.id))));
+  renderApp();
+}
+
+window.toggleItem = toggleItem;
+window.toggleSection = toggleSection;
+window.resetApp = resetApp;
+
+init();
+</script>
+</body>
+</html>
