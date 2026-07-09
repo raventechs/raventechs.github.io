@@ -26,20 +26,40 @@ messaging.onBackgroundMessage((payload) => {
   const cuerpo = payload.notification?.body  || "Abrí TimbreAr para atender";
   const datos  = payload.data || {};
 
-  self.registration.showNotification(titulo, {
-    body:    cuerpo,
-    icon:    "/icon-192.png",
-    badge:   "/icon-192.png",
-    tag:     "timbrear-llamada",          // reemplaza notif anterior
-    renotify: true,                        // suena aunque ya haya una
-    requireInteraction: true,              // no desaparece sola
-    vibrate: [200, 100, 200, 100, 400],   // patrón de vibración
-    data:    datos,
+  // Mostrar múltiples notificaciones para forzar sonido en Xiaomi/MIUI
+  const notifOpts = {
+    body:             cuerpo,
+    icon:             "/timbrear/timbrear-residente.html",
+    badge:            "/timbrear/timbrear-residente.html",
+    tag:              "timbrear-llamada",
+    renotify:         true,
+    requireInteraction: true,
+    silent:           false,
+    vibrate:          [500, 200, 500, 200, 500, 200, 500, 200, 500],
+    data:             datos,
     actions: [
       { action: "atender",  title: "📞 Atender" },
       { action: "rechazar", title: "📵 Rechazar" }
     ]
-  });
+  };
+
+  await self.registration.showNotification(titulo, notifOpts);
+
+  // Re-notificar cada 8 segundos hasta que se atienda (máx 3 veces)
+  // Esto fuerza el sonido en MIUI que silencia notificaciones repetidas
+  let intentos = 0;
+  const intervalo = setInterval(async () => {
+    intentos++;
+    if (intentos >= 3) { clearInterval(intervalo); return; }
+    await self.registration.showNotification(titulo, {
+      ...notifOpts,
+      tag: "timbrear-llamada-" + intentos, // tag diferente para forzar nuevo sonido
+      body: cuerpo + " · " + (intentos + 1) + "° llamada"
+    });
+  }, 8000);
+
+  // Guardar intervalo para cancelarlo si se atiende
+  self._timbrearIntervalo = intervalo;
 });
 
 // ── Click en la notificación ──
