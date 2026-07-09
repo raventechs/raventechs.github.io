@@ -1,650 +1,358 @@
 <!DOCTYPE html>
-<!--
-  RAVENTECHS — LANDING — v1.7
-  Fecha: 2026-07-02
-  Cambios: Sección de apps reemplazada por tabs por categoría con carrusel
-           auto-scroll (8 seg, pausa al tocar/hover). 4 categorías:
-           Flotas & Seguridad / Comercios & Ventas / Salud & Bienestar / Estilo de vida.
-           15 apps distribuidas. Hero actualizado a 15 soluciones.
--->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RavenTechs — Software para tu negocio</title>
-<meta name="description" content="Apps SaaS argentinas para gestión de flotas, comercios, salud y estilo de vida. Simples, rápidas y listas para usar.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<title>RavenTechs — Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080a10;--surface:#0f1117;--surface2:#161921;
+  --border:#1e2130;--text:#eef0f6;--muted:#5a6380;
+  --accent:#f0b84a;--ok:#22c55e;--warn:#f59e0b;--danger:#ef4444;--info:#3b82f6;
+  --font:'Inter',sans-serif;--display:'Sora',sans-serif;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
 
-  :root {
-    --bg: #0A0A0F; --bg2: #13131C; --bg3: #1A1A26;
-    --red: #CC0000; --white: #F0F0F5; --muted: #7777AA;
-    --border: rgba(120,120,180,0.15); --border-hover: rgba(204,0,0,0.4);
-  }
+/* HEADER */
+.header{padding:20px 20px 0;text-align:center;margin-bottom:28px}
+.brand{font-family:var(--display);font-size:1.8rem;font-weight:800;letter-spacing:-.03em}
+.brand span{color:var(--accent)}
+.brand-sub{font-size:0.75rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:4px}
+.header-links{display:flex;gap:8px;justify-content:center;margin-top:14px;flex-wrap:wrap}
+.hlink{padding:6px 14px;border-radius:999px;border:1.5px solid var(--border);color:var(--muted);font-size:0.73rem;font-weight:600;text-decoration:none;transition:all .15s}
+.hlink:hover{border-color:var(--accent);color:var(--accent)}
 
-  body { background:var(--bg); color:var(--white); font-family:'Inter',sans-serif; font-size:16px; line-height:1.6; min-height:100vh; overflow-x:hidden; }
+/* FILTROS */
+.filters{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;padding:0 16px;margin-bottom:20px}
+.filter-btn{padding:6px 14px;border-radius:999px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-size:0.73rem;font-weight:600;cursor:pointer;transition:all .15s}
+.filter-btn.on{background:var(--accent);color:#111;border-color:var(--accent)}
 
-  /* NAV */
-  nav { position:fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:0 2rem; height:64px; background:rgba(10,10,15,0.88); backdrop-filter:blur(12px); border-bottom:0.5px solid var(--border); }
-  .nav-logo { display:flex; align-items:center; gap:10px; text-decoration:none; background:none; border:none; cursor:pointer; padding:0; font:inherit; }
-  .raven-icon { width:40px; height:40px; flex-shrink:0; }
-  .nav-brand { font-family:'Rajdhani',sans-serif; font-size:1.3rem; font-weight:700; letter-spacing:0.08em; color:var(--white); }
-  .nav-brand span { color:var(--red); }
-  .nav-cta { background:var(--red); color:#fff; font-family:'Rajdhani',sans-serif; font-weight:600; font-size:0.95rem; letter-spacing:0.06em; text-decoration:none; padding:8px 20px; border-radius:4px; transition:background 0.2s; }
-  .nav-cta:hover { background:#aa0000; }
+/* GRID */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;padding:0 16px 60px;max-width:1200px;margin:0 auto}
 
-  /* HERO */
-  .hero { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:100px 2rem 4rem; position:relative; overflow:hidden; }
-  .hero::before { content:''; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:700px; height:700px; background:radial-gradient(circle,rgba(204,0,0,0.07) 0%,transparent 70%); pointer-events:none; }
-  .hero-eyebrow { font-family:'Rajdhani',sans-serif; font-size:0.8rem; font-weight:600; letter-spacing:0.2em; color:var(--red); text-transform:uppercase; margin-bottom:1.5rem; }
-  .hero-raven { width:160px; height:160px; margin-bottom:2rem; }
-  .wing-left { transform-origin:72px 60px; animation:wingLeft 3.5s ease-in-out infinite; }
-  .wing-right { transform-origin:88px 60px; animation:wingRight 3.5s ease-in-out infinite; }
-  @keyframes wingLeft { 0%,100%{transform:rotate(0deg) translateY(0px);} 25%{transform:rotate(-12deg) translateY(-4px);} 75%{transform:rotate(6deg) translateY(2px);} }
-  @keyframes wingRight { 0%,100%{transform:rotate(0deg) translateY(0px);} 25%{transform:rotate(12deg) translateY(-4px);} 75%{transform:rotate(-6deg) translateY(2px);} }
-  .raven-eye { animation:eyeGlow 2.5s ease-in-out infinite; }
-  @keyframes eyeGlow { 0%,100%{opacity:1;filter:drop-shadow(0 0 2px #CC0000);} 50%{opacity:0.4;filter:drop-shadow(0 0 6px #CC0000);} }
-  .circuit-line { stroke-dasharray:40; stroke-dashoffset:40; animation:drawCircuit 3s ease-in-out infinite; }
-  .circuit-line:nth-child(2){animation-delay:.5s;} .circuit-line:nth-child(3){animation-delay:1s;} .circuit-line:nth-child(4){animation-delay:1.5s;}
-  @keyframes drawCircuit { 0%{stroke-dashoffset:40;opacity:0;} 20%{opacity:1;} 60%{stroke-dashoffset:0;opacity:1;} 100%{stroke-dashoffset:0;opacity:0;} }
-  .raven-body-group { animation:float 4s ease-in-out infinite; }
-  .data-dot { animation:dataPulse 2s ease-in-out infinite; }
-  .data-dot:nth-child(2){animation-delay:.6s;} .data-dot:nth-child(3){animation-delay:1.2s;}
-  @keyframes dataPulse { 0%,100%{opacity:.3;r:1.5px;} 50%{opacity:1;r:3px;} }
-  @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
-  h1 { font-family:'Rajdhani',sans-serif; font-size:clamp(2.8rem,7vw,5.5rem); font-weight:700; line-height:1.05; letter-spacing:-0.01em; margin-bottom:1.5rem; max-width:820px; }
-  h1 em { font-style:normal; color:var(--red); }
-  .hero-sub { font-size:1.1rem; color:var(--muted); max-width:520px; margin-bottom:2.5rem; line-height:1.7; }
-  .hero-actions { display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; }
-  .btn-primary { background:var(--red); color:#fff; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:1rem; letter-spacing:0.08em; text-decoration:none; padding:14px 32px; border-radius:4px; transition:background 0.2s,transform 0.1s; }
-  .btn-primary:hover { background:#aa0000; transform:translateY(-1px); }
-  .btn-ghost { background:transparent; color:var(--white); font-family:'Rajdhani',sans-serif; font-weight:600; font-size:1rem; letter-spacing:0.06em; text-decoration:none; padding:14px 32px; border-radius:4px; border:0.5px solid var(--border); transition:border-color 0.2s,transform 0.1s; }
-  .btn-ghost:hover { border-color:var(--muted); transform:translateY(-1px); }
-  .scroll-hint { position:absolute; bottom:2.5rem; left:50%; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:6px; color:var(--muted); font-size:0.75rem; letter-spacing:0.1em; font-family:'Rajdhani',sans-serif; animation:fade-bounce 2s ease-in-out infinite; }
-  @keyframes fade-bounce { 0%,100%{opacity:0.4;transform:translateX(-50%) translateY(0);} 50%{opacity:1;transform:translateX(-50%) translateY(4px);} }
+/* CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:border-color .2s;cursor:pointer}
+.card:hover{border-color:var(--accent)}
+.card-head{padding:16px 16px 12px;display:flex;align-items:flex-start;gap:12px}
+.card-emoji{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.card-info{flex:1;min-width:0}
+.card-name{font-family:var(--display);font-weight:700;font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-name span{color:var(--accent)}
+.card-desc{font-size:0.73rem;color:var(--muted);margin-top:2px;line-height:1.4}
+.card-status{display:flex;align-items:center;gap:5px;margin-top:6px}
+.status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.status-ok{background:var(--ok)}
+.status-warn{background:var(--warn)}
+.status-danger{background:var(--danger)}
+.status-info{background:var(--info)}
+.status-label{font-size:0.67rem;font-weight:600;color:var(--muted)}
 
-  /* ═══════════════════════════════════════════
-     SECCIÓN APPS CON TABS + CARRUSEL
-  ═══════════════════════════════════════════ */
-  #apps { padding:5rem 0; }
-  .apps-header { text-align:center; padding:0 2rem; margin-bottom:2.5rem; }
-  .section-label { font-family:'Rajdhani',sans-serif; font-size:0.75rem; font-weight:600; letter-spacing:0.2em; color:var(--red); text-transform:uppercase; margin-bottom:0.75rem; }
-  .section-title { font-family:'Rajdhani',sans-serif; font-size:clamp(1.8rem,4vw,2.8rem); font-weight:700; margin-bottom:0.5rem; }
-  .section-sub { color:var(--muted); max-width:480px; margin:0 auto; font-size:0.95rem; }
+/* TAGS */
+.card-tags{padding:0 16px 10px;display:flex;gap:5px;flex-wrap:wrap}
+.tag{padding:3px 9px;border-radius:999px;font-size:0.65rem;font-weight:600;border:1px solid var(--border);color:var(--muted)}
+.tag.plus{border-color:rgba(240,184,74,.3);color:var(--accent)}
+.tag.offline{border-color:rgba(59,130,246,.3);color:var(--info)}
+.tag.ia{border-color:rgba(139,92,246,.3);color:#a78bfa}
+.tag.push{border-color:rgba(34,197,94,.3);color:var(--ok)}
 
-  /* TABS */
-  .cat-tabs { display:flex; justify-content:center; gap:8px; flex-wrap:wrap; padding:0 1rem; margin-bottom:2rem; }
-  .cat-tab { font-family:'Rajdhani',sans-serif; font-size:0.9rem; font-weight:600; letter-spacing:0.05em; padding:9px 20px; border-radius:100px; border:0.5px solid var(--border); background:transparent; color:var(--muted); cursor:pointer; transition:all 0.2s; white-space:nowrap; }
-  .cat-tab:hover { border-color:var(--muted); color:var(--white); }
-  .cat-tab.active { background:var(--red); color:#fff; border-color:var(--red); }
+/* ACCIONES */
+.card-actions{padding:10px 16px 14px;display:flex;gap:7px;border-top:1px solid var(--border)}
+.btn-action{flex:1;padding:8px;border-radius:10px;border:none;font-size:0.73rem;font-weight:700;cursor:pointer;text-decoration:none;text-align:center;display:flex;align-items:center;justify-content:center;gap:5px;transition:opacity .15s}
+.btn-action:hover{opacity:.85}
+.btn-app{background:linear-gradient(135deg,var(--accent),#e8a030);color:#111}
+.btn-beta{background:var(--surface2);border:1.5px solid var(--border);color:var(--muted)}
+.btn-beta:hover{border-color:var(--accent);color:var(--accent)}
+.btn-folleto{background:var(--surface2);border:1.5px solid var(--border);color:var(--muted)}
+.btn-folleto:hover{border-color:var(--info);color:var(--info)}
+.btn-protocolo{background:var(--surface2);border:1.5px solid var(--border);color:var(--muted)}
+.btn-protocolo:hover{border-color:var(--ok);color:var(--ok)}
 
-  /* CARRUSEL */
-  .carousel-wrap { position:relative; overflow:hidden; padding:0 0 2rem; }
-  .carousel-track { display:flex; transition:transform 0.5s cubic-bezier(.4,0,.2,1); will-change:transform; }
-  .carousel-panel { display:none; width:100%; flex-shrink:0; padding:0 2rem; }
-  .carousel-panel.active { display:flex; }
+/* PENDIENTES */
+.card-pendientes{padding:8px 16px 12px;border-top:1px solid var(--border)}
+.pend-title{font-size:0.65rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.pend-item{display:flex;align-items:flex-start;gap:6px;font-size:0.72rem;color:var(--muted);margin-bottom:3px;line-height:1.4}
+.pend-dot{width:5px;height:5px;border-radius:50%;background:var(--warn);flex-shrink:0;margin-top:5px}
 
-  /* CARDS */
-  .cards-row { display:flex; gap:1.25rem; width:100%; }
-  .app-card { background:var(--bg2); border:0.5px solid var(--border); border-radius:10px; padding:1.75rem; text-decoration:none; color:inherit; flex:0 0 calc(33.333% - 0.84rem); position:relative; overflow:hidden; transition:border-color 0.25s,transform 0.2s; }
-  @media(max-width:900px){ .app-card { flex:0 0 calc(50% - 0.63rem); } }
-  @media(max-width:580px){ .app-card { flex:0 0 85vw; } }
-  .app-card::before { content:''; position:absolute; top:0; left:0; width:3px; height:100%; background:var(--card-accent,var(--red)); border-radius:10px 0 0 10px; opacity:0; transition:opacity 0.25s; }
-  .app-card:hover { border-color:var(--border-hover); transform:translateY(-3px); }
-  .app-card:hover::before { opacity:1; }
-  .card-header { display:flex; align-items:center; gap:12px; margin-bottom:1rem; }
-  .card-icon { width:44px; height:44px; border-radius:8px; background:var(--card-bg,rgba(204,0,0,0.1)); display:flex; align-items:center; justify-content:center; font-size:1.4rem; flex-shrink:0; }
-  .card-name { font-family:'Rajdhani',sans-serif; font-size:1.3rem; font-weight:700; letter-spacing:0.02em; }
-  .card-tag { display:inline-block; background:rgba(120,120,180,0.12); color:var(--muted); font-size:0.7rem; font-weight:500; letter-spacing:0.12em; text-transform:uppercase; padding:3px 8px; border-radius:3px; margin-top:2px; }
-  .card-desc { font-size:0.9rem; color:var(--muted); line-height:1.65; margin-bottom:1.25rem; }
-  .card-features { display:flex; flex-direction:column; gap:6px; margin-bottom:1.5rem; }
-  .feat { display:flex; align-items:center; gap:8px; font-size:0.82rem; color:#9999BB; }
-  .feat-dot { width:5px; height:5px; border-radius:50%; background:var(--card-accent,var(--red)); flex-shrink:0; }
-  .card-footer { display:flex; align-items:center; justify-content:space-between; border-top:0.5px solid var(--border); padding-top:1rem; }
-  .card-demo { font-family:'Rajdhani',sans-serif; font-size:0.85rem; font-weight:600; letter-spacing:0.1em; color:var(--card-accent,var(--red)); text-transform:uppercase; }
-  .card-arrow { width:20px; height:20px; opacity:0.4; transition:opacity 0.2s,transform 0.2s; }
-  .app-card:hover .card-arrow { opacity:1; transform:translate(2px,-2px); }
+/* STATS BAR */
+.stats-bar{display:flex;gap:8px;padding:0 16px;margin-bottom:20px;justify-content:center;flex-wrap:wrap}
+.stat-pill{background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:6px 14px;font-size:0.73rem;display:flex;align-items:center;gap:6px}
+.stat-pill .n{font-weight:700;font-size:0.88rem}
+.stat-pill .n.ok{color:var(--ok)}
+.stat-pill .n.warn{color:var(--warn)}
+.stat-pill .n.danger{color:var(--danger)}
 
-  /* DOTS DE PAGINACIÓN */
-  .carousel-dots { display:flex; justify-content:center; gap:8px; margin-top:1.5rem; }
-  .c-dot { width:8px; height:8px; border-radius:50%; background:var(--border); cursor:pointer; transition:all 0.3s; border:none; padding:0; }
-  .c-dot.active { background:var(--red); transform:scale(1.3); }
-
-  /* BARRA DE PROGRESO */
-  .progress-bar-wrap { width:120px; margin:12px auto 0; height:2px; background:var(--border); border-radius:1px; overflow:hidden; }
-  .progress-bar { height:100%; background:var(--red); border-radius:1px; width:0%; transition:width 0.1s linear; }
-
-  /* WHY */
-  .section { padding:5rem 2rem; max-width:1120px; margin:0 auto; }
-  .divider { width:48px; height:2px; background:var(--red); margin:0 auto; border-radius:1px; }
-  .why-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:2rem; margin-top:3rem; }
-  .why-item { display:flex; flex-direction:column; gap:0.75rem; }
-  .why-num { font-family:'Rajdhani',sans-serif; font-size:2.5rem; font-weight:700; color:var(--red); line-height:1; }
-  .why-title { font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:600; }
-  .why-text { font-size:0.88rem; color:var(--muted); line-height:1.65; }
-
-  /* CTA / FOOTER */
-  .cta-section { background:var(--bg2); border-top:0.5px solid var(--border); border-bottom:0.5px solid var(--border); padding:5rem 2rem; text-align:center; }
-  .cta-section h2 { font-family:'Rajdhani',sans-serif; font-size:clamp(1.8rem,4vw,2.8rem); font-weight:700; margin-bottom:1rem; }
-  .cta-section p { color:var(--muted); max-width:440px; margin:0 auto 2rem; font-size:0.95rem; }
-  .email-pill { display:inline-flex; align-items:center; gap:10px; background:var(--bg3); border:0.5px solid var(--border); border-radius:6px; padding:10px 16px; font-size:0.9rem; margin-bottom:1.5rem; color:var(--white); text-decoration:none; transition:border-color 0.2s; }
-  .email-pill:hover { border-color:var(--red); }
-  .email-icon { width:16px; height:16px; opacity:0.6; }
-  footer { padding:2.5rem 2rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; border-top:0.5px solid var(--border); max-width:1120px; margin:0 auto; }
-  .footer-logo { font-family:'Rajdhani',sans-serif; font-weight:700; font-size:1.1rem; color:var(--white); text-decoration:none; letter-spacing:0.06em; }
-  .footer-logo span { color:var(--red); }
-  .footer-copy { font-size:0.8rem; color:var(--muted); }
-
-  @media(max-width:600px) {
-    nav { padding:0 1rem; }
-    .carousel-panel { padding:0 1rem; }
-    footer { flex-direction:column; text-align:center; }
-  }
-
-  /* PANEL OCULTO */
-  .hidden-overlay { display:none; position:fixed; inset:0; z-index:1000; background:rgba(5,5,10,0.92); backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:1.5rem; }
-  .hidden-overlay.active { display:flex; }
-  .pin-box { background:var(--bg2); border:0.5px solid var(--border); border-radius:12px; padding:2.5rem 2rem; max-width:320px; width:100%; text-align:center; }
-  .pin-box h3 { font-family:'Rajdhani',sans-serif; font-size:1.2rem; letter-spacing:0.05em; margin-bottom:1.25rem; }
-  .pin-box input { width:100%; background:var(--bg); border:0.5px solid var(--border); border-radius:6px; color:var(--white); font-size:1.4rem; letter-spacing:0.3em; text-align:center; padding:12px; margin-bottom:1rem; }
-  .pin-box input:focus { outline:none; border-color:var(--border-hover); }
-  .pin-error { color:var(--red); font-size:0.8rem; margin-bottom:0.75rem; min-height:1em; }
-  .pin-actions { display:flex; gap:0.6rem; }
-  .pin-actions button { flex:1; font-family:'Rajdhani',sans-serif; font-weight:600; letter-spacing:0.05em; border-radius:6px; padding:10px; cursor:pointer; border:none; font-size:0.9rem; }
-  .pin-confirm { background:var(--red); color:#fff; }
-  .pin-cancel { background:var(--bg3); color:var(--muted); }
-  .tools-panel { background:var(--bg2); border:0.5px solid var(--border); border-radius:12px; max-width:760px; width:100%; max-height:88vh; overflow-y:auto; padding:2rem; }
-  .tools-panel-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:0.5px solid var(--border); }
-  .tools-panel-header h2 { font-family:'Rajdhani',sans-serif; font-size:1.4rem; letter-spacing:0.04em; }
-  .tools-panel-header h2 span { color:var(--red); }
-  .tools-close { background:var(--bg3); border:none; color:var(--muted); width:32px; height:32px; border-radius:6px; cursor:pointer; font-size:1rem; }
-  .tools-section-title { font-family:'Rajdhani',sans-serif; font-size:0.75rem; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--red); margin:1.5rem 0 0.75rem; }
-  .tools-section-title:first-of-type { margin-top:0; }
-  .tool-row, .listapp-row { display:flex; align-items:center; justify-content:space-between; gap:1rem; background:var(--bg3); border:0.5px solid var(--border); border-radius:8px; padding:0.85rem 1rem; margin-bottom:0.5rem; }
-  .tool-row-name, .listapp-name { font-family:'Rajdhani',sans-serif; font-weight:600; font-size:0.95rem; }
-  .tool-row-desc, .listapp-status { font-size:0.78rem; color:var(--muted); margin-top:2px; }
-  .tool-row-link { flex-shrink:0; background:var(--red); color:#fff; text-decoration:none; font-family:'Rajdhani',sans-serif; font-weight:600; font-size:0.8rem; letter-spacing:0.05em; padding:7px 14px; border-radius:5px; }
-  .listapp-link { flex-shrink:0; color:var(--muted); text-decoration:none; font-size:0.8rem; border:0.5px solid var(--border); padding:6px 12px; border-radius:5px; }
-  .listapp-link:hover { border-color:var(--border-hover); color:var(--white); }
-  .status-dot { display:inline-block; width:6px; height:6px; border-radius:50%; margin-right:5px; }
+/* EMPTY */
+.empty{text-align:center;padding:40px;color:var(--muted);grid-column:1/-1}
 </style>
 </head>
 <body>
 
-<!-- NAV -->
-<nav>
-  <button type="button" id="ravenLogoBtn" class="nav-logo" aria-label="RavenTechs inicio">
-    <svg class="raven-icon" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <g class="wing-left"><polygon points="62,58 40,46 14,52 8,68 30,62 48,66" fill="#0C0C12" stroke="#D8D8E0" stroke-width="1"/><polygon points="48,66 30,62 16,72 36,72 50,74" fill="#080808" stroke="#999999" stroke-width="0.6" opacity="0.8"/><line x1="34" y1="56" x2="22" y2="58" stroke="#D8D8E0" stroke-width="0.6"/><line x1="40" y1="62" x2="26" y2="66" stroke="#D8D8E0" stroke-width="0.6"/></g>
-      <g class="wing-right"><polygon points="98,58 120,46 146,52 152,68 130,62 112,66" fill="#0C0C12" stroke="#D8D8E0" stroke-width="1"/><polygon points="112,66 130,62 144,72 124,72 110,74" fill="#080808" stroke="#999999" stroke-width="0.6" opacity="0.8"/><line x1="126" y1="56" x2="138" y2="58" stroke="#D8D8E0" stroke-width="0.6"/><line x1="120" y1="62" x2="134" y2="66" stroke="#D8D8E0" stroke-width="0.6"/></g>
-      <polygon points="80,52 96,64 92,96 80,108 68,96 64,64" fill="#0C0C12" stroke="#D8D8E0" stroke-width="1.2"/>
-      <polygon points="80,32 94,42 92,58 80,64 68,58 66,42" fill="#0C0C12" stroke="#D8D8E0" stroke-width="1.2"/>
-      <polygon points="50,46 60,42 60,50 50,52" fill="#D8D8E0" opacity="0.9"/>
-      <polygon points="74,40 86,40 84,46 76,46" fill="#0A0A0F" stroke="#D8D8E0" stroke-width="0.8"/>
-      <circle cx="80" cy="43" r="3.2" fill="#0A0A0F" stroke="#D8D8E0" stroke-width="0.8"/>
-      <circle class="raven-eye" cx="80" cy="43" r="1.6" fill="#CC0000"/>
-      <line x1="80" y1="64" x2="80" y2="74" stroke="#D8D8E0" stroke-width="0.6" opacity="0.7"/>
-      <line x1="80" y1="74" x2="88" y2="78" stroke="#D8D8E0" stroke-width="0.6" opacity="0.7"/>
-      <line x1="80" y1="74" x2="72" y2="80" stroke="#D8D8E0" stroke-width="0.6" opacity="0.7"/>
-      <circle cx="88" cy="78" r="1.3" fill="#CC0000" opacity="0.8"/>
-      <circle cx="72" cy="80" r="1.3" fill="#CC0000" opacity="0.8"/>
-      <line x1="74" y1="106" x2="68" y2="120" stroke="#D8D8E0" stroke-width="1.2"/>
-      <line x1="86" y1="106" x2="92" y2="120" stroke="#D8D8E0" stroke-width="1.2"/>
-      <polygon points="68,120 60,124 64,118" fill="#D8D8E0"/><polygon points="68,120 68,128 64,124" fill="#D8D8E0"/>
-      <polygon points="92,120 100,124 96,118" fill="#D8D8E0"/><polygon points="92,120 92,128 96,124" fill="#D8D8E0"/>
-    </svg>
-    <span class="nav-brand">Raven<span>Techs</span></span>
-  </button>
-  <a href="#contacto" class="nav-cta">Probar gratis</a>
-</nav>
-
-<!-- HERO -->
-<section class="hero" id="inicio">
-  <p class="hero-eyebrow">Software argentino para PyMEs</p>
-  <svg class="hero-raven" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <g class="raven-body-group">
-    <g class="wing-left"><polygon points="62,58 40,46 14,52 8,68 30,62 48,66" fill="#0C0C12" stroke="#D8D8E0" stroke-width="1"/><polygon points="48,66 30,62 16,72 36,72 50,74" fill="#080808" stroke="#999999" stroke-width="0.6" opacity="0.8"/><line x1="34" y1="56" x2="22" y2="58" stroke="#D8D8E0" stroke-width="0.6"/><line x1="40" y1="62" x2="26" y2="66" stroke="#D8D8E0" stroke-width="0.6"/></g>
-    <g class="wing-right"><polygon points="98,58 120,46 146,52 152,68 130,62 112,66" fill="#0C0C12" stroke="#D8D8E0" stroke-width="1"/><polygon points="112,66 130,62 144,72 124,72 110,74" fill="#080808" stroke="#999999" stroke-width="0.6" opacity="0.8"/><line x1="126" y1="56" x2="138" y2="58" stroke="#D8D8E0" stroke-width="0.6"/><line x1="120" y1="62" x2="134" y2="66" stroke="#D8D8E0" stroke-width="0.6"/></g>
-    <polygon points="80,52 96,64 92,96 80,108 68,96 64,64" fill="#0C0C12" stroke="#D8D8E0" stroke-width="1.2"/>
-    <polygon points="80,32 94,42 92,58 80,64 68,58 66,42" fill="#0C0C12" stroke="#D8D8E0" stroke-width="1.2"/>
-    <polygon points="50,46 60,42 60,50 50,52" fill="#D8D8E0" opacity="0.9"/>
-    <polygon points="74,40 86,40 84,46 76,46" fill="#0A0A0F" stroke="#D8D8E0" stroke-width="0.8"/>
-    <circle cx="80" cy="43" r="3.2" fill="#0A0A0F" stroke="#D8D8E0" stroke-width="0.8"/>
-    <circle class="raven-eye" cx="80" cy="43" r="1.6" fill="#CC0000"/>
-    <g stroke="#D8D8E0" stroke-width="0.7" fill="none" opacity="0.7">
-      <line class="circuit-line" x1="80" y1="64" x2="80" y2="74"/>
-      <line class="circuit-line" x1="80" y1="74" x2="88" y2="78"/>
-      <line class="circuit-line" x1="80" y1="74" x2="72" y2="80"/>
-      <line class="circuit-line" x1="72" y1="80" x2="72" y2="90"/>
-    </g>
-    <g fill="#CC0000">
-      <circle class="data-dot" cx="88" cy="78" r="1.3" opacity="0.8"/>
-      <circle class="data-dot" cx="72" cy="80" r="1.3" opacity="0.8"/>
-      <circle class="data-dot" cx="72" cy="90" r="1.3" opacity="0.8"/>
-    </g>
-    <line x1="74" y1="106" x2="68" y2="120" stroke="#D8D8E0" stroke-width="1.2"/>
-    <line x1="86" y1="106" x2="92" y2="120" stroke="#D8D8E0" stroke-width="1.2"/>
-    <polygon points="68,120 60,124 64,118" fill="#D8D8E0"/><polygon points="68,120 68,128 64,124" fill="#D8D8E0"/>
-    <polygon points="92,120 100,124 96,118" fill="#D8D8E0"/><polygon points="92,120 92,128 96,124" fill="#D8D8E0"/>
-    <ellipse cx="74" cy="46" rx="3" ry="2" fill="white" opacity="0.06"/>
-    <ellipse cx="76" cy="76" rx="4" ry="6" fill="white" opacity="0.03"/>
-  </g>
-  </svg>
-  <h1>Tu negocio,<br><em>en una sola app.</em></h1>
-  <p class="hero-sub">15 soluciones SaaS diseñadas para el mercado argentino. Sin complicaciones, sin servidores. Empezás en minutos.</p>
-  <div class="hero-actions">
-    <a href="#apps" class="btn-primary">Ver las apps</a>
-    <a href="#contacto" class="btn-ghost">Solicitar demo</a>
-  </div>
-  <div class="scroll-hint" aria-hidden="true">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    VER MÁS
-  </div>
-</section>
-
-<!-- APPS CON TABS + CARRUSEL -->
-<section id="apps">
-  <div class="apps-header">
-    <p class="section-label">Nuestras apps</p>
-    <h2 class="section-title">Todo lo que necesitás, listo para usar</h2>
-    <p class="section-sub">Seleccioná una categoría y explorá las apps disponibles.</p>
-  </div>
-
-  <div class="cat-tabs" id="catTabs">
-    <button class="cat-tab active" data-cat="0">🚗 Flotas &amp; Seguridad</button>
-    <button class="cat-tab" data-cat="1">🏪 Comercios &amp; Ventas</button>
-    <button class="cat-tab" data-cat="2">❤️ Salud &amp; Bienestar</button>
-    <button class="cat-tab" data-cat="3">🌟 Estilo de vida</button>
-  </div>
-
-  <div class="carousel-wrap" id="carouselWrap">
-
-    <!-- CAT 0: FLOTAS & SEGURIDAD -->
-    <div class="carousel-panel active" data-panel="0">
-      <div class="cards-row" id="row-0"></div>
-    </div>
-
-    <!-- CAT 1: COMERCIOS & VENTAS -->
-    <div class="carousel-panel" data-panel="1">
-      <div class="cards-row" id="row-1"></div>
-    </div>
-
-    <!-- CAT 2: SALUD & BIENESTAR -->
-    <div class="carousel-panel" data-panel="2">
-      <div class="cards-row" id="row-2"></div>
-    </div>
-
-    <!-- CAT 3: ESTILO DE VIDA -->
-    <div class="carousel-panel" data-panel="3">
-      <div class="cards-row" id="row-3"></div>
-    </div>
-
-  </div>
-
-  <!-- DOTS + PROGRESS -->
-  <div class="carousel-dots" id="carouselDots"></div>
-  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
-</section>
-
-<!-- POR QUÉ RAVENTECHS -->
-<div style="background:var(--bg2);border-top:0.5px solid var(--border);border-bottom:0.5px solid var(--border);margin-top:4rem;">
-<div class="section">
-  <p class="section-label" style="text-align:center;">Por qué RavenTechs</p>
-  <h2 class="section-title" style="text-align:center;font-family:'Rajdhani',sans-serif;font-size:clamp(1.8rem,4vw,2.8rem);font-weight:700;">Hecho en Argentina,<br>para Argentina</h2>
-  <div class="divider" style="margin-top:1rem;"></div>
-  <div class="why-grid">
-    <div class="why-item"><div class="why-num">100%</div><div class="why-title">Web, sin instalar nada</div><p class="why-text">Funcionan desde el navegador en cualquier dispositivo. Sin descargas, sin actualizaciones manuales.</p></div>
-    <div class="why-item"><div class="why-num">15</div><div class="why-title">Apps disponibles hoy</div><p class="why-text">Flotas, seguridad, comercios, salud, estilo de vida y estudio con IA. Cada una enfocada en resolver un problema real.</p></div>
-    <div class="why-item"><div class="why-num">24h</div><div class="why-title">Demo sin compromiso</div><p class="why-text">Probá cualquier app con datos de prueba durante 24 horas antes de decidir. Sin tarjeta de crédito.</p></div>
-    <div class="why-item"><div class="why-num">AR</div><div class="why-title">Pensado en pesos</div><p class="why-text">Precios, reportes y lógica diseñados para el mercado argentino. Sin traducciones ni adaptaciones.</p></div>
-  </div>
-</div>
-</div>
-
-<!-- CONTACTO -->
-<div class="cta-section" id="contacto">
-  <p class="section-label">Contacto</p>
-  <h2>¿Querés probarlo en tu negocio?</h2>
-  <p>Mandanos un email y te armamos una demo personalizada de la app que más te interese. Sin costo, sin compromiso.</p>
-  <a href="mailto:ventas@raventechsapp.com" class="email-pill">
-    <svg class="email-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="14" height="10" rx="1.5"/><path d="M1 5l7 5 7-5"/></svg>
-    ventas@raventechsapp.com
-  </a><br>
-  <a href="mailto:ventas@raventechsapp.com?subject=Demo RavenTechs&body=Hola, me interesa probar:" class="btn-primary" style="display:inline-block;margin-top:0.5rem;">Solicitar demo gratis</a>
-</div>
-
-<footer>
-  <a href="#inicio" class="footer-logo">Raven<span>Techs</span></a>
-  <p class="footer-copy">© 2025 RavenTechs — Software argentino para PyMEs</p>
-  <a href="https://github.com/raventechs" target="_blank" rel="noopener" class="footer-copy" style="color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:6px;">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg>
-    raventechs
-  </a>
-</footer>
-
-<!-- PANEL OCULTO -->
-<div class="hidden-overlay" id="pinOverlay">
-  <div class="pin-box">
-    <h3>🔒 Acceso interno</h3>
-    <input type="password" id="pinInput" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off">
-    <div class="pin-error" id="pinError"></div>
-    <div class="pin-actions">
-      <button class="pin-cancel" id="pinCancelBtn">Cancelar</button>
-      <button class="pin-confirm" id="pinConfirmBtn">Entrar</button>
-    </div>
+<div class="header">
+  <div class="brand">Raven<span>Techs</span></div>
+  <div class="brand-sub">Portfolio de aplicaciones</div>
+  <div class="header-links">
+    <a href="/admin/" class="hlink">🦅 Consola Admin</a>
+    <a href="/protocolo.html" class="hlink">📋 Protocolo</a>
+    <a href="/folletos/" class="hlink">📄 Folletos</a>
   </div>
 </div>
 
-<div class="hidden-overlay" id="toolsOverlay">
-  <div class="tools-panel">
-    <div class="tools-panel-header">
-      <h2>Panel <span>interno</span></h2>
-      <button class="tools-close" id="toolsCloseBtn">✕</button>
-    </div>
-    <p class="tools-section-title">Herramientas</p>
-    <div id="toolsList"></div>
-    <p class="tools-section-title">Listado de apps</p>
-    <div id="appsListInternal"></div>
-  </div>
+<div class="stats-bar" id="statsBar"></div>
+
+<div class="filters">
+  <button class="filter-btn on" data-filter="todas">Todas</button>
+  <button class="filter-btn" data-filter="operativa">✅ Operativas</button>
+  <button class="filter-btn" data-filter="pendiente">⚠️ Con pendientes</button>
+  <button class="filter-btn" data-filter="incompleta">❌ Incompletas</button>
+  <button class="filter-btn" data-filter="comercio">🏪 Comercios</button>
+  <button class="filter-btn" data-filter="salud">❤️ Salud</button>
+  <button class="filter-btn" data-filter="ia">🤖 IA</button>
 </div>
+
+<div class="grid" id="grid"></div>
 
 <script>
-// ═══════════════════════════════════════════
-//  DATOS DE APPS POR CATEGORÍA
-// ═══════════════════════════════════════════
+const BASE = 'https://raventechs.github.io';
 
-// ═══════════════════════════════════════════
-//  FORMATO AR NARANJA
-// ═══════════════════════════════════════════
-function formatNombre(nombre) {
-  const AR_SPAN = '<span style="color:#ff8c00;font-weight:800;">AR</span>';
-  const AR_LOWER = '<span style="color:#ff8c00;font-weight:800;">Ar</span>';
-  if (nombre.endsWith('AR')) {
-    const base = nombre.slice(0, -2);
-    return `<span style="color:#fff">${base}</span>${AR_SPAN}`;
-  }
-  if (nombre.endsWith('Ar')) {
-    const base = nombre.slice(0, -2);
-    return `<span style="color:#fff">${base}</span>${AR_LOWER}`;
-  }
-  return `<span style="color:#fff">${nombre}</span>`;
-}
-
-const CATEGORIAS = [
+const APPS = [
   {
-    id: 0,
-    apps: [
-      { emoji:'🚗', nombre:'lavAR', tag:'Gestión de lavaderos', color:'#3B9EFF', bg:'rgba(59,158,255,0.12)', url:'https://raventechs.github.io/lavar/', desc:'Sistema de caja para lavaderos. Registrá ventas, cerrá el día y enviá el resumen por WhatsApp. Multi-sucursal con links únicos por empleado.', feats:['Caja en tiempo real con historial exportable','Cierre de caja con resumen automático por WhatsApp','Multi-sucursal: empleados acceden por link sin contraseña','Fidelización por patente de vehículo (plus)'] },
-      { emoji:'🚚', nombre:'Rodix', tag:'Gestión de flotas', color:'#3B82F6', bg:'rgba(59,130,246,0.12)', url:'https://raventechs.github.io/vehigest-ar/', desc:'Controlá toda tu flota. Alertas de vencimientos, historial de service con costo por vehículo y checklist diario de insumos.', feats:['Alertas de VTV, seguro y patente antes del vencimiento','Historial de service y gasto acumulado por vehículo','Equipo de choferes con invitación por link','Checklist diario de insumos con registro de confirmaciones'] },
-      { emoji:'🛡️', nombre:'SecurePro', tag:'Seguridad electrónica', color:'#CC0000', bg:'rgba(204,0,0,0.12)', url:'https://raventechs.github.io/securepro/', desc:'CRM para empresas de seguridad electrónica. Historial de clientes, presupuestos en PDF o WhatsApp y control de stock.', feats:['Historial y seguimiento de clientes','Presupuestos en PDF y WhatsApp','Stock de mercadería','Reporte mensual de gestión de clientes'] },
-    ]
+    id: 'pizzar', nombre: 'Pizz', ar: 'AR', emoji: '🍕',
+    color: '#e74c3c', desc: 'Caja registradora para pizzerías. Catálogo, stock, roles cajero/dueño, cierre de caja.',
+    estado: 'operativa', estadoLabel: 'Operativa',
+    url: BASE + '/pizzAr/', beta: BASE + '/pizzar-beta/', folleto: BASE + '/folletos/pizzar.html',
+    tags: ['offline', 'plus', 'csv'],
+    pendientes: ['Alertas presupuesto Firebase P4']
   },
   {
-    id: 1,
-    apps: [
-      { emoji:'🍕', nombre:'PizzAR', tag:'Caja · Pizzería', color:'#E03C26', bg:'rgba(224,60,38,0.12)', url:'https://raventechs.github.io/pizzAr/', desc:'Caja registradora para pizzerías con carrito, selector de tamaño, reportes y control de stock con descuento por receta.', feats:['Venta rápida con carrito y selector de tamaño','Reportes e historial de ventas por fecha','Roles: Dueño y Punto de Venta','Control de stock con descuento automático por receta'] },
-      { emoji:'🥖', nombre:'PanAR', tag:'Caja · Panadería', color:'#F2994A', bg:'rgba(242,153,74,0.12)', url:'https://raventechs.github.io/panar/', desc:'Motor de PizzAR adaptado a panaderías: panes por peso, facturas por docena, tortas por porción y stock de insumos.', feats:['Catálogo por peso, unidad/docena y porción/entera','Reportes e historial de ventas por fecha','Roles: Dueño y Punto de Venta','Control de stock de insumos con receta por variante'] },
-      { emoji:'🥩', nombre:'CarneAR', tag:'Caja · Carnicería', color:'#E53935', bg:'rgba(229,57,53,0.12)', url:'https://raventechs.github.io/carneAr/', desc:'Caja para carnicerías con catálogo de cortes argentinos, stock por tipo de carne, gastos y balance real del día.', feats:['Catálogo de cortes: vacuna, cerdo, pollo y achuras','Stock por tipo de carne con alertas de faltante','Gastos y proveedores integrados (plus)','Roles cajero / dueño con resumen diario por WhatsApp'] },
-      { emoji:'🛒', nombre:'PuntoVenta', tag:'Punto de venta · Multi-sucursal', color:'#F59E0B', bg:'rgba(245,158,11,0.12)', url:'https://raventechs.github.io/puntoventa/', desc:'Hasta 30 sucursales controladas desde un panel. Ventas, cuenta corriente y resumen diario por WhatsApp al cierre.', feats:['Ventas en tiempo real por negocio','Hasta 30 sucursales desde un solo dashboard','Registro de empleados y cuenta corriente de clientes','Resumen diario automático por WhatsApp al cierre'] },
-      { emoji:'🏢', nombre:'EmpresAR', tag:'Gestión multi-sucursal', color:'#D97706', bg:'rgba(217,119,6,0.12)', url:'https://raventechs.github.io/Garrafar/', desc:'Gestión centralizada para empresas con varias sucursales. Stock, pedidos y equipos coordinados desde un solo panel.', feats:['Gestión por sucursal con visión centralizada','Control de stock y pedidos en tiempo real','Equipos y roles diferenciados por punto de trabajo','Base adaptable a distribución, logística o retail'] },
-      { emoji:'🤖', nombre:'CentralbotAr', tag:'Chatbot IA · WhatsApp / Instagram / Messenger', color:'#25d366', bg:'rgba(37,211,102,0.12)', url:'https://magnificent-jalebi-8408d5.netlify.app/centralbotar.html', desc:'Chatbot con IA que atiende clientes por WhatsApp, Instagram y Messenger las 24 horas — y avisa cuando necesita tu intervención.', feats:['Chatbot con IA activo 24/7 en 3 canales','WhatsApp, Instagram y Messenger en un solo panel','Multi-agente: todo el equipo conectado','Resumen diario de conversaciones por canal'] },
-    ]
+    id: 'panar', nombre: 'Pan', ar: 'AR', emoji: '🥖',
+    color: '#e67e22', desc: 'Caja registradora para panaderías. Recetas, stock, cierre de caja con WhatsApp.',
+    estado: 'operativa', estadoLabel: 'Operativa',
+    url: BASE + '/panar/', beta: BASE + '/panar-beta/', folleto: BASE + '/folletos/panar.html',
+    tags: ['offline', 'plus', 'csv'],
+    pendientes: ['Alertas presupuesto Firebase P4']
   },
   {
-    id: 2,
-    apps: [
-      { emoji:'❤️', nombre:'SaludAR', tag:'Salud personal', color:'#A855F7', bg:'rgba(168,85,247,0.12)', url:'https://raventechs.github.io/saludar/', desc:'Control de medicación con alarmas push. Un familiar supervisa el tratamiento a distancia — ideal para adultos mayores o chicos con medicación crónica.', feats:['Checklist de medicaciones del día con alarmas','Supervisión a distancia desde el celular de un familiar','Turnos, estudios y recetas digitales','Notificaciones push antes de cada toma'] },
-      { emoji:'💗', nombre:'CharlAR', tag:'Compañía digital', color:'#E8634A', bg:'rgba(232,99,74,0.12)', url:'https://raventechs.github.io/charlar/', desc:'Compañía digital por voz para adultos mayores que viven solos. Charlá, recibí consejos del día y registrá cómo te sentís.', feats:['Chat por voz o texto con IA','Consejos personalizados según hora y clima','Registro de estado de ánimo diario','IA conversacional con Groq llama-3.1'] },
-      { emoji:'🧬', nombre:'Traductor de Hábitos', tag:'Hábitos & bienestar', color:'#1E8C6E', bg:'rgba(30,140,110,0.12)', url:'https://raventechs.github.io/raventechs-traductor-habitos/', desc:'Registrá por voz lo que comés, cómo dormís y cómo te sentís. La IA cruza tus datos y te muestra patrones reales.', feats:['Registro por voz con clasificación automática','Motor de descubrimientos con IA','Asistente conversacional de hábitos','Cruza hasta 80 registros en tiempo real'] },
-      { emoji:'🧠', nombre:'MTC', tag:'Estimulación cognitiva con IA', color:'#7C3AED', bg:'rgba(124,58,237,0.12)', url:'https://singular-baklava-f6e983.netlify.app/', desc:'Conversación guiada por IA para estimular la memoria, el lenguaje y el pensamiento. Ideal para adultos mayores con seguimiento del familiar.', feats:['Chat adaptado al perfil cognitivo del usuario','Seguimiento de evolución con gráfico de progreso','Síntesis de voz y entrada por micrófono','Diario de sesiones visible para el familiar cuidador'] },
-    ]
+    id: 'carnear', nombre: 'Carne', ar: 'AR', emoji: '🥩',
+    color: '#c0392b', desc: 'Caja registradora para carnicerías. Ventas por kilo, stock, proveedores.',
+    estado: 'operativa', estadoLabel: 'Operativa',
+    url: BASE + '/carneAr/', beta: BASE + '/carnear-beta/', folleto: BASE + '/folletos/carnear.html',
+    tags: ['offline', 'plus', 'csv'],
+    pendientes: ['Alertas presupuesto Firebase P4']
   },
   {
-    id: 3,
-    apps: [
-      { emoji:'💰', nombre:'AhorrAR', tag:'Descuentos y beneficios', color:'#22C55E', bg:'rgba(34,197,94,0.12)', url:'https://raventechs.github.io/ahorrar/', desc:'Descubrí descuentos cerca tuyo hoy y en los próximos días. Aprovechá los beneficios de las mejores empresas.', feats:['Descuentos por zona en tiempo real','Acceso a descuentos de días futuros','Programa de fidelización','Sincronización instantánea de ofertas'] },
-      { emoji:'📅', nombre:'MiAgenda', tag:'Agenda para estudiantes', color:'#14B8A6', bg:'rgba(20,184,166,0.12)', url:'https://raventechs.github.io/miagenda/', desc:'Organizá tus exámenes con alertas por colores según la proximidad de la fecha. Nunca más llegues sin saber que tenías un parcial.', feats:['Alertas de exámenes por colores','Tipo de examen y materia','Recordatorios automáticos','Datos en la nube, accesibles desde cualquier dispositivo'] },
-      { emoji:'⚖️', nombre:'legalAR', tag:'Consulta legal orientativa', color:'#6B7FCC', bg:'rgba(107,127,204,0.12)', url:'/folletos/folleto-legalar.html', desc:'Orientación legal basada en legislación argentina por texto o voz. Herramienta de apoyo para abogados y profesionales.', feats:['Consulta por texto o por voz','Respuesta en lenguaje técnico y simple','Caso de referencia y bibliografía citada','Historial de consultas guardado y buscable'] },
-      { emoji:'📚', nombre:'estudiAR', tag:'Estudio con IA · Próximamente', color:'#A855F7', bg:'rgba(168,85,247,0.12)', url:'/folletos/folleto-estudiar.html', desc:'Buscá cualquier tema y elegí cómo estudiarlo: 5 renglones de curiosidad, SOS para el examen de mañana, o modo completo con cuadro sinóptico.', feats:['3 modos: Curiosidad, SOS Examen y Completo','Cuadro sinóptico e imágenes generadas por IA','Descarga en PDF en los tres modos','Historial de búsquedas guardado en la nube'] },
-    ]
-  }
+    id: 'lavar', nombre: 'lav', ar: 'AR', emoji: '🚗',
+    color: '#2980b9', desc: 'Sistema para lavaderos de autos. Multi-sucursal, empleados por link, fidelización por patente.',
+    estado: 'operativa', estadoLabel: 'Operativa',
+    url: BASE + '/lavar/', beta: BASE + '/lavar-beta/', folleto: BASE + '/folletos/lavar.html',
+    tags: ['offline', 'plus'],
+    pendientes: ['Alertas presupuesto Firebase P4', 'Backup JSON pendiente']
+  },
+  {
+    id: 'rodix', nombre: 'Rodix', ar: '', emoji: '🚑',
+    color: '#8e44ad', desc: 'Gestión de flotas. Vencimientos, checklist de insumos, historial de service. Usado con ambulancias.',
+    estado: 'operativa', estadoLabel: 'Operativa',
+    url: BASE + '/vehigest-ar/', beta: BASE + '/rodix-beta/', folleto: BASE + '/folletos/rodix.html',
+    tags: ['plus', 'csv'],
+    pendientes: ['Alertas presupuesto Firebase P4', 'Offline-first pendiente', 'Backup JSON pendiente']
+  },
+  {
+    id: 'securepro', nombre: 'Secure', ar: 'Pro', emoji: '🔒',
+    color: '#16a085', desc: 'CRM para instaladores de seguridad electrónica. Clientes, presupuestos, mantenimientos.',
+    estado: 'operativa', estadoLabel: 'Operativa',
+    url: BASE + '/securepro/', beta: BASE + '/securepro-beta/', folleto: BASE + '/folletos/securepro.html',
+    tags: ['plus', 'csv'],
+    pendientes: ['Alertas presupuesto Firebase P4', 'Offline-first pendiente', 'Backup JSON pendiente']
+  },
+  {
+    id: 'puntoventa', nombre: 'Punto', ar: 'Venta', emoji: '🏪',
+    color: '#f0b84a', desc: 'Punto de venta multi-local hasta 30 sucursales. Cuenta corriente y morosidad de clientes.',
+    estado: 'operativa', estadoLabel: 'Operativa',
+    url: BASE + '/puntoventa/', beta: BASE + '/puntoventa-beta/', folleto: BASE + '/folletos/puntoventa.html',
+    tags: ['plus', 'csv'],
+    pendientes: ['Alertas presupuesto Firebase P4', 'Offline-first pendiente', 'Backup JSON pendiente']
+  },
+  {
+    id: 'empresar', nombre: 'Empres', ar: 'AR', emoji: '🏢',
+    color: '#27ae60', desc: 'Gestión multi-sucursal genérica. Adaptable a cualquier rubro con distribución y stock.',
+    estado: 'pendiente', estadoLabel: 'Demo wall — probar en mobile',
+    url: BASE + '/Garrafar/', beta: null, folleto: BASE + '/folletos/empresar.html',
+    tags: ['plus'],
+    pendientes: ['Probar demo wall onSnapshot en mobile', 'Alertas presupuesto Firebase P4']
+  },
+  {
+    id: 'saludar', nombre: 'Salud', ar: 'AR', emoji: '💊',
+    color: '#e74c3c', desc: 'Control de medicación y turnos médicos. Notificaciones locales, grupo familiar PLUS.',
+    estado: 'pendiente', estadoLabel: 'Notificaciones pendientes',
+    url: BASE + '/saludar/', beta: null, folleto: BASE + '/folletos/saludar.html',
+    tags: ['plus', 'salud', 'push'],
+    pendientes: ['Sistema de recordatorios (saludar-recordatorios)', 'Migrar a Cloudflare Workers', 'Alertas presupuesto Firebase P4']
+  },
+  {
+    id: 'miagenda', nombre: 'Mi', ar: 'Agenda', emoji: '📅',
+    color: '#3b82f6', desc: 'Agenda grupal para estudiantes. Exámenes, TPs, compromisos. Acceso compartido por link.',
+    estado: 'pendiente', estadoLabel: 'Notificaciones push pendientes',
+    url: BASE + '/miagenda/', beta: null, folleto: BASE + '/folletos/miagenda.html',
+    tags: ['push'],
+    pendientes: ['Implementar notificaciones push (igual patrón TimbreAr)', 'Alertas presupuesto Firebase P4']
+  },
+  {
+    id: 'mtc', nombre: 'MTC', ar: '', emoji: '🧠',
+    color: '#4fd1c5', desc: 'Motor de Traducción Cognitiva. IA educativa adaptativa para niños, adultos mayores y personas con Alzheimer.',
+    estado: 'pendiente', estadoLabel: 'Key Anthropic en Netlify Drop',
+    url: 'https://netlify.app (URL variable)', beta: null, folleto: BASE + '/folletos/mtc.html',
+    tags: ['ia', 'plus', 'push'],
+    pendientes: ['Netlify Functions proxy para Anthropic key (key se revoca en GitHub)', 'Juegos cognitivos para adultos mayores', 'Modo día difícil']
+  },
+  {
+    id: 'timbrear', nombre: 'Timbre', ar: 'Ar', emoji: '🔔',
+    color: '#c8a84b', desc: 'Timbre virtual para edificios. QR en entrada → visitante toca depto → push al residente → chat de audio/texto.',
+    estado: 'pendiente', estadoLabel: 'Push Xiaomi sin sonido personalizado',
+    url: BASE + '/timbrear/portero-virtual.html?edificio=demo', beta: null, folleto: null,
+    tags: ['push', 'ia'],
+    pendientes: ['Sonido personalizado en SW para Xiaomi/MIUI', 'Admin edificios reales', 'Modelo comercial definir']
+  },
+  {
+    id: 'legalar', nombre: 'Legal', ar: 'AR', emoji: '⚖️',
+    color: '#6366f1', desc: 'Consulta legal orientativa con IA. Para abogados y usuarios que necesitan orientación rápida.',
+    estado: 'incompleta', estadoLabel: 'Sin Netlify — Worker Cloudflare listo',
+    url: null, beta: null, folleto: BASE + '/folletos/legalar.html',
+    tags: ['ia'],
+    pendientes: ['Crear Worker en Cloudflare (legalar-worker.js listo para pegar)', 'Actualizar URL en legalar.html', 'Autorizar nuevo dominio en Firebase']
+  },
+  {
+    id: 'centralbotar', nombre: 'Central', ar: 'botAR', emoji: '🤖',
+    color: '#25d366', desc: 'Chatbot WhatsApp/Instagram/Messenger con IA. Dashboard multi-tenant para negocios.',
+    estado: 'incompleta', estadoLabel: 'Sin Netlify — Worker Cloudflare listo',
+    url: null, beta: null, folleto: null,
+    tags: ['ia'],
+    pendientes: ['Crear Worker en Cloudflare (centralbotar-worker.js listo para pegar)', 'Renovar token Meta (vence cada 60 días)', 'Actualizar URL en centralbotar.html']
+  },
+  {
+    id: 'charlar', nombre: 'Charl', ar: 'AR', emoji: '💬',
+    color: '#f472b6', desc: 'Compañía digital por voz para adultos mayores. IA conversacional con GROQ. Familia configura, abuelo usa.',
+    estado: 'incompleta', estadoLabel: 'Sin auditar',
+    url: BASE + '/charlar/', beta: null, folleto: null,
+    tags: ['ia', 'salud'],
+    pendientes: ['Auditar código completo', 'Aplicar estándar robustez P1-P6', 'PIN cambiar 1990 → 2580', 'Migrar key GROQ a Cloudflare Worker']
+  },
+  {
+    id: 'ahorrar', nombre: 'Ahorr', ar: 'AR', emoji: '💰',
+    color: '#34d399', desc: 'Descuentos y beneficios por zona. Roles: Consumidor / Comercio / Admin RavenTechs.',
+    estado: 'incompleta', estadoLabel: 'Sin auditar',
+    url: BASE + '/ahorrar/', beta: null, folleto: null,
+    tags: ['plus'],
+    pendientes: ['Auditar código completo', 'Aplicar estándar robustez P1-P6', 'PIN cambiar 1990 → 2580']
+  },
 ];
 
-// ═══════════════════════════════════════════
-//  RENDER DE CARDS
-// ═══════════════════════════════════════════
-function renderCard(app) {
-  return `
-    <a href="${app.url}" ${app.url.startsWith('http') ? 'target="_blank" rel="noopener"' : ''} class="app-card" style="--card-accent:${app.color};--card-bg:${app.bg};">
-      <div class="card-header">
-        <div class="card-icon">${app.emoji}</div>
-        <div>
-          <div class="card-name">${formatNombre(app.nombre)}</div>
-          <span class="card-tag">${app.tag}</span>
+const STATUS_CONFIG = {
+  operativa:  { dot: 'status-ok',     label: 'Operativa' },
+  pendiente:  { dot: 'status-warn',   label: 'Con pendientes' },
+  incompleta: { dot: 'status-danger', label: 'Incompleta' },
+};
+
+const CATEGORIAS = {
+  comercio: ['pizzar','panar','carnear','lavar','rodix','securepro','puntoventa','empresar','centralbotar','ahorrar'],
+  salud:    ['saludar','miagenda','mtc','charlar'],
+  ia:       ['mtc','timbrear','legalar','centralbotar','charlar'],
+};
+
+let filtroActivo = 'todas';
+
+function renderStats() {
+  const op   = APPS.filter(a => a.estado === 'operativa').length;
+  const pend = APPS.filter(a => a.estado === 'pendiente').length;
+  const inc  = APPS.filter(a => a.estado === 'incompleta').length;
+  document.getElementById('statsBar').innerHTML = `
+    <div class="stat-pill"><span class="n ok">${op}</span> operativas</div>
+    <div class="stat-pill"><span class="n warn">${pend}</span> con pendientes</div>
+    <div class="stat-pill"><span class="n danger">${inc}</span> incompletas</div>
+    <div class="stat-pill"><span class="n">${APPS.length}</span> total</div>`;
+}
+
+function appMatchesFiltro(app) {
+  if (filtroActivo === 'todas') return true;
+  if (filtroActivo === 'operativa')  return app.estado === 'operativa';
+  if (filtroActivo === 'pendiente')  return app.estado === 'pendiente';
+  if (filtroActivo === 'incompleta') return app.estado === 'incompleta';
+  if (CATEGORIAS[filtroActivo]) return CATEGORIAS[filtroActivo].includes(app.id);
+  return true;
+}
+
+function renderGrid() {
+  const grid = document.getElementById('grid');
+  const visibles = APPS.filter(appMatchesFiltro);
+
+  if (!visibles.length) {
+    grid.innerHTML = '<div class="empty">Sin apps en esta categoría</div>';
+    return;
+  }
+
+  grid.innerHTML = visibles.map(app => {
+    const st = STATUS_CONFIG[app.estado];
+    const nombreHTML = app.ar
+      ? `${app.nombre}<span>${app.ar}</span>`
+      : app.nombre;
+
+    const tagsHTML = app.tags.map(t => {
+      const labels = { plus:'Plus', offline:'Offline', csv:'CSV', ia:'IA', push:'Push', salud:'Salud' };
+      return `<span class="tag ${t}">${labels[t]||t}</span>`;
+    }).join('');
+
+    const pendHTML = app.pendientes.length
+      ? `<div class="card-pendientes">
+          <div class="pend-title">Pendientes</div>
+          ${app.pendientes.map(p => `<div class="pend-item"><div class="pend-dot"></div>${p}</div>`).join('')}
+         </div>`
+      : '';
+
+    const btnApp = app.url
+      ? `<a href="${app.url}" target="_blank" class="btn-action btn-app">↗ Abrir app</a>`
+      : `<span class="btn-action btn-beta" style="opacity:.4;cursor:default">↗ Sin URL</span>`;
+
+    const btnBeta = app.beta
+      ? `<a href="${app.beta}" target="_blank" class="btn-action btn-beta">β Beta</a>`
+      : '';
+
+    const btnFolleto = app.folleto
+      ? `<a href="${app.folleto}" target="_blank" class="btn-action btn-folleto">📄</a>`
+      : '';
+
+    const btnProto = `<a href="/protocolo.html#${app.id}" target="_blank" class="btn-action btn-protocolo">✓</a>`;
+
+    return `<div class="card" id="card-${app.id}">
+      <div class="card-head">
+        <div class="card-emoji" style="background:${app.color}22">${app.emoji}</div>
+        <div class="card-info">
+          <div class="card-name">${nombreHTML}</div>
+          <div class="card-desc">${app.desc}</div>
+          <div class="card-status">
+            <div class="status-dot ${st.dot}"></div>
+            <span class="status-label">${app.estadoLabel}</span>
+          </div>
         </div>
       </div>
-      <p class="card-desc">${app.desc}</p>
-      <div class="card-features">
-        ${app.feats.map(f => `<div class="feat"><span class="feat-dot" style="background:${app.color}"></span>${f}</div>`).join('')}
-      </div>
-      <div class="card-footer">
-        <span class="card-demo" style="color:${app.color}">Ver app →</span>
-        <svg class="card-arrow" viewBox="0 0 20 20" fill="none" stroke="${app.color}" stroke-width="1.5"><path d="M3 17L17 3M17 3H7M17 3v10"/></svg>
-      </div>
-    </a>`;
+      <div class="card-tags">${tagsHTML}</div>
+      ${pendHTML}
+      <div class="card-actions">${btnApp}${btnBeta}${btnFolleto}${btnProto}</div>
+    </div>`;
+  }).join('');
 }
 
-CATEGORIAS.forEach(cat => {
-  const row = document.getElementById('row-' + cat.id);
-  if (row) row.innerHTML = cat.apps.map(renderCard).join('');
+// Filtros
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    filtroActivo = btn.dataset.filter;
+    renderGrid();
+  };
 });
 
-// ═══════════════════════════════════════════
-//  LÓGICA DE TABS + CARRUSEL AUTO-SCROLL
-// ═══════════════════════════════════════════
-let activeCat    = 0;
-let activeSlide  = 0;
-let autoTimer    = null;
-let progressTimer = null;
-let progressVal  = 0;
-const INTERVAL   = 8000;
-const TICK       = 80;
-
-function getVisibleCount() {
-  const w = window.innerWidth;
-  if (w >= 900) return 3;
-  if (w >= 580) return 2;
-  return 1;
-}
-
-function getSlideCount(catId) {
-  const apps = CATEGORIAS[catId].apps.length;
-  const vis  = getVisibleCount();
-  return Math.ceil(apps / vis);
-}
-
-function renderDots() {
-  const dots = document.getElementById('carouselDots');
-  const count = getSlideCount(activeCat);
-  dots.innerHTML = Array.from({length: count}, (_,i) =>
-    `<button class="c-dot ${i === activeSlide ? 'active' : ''}" data-i="${i}"></button>`
-  ).join('');
-  dots.querySelectorAll('.c-dot').forEach(d => {
-    d.addEventListener('click', () => goSlide(parseInt(d.dataset.i)));
-  });
-}
-
-function goSlide(idx) {
-  const count = getSlideCount(activeCat);
-  activeSlide = (idx + count) % count;
-  const vis   = getVisibleCount();
-  const row   = document.querySelector(`#row-${activeCat}`);
-  if (!row) return;
-  const cardW = row.querySelector('.app-card')?.offsetWidth || 0;
-  const gap   = 20;
-  const offset = activeSlide * vis * (cardW + gap);
-  row.style.transform = `translateX(-${offset}px)`;
-  row.style.transition = 'transform 0.5s cubic-bezier(.4,0,.2,1)';
-  renderDots();
-  resetProgress();
-}
-
-function nextSlide() {
-  goSlide(activeSlide + 1);
-}
-
-function resetProgress() {
-  clearInterval(progressTimer);
-  progressVal = 0;
-  const bar = document.getElementById('progressBar');
-  bar.style.transition = 'none';
-  bar.style.width = '0%';
-  setTimeout(() => {
-    bar.style.transition = `width ${TICK}ms linear`;
-    progressTimer = setInterval(() => {
-      progressVal += (100 / (INTERVAL / TICK));
-      if (progressVal >= 100) progressVal = 100;
-      bar.style.width = progressVal + '%';
-    }, TICK);
-  }, 50);
-}
-
-function startAuto() {
-  clearInterval(autoTimer);
-  autoTimer = setInterval(nextSlide, INTERVAL);
-  resetProgress();
-}
-
-function stopAuto() {
-  clearInterval(autoTimer);
-  clearInterval(progressTimer);
-}
-
-function switchCat(catId) {
-  // Ocultar panel anterior
-  document.querySelectorAll('.carousel-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
-  // Mostrar nuevo
-  activeCat   = catId;
-  activeSlide = 0;
-  document.querySelector(`.carousel-panel[data-panel="${catId}"]`).classList.add('active');
-  document.querySelector(`.cat-tab[data-cat="${catId}"]`).classList.add('active');
-  // Resetear transform
-  const row = document.querySelector(`#row-${catId}`);
-  if (row) { row.style.transform = 'translateX(0)'; }
-  renderDots();
-  stopAuto();
-  startAuto();
-}
-
-// Init
-document.querySelectorAll('.cat-tab').forEach(tab => {
-  tab.addEventListener('click', () => switchCat(parseInt(tab.dataset.cat)));
-});
-
-// Pausa al tocar / hover
-const wrap = document.getElementById('carouselWrap');
-wrap.addEventListener('mouseenter', stopAuto);
-wrap.addEventListener('mouseleave', startAuto);
-wrap.addEventListener('touchstart', stopAuto, {passive:true});
-wrap.addEventListener('touchend', () => setTimeout(startAuto, 2000), {passive:true});
-
-// Swipe en mobile
-let touchStartX = 0;
-wrap.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, {passive:true});
-wrap.addEventListener('touchend', e => {
-  const diff = touchStartX - e.changedTouches[0].clientX;
-  if (Math.abs(diff) > 50) { diff > 0 ? goSlide(activeSlide + 1) : goSlide(activeSlide - 1); }
-});
-
-// Recalcular en resize
-window.addEventListener('resize', () => {
-  activeSlide = 0;
-  goSlide(0);
-  renderDots();
-});
-
-// Arrancar
-renderDots();
-startAuto();
-
-// ═══════════════════════════════════════════
-//  SMOOTH SCROLL
-// ═══════════════════════════════════════════
-document.querySelectorAll('a[href^="#"]').forEach(a => {
-  a.addEventListener('click', e => {
-    const el = document.getElementById(a.getAttribute('href').slice(1));
-    if (el) { e.preventDefault(); el.scrollIntoView({behavior:'smooth'}); }
-  });
-});
-
-// ═══════════════════════════════════════════
-//  PANEL OCULTO (3 clicks en logo + PIN 1990)
-// ═══════════════════════════════════════════
-const HERRAMIENTAS_INTERNAS = [
-  { nombre:'Generador de Prompts', desc:'Convierte una idea en un prompt detallado + diagrama.', url:'https://inspiring-mermaid-bc3ac4.netlify.app/' },
-  { nombre:'legalAR', desc:'Consulta legal orientativa (uso interno).', url:'https://raventechs.github.io/legalar/' }
-];
-const APPS_INTERNAS = [
-  { nombre:'lavAR',       estado:'ok',       nota:'v2.1 — multi-sucursal, features plus, en producción', url:'https://raventechs.github.io/lavar/' },
-  { nombre:'Rodix',       estado:'ok',       nota:'v1.8.2 — estable, en producción con cliente real', url:'https://raventechs.github.io/vehigest-ar/' },
-  { nombre:'SaludAR',     estado:'progreso', nota:'Push confirmado; falta prueba final de timing', url:'https://raventechs.github.io/saludar/' },
-  { nombre:'SecurePro',   estado:'progreso', nota:'Auditado; falta probar invitación de equipo en vivo', url:'https://raventechs.github.io/securepro/' },
-  { nombre:'PuntoVenta',  estado:'progreso', nota:'Morosidad lista; falta CRUD completo de empleados', url:'https://raventechs.github.io/puntoventa/' },
-  { nombre:'MiAgenda',    estado:'ok',       nota:'v2.1 — agenda grupal en uso real', url:'https://raventechs.github.io/miagenda/' },
-  { nombre:'CharlAR',     estado:'progreso', nota:'4 errores corregidos; falta feature plus', url:'https://raventechs.github.io/charlar/' },
-  { nombre:'legalAR',     estado:'ok',       nota:'Desplegada, sin pendientes activos', url:'https://raventechs.github.io/legalar/' },
-  { nombre:'EmpresAR',    estado:'progreso', nota:'v1.2 — faltan índices de Firestore', url:'https://raventechs.github.io/Garrafar/' },
-  { nombre:'AhorrAR',     estado:'pendiente',nota:'Sin auditar todavía', url:'https://raventechs.github.io/ahorrar/' },
-  { nombre:'Traductor',   estado:'pendiente',nota:'Sin estado de auditoría registrado', url:'https://raventechs.github.io/raventechs-traductor-habitos/' },
-  { nombre:'CentralbotAr',estado:'progreso', nota:'En armado — falta conectar webhook con Meta', url:'https://magnificent-jalebi-8408d5.netlify.app/centralbotar.html' },
-  { nombre:'MTC',         estado:'progreso', nota:'v1.2 — login Google, diario de sesiones, proxy Netlify pendiente', url:'https://singular-baklava-f6e983.netlify.app/' },
-  { nombre:'PizzAR',      estado:'ok',       nota:'v2.4 — caja, stock y roles funcionando', url:'https://raventechs.github.io/pizzAr/' },
-  { nombre:'PanAR',       estado:'progreso', nota:'v1.0 — pendiente Firebase propio', url:'https://raventechs.github.io/panar/' },
-  { nombre:'CarneAR',     estado:'progreso', nota:'v1.3 — demo lista, pendiente robustez', url:'https://raventechs.github.io/carneAr/' },
-  { nombre:'estudiAR',    estado:'pendiente',nota:'Congelada hasta completar proyecto ROBUSTEZ', url:'/folletos/folleto-estudiar.html' }
-];
-const colorEstado = { ok:'#22C55E', progreso:'#F59E0B', pendiente:'#7777AA' };
-
-function renderPanel() {
-  document.getElementById('toolsList').innerHTML = HERRAMIENTAS_INTERNAS.map(t =>
-    `<div class="tool-row"><div><div class="tool-row-name">${t.nombre}</div><div class="tool-row-desc">${t.desc}</div></div><a class="tool-row-link" href="${t.url}" target="_blank">Abrir</a></div>`
-  ).join('');
-  document.getElementById('appsListInternal').innerHTML = APPS_INTERNAS.map(a =>
-    `<div class="listapp-row"><div><div class="listapp-name"><span class="status-dot" style="background:${colorEstado[a.estado]}"></span>${a.nombre}</div><div class="listapp-status">${a.nota}</div></div><a class="listapp-link" href="${a.url}" target="_blank">Ver</a></div>`
-  ).join('');
-}
-renderPanel();
-
-const PIN_CORRECTO = '1990';
-let clickCount = 0, clickTimer = null;
-const ravenLogoBtn = document.getElementById('ravenLogoBtn');
-const pinOverlay   = document.getElementById('pinOverlay');
-const pinInput     = document.getElementById('pinInput');
-const pinError     = document.getElementById('pinError');
-const toolsOverlay = document.getElementById('toolsOverlay');
-
-ravenLogoBtn.addEventListener('click', () => {
-  clickCount++;
-  clearTimeout(clickTimer);
-  if (clickCount >= 3) { clickCount = 0; abrirPin(); return; }
-  clickTimer = setTimeout(() => { clickCount = 0; }, 1200);
-});
-
-function abrirPin() { pinError.textContent=''; pinInput.value=''; pinOverlay.classList.add('active'); setTimeout(()=>pinInput.focus(),50); }
-function cerrarPin() { pinOverlay.classList.remove('active'); }
-function validarPin() {
-  if (pinInput.value === PIN_CORRECTO) { cerrarPin(); toolsOverlay.classList.add('active'); }
-  else { pinError.textContent='PIN incorrecto'; pinInput.value=''; pinInput.focus(); }
-}
-document.getElementById('pinConfirmBtn').addEventListener('click', validarPin);
-document.getElementById('pinCancelBtn').addEventListener('click', cerrarPin);
-pinInput.addEventListener('keydown', e => { if (e.key==='Enter') validarPin(); });
-document.getElementById('toolsCloseBtn').addEventListener('click', () => toolsOverlay.classList.remove('active'));
-[pinOverlay, toolsOverlay].forEach(ov => ov.addEventListener('click', e => { if (e.target===ov) ov.classList.remove('active'); }));
+renderStats();
+renderGrid();
 </script>
 </body>
 </html>
