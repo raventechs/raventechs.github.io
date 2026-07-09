@@ -216,34 +216,34 @@ const APPS = [
   {
     id: 'legalar', nombre: 'Legal', ar: 'AR', emoji: '⚖️',
     color: '#6366f1', desc: 'Consulta legal orientativa con IA. Para abogados y usuarios que necesitan orientación rápida.',
-    estado: 'incompleta', estadoLabel: 'Sin Netlify — Worker Cloudflare listo',
-    url: null, beta: null, folleto: BASE + '/folletos/legalar.html',
+    estado: 'pendiente', estadoLabel: 'Worker listo — crear en Cloudflare',
+    url: BASE + '/legalar/legalar.html', beta: null, folleto: BASE + '/folletos/legalar.html',
     tags: ['ia'],
-    pendientes: ['Crear Worker en Cloudflare (legalar-worker.js listo para pegar)', 'Actualizar URL en legalar.html', 'Autorizar nuevo dominio en Firebase']
+    pendientes: ['Crear Worker LegalAR en Cloudflare (código listo)', 'Reemplazar WORKER-LEGALAR en la URL', 'Agregar raventechs.github.io en Firebase Auth']
   },
   {
     id: 'centralbotar', nombre: 'Central', ar: 'botAR', emoji: '🤖',
     color: '#25d366', desc: 'Chatbot WhatsApp/Instagram/Messenger con IA. Dashboard multi-tenant para negocios.',
-    estado: 'incompleta', estadoLabel: 'Sin Netlify — Worker Cloudflare listo',
-    url: null, beta: null, folleto: null,
+    estado: 'pendiente', estadoLabel: 'Worker listo — crear en Cloudflare',
+    url: 'https://magnificent-jalebi-8408d5.netlify.app/centralbotar.html', beta: null, folleto: null,
     tags: ['ia'],
-    pendientes: ['Crear Worker en Cloudflare (centralbotar-worker.js listo para pegar)', 'Renovar token Meta (vence cada 60 días)', 'Actualizar URL en centralbotar.html']
+    pendientes: ['Crear Worker CentralbotAR en Cloudflare (código listo)', 'Reemplazar WORKER-CENTRALBOTAR en la URL', 'Renovar token Meta (vence cada 60 días)']
   },
   {
     id: 'charlar', nombre: 'Charl', ar: 'AR', emoji: '💬',
     color: '#f472b6', desc: 'Compañía digital por voz para adultos mayores. IA conversacional con GROQ. Familia configura, abuelo usa.',
-    estado: 'incompleta', estadoLabel: 'Sin auditar',
+    estado: 'pendiente', estadoLabel: 'P1-P5 aplicados — GROQ key expuesta',
     url: BASE + '/charlar/', beta: null, folleto: null,
     tags: ['ia', 'salud'],
-    pendientes: ['Auditar código completo', 'Aplicar estándar robustez P1-P6', 'PIN cambiar 1990 → 2580', 'Migrar key GROQ a Cloudflare Worker']
+    pendientes: ['Migrar GROQ key a Cloudflare Worker (key expuesta en código)', 'Panel familiar con historial de conversaciones', 'Modo voz mejorado']
   },
   {
     id: 'ahorrar', nombre: 'Ahorr', ar: 'AR', emoji: '💰',
     color: '#34d399', desc: 'Descuentos y beneficios por zona. Roles: Consumidor / Comercio / Admin RavenTechs.',
-    estado: 'incompleta', estadoLabel: 'Sin auditar',
+    estado: 'pendiente', estadoLabel: 'P1-P5 aplicados — completar funcionalidad',
     url: BASE + '/ahorrar/', beta: null, folleto: null,
     tags: ['plus'],
-    pendientes: ['Auditar código completo', 'Aplicar estándar robustez P1-P6', 'PIN cambiar 1990 → 2580']
+    pendientes: ['Definir modelo comercial B2B', 'Panel admin de promos', 'Geolocalización por zona']
   },
 ];
 
