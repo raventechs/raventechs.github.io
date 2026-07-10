@@ -1,7 +1,6 @@
 // ═══════════════════════════════════════════════════════
-//  TIMBREAR — Service Worker para notificaciones push
-//  Este archivo DEBE estar en la raíz del sitio (mismo
-//  nivel que index.html) para que funcionen las push.
+//  RavenTechs — Service Worker para notificaciones push
+//  Sonidos: notification-agenda.mp3 / notification-timbre.mp3
 // ═══════════════════════════════════════════════════════
 
 importScripts("https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js");
@@ -18,71 +17,81 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-// ── Notificación push cuando la app está en BACKGROUND o cerrada ──
-messaging.onBackgroundMessage((payload) => {
-  console.log("TimbreAr SW: push recibido en background", payload);
+// ── Notificación push en BACKGROUND o cerrada ──
+messaging.onBackgroundMessage(async (payload) => {
+  console.log("RavenTechs SW: push recibido", payload);
 
-  const titulo = payload.notification?.title || "🔔 ¡Alguien en tu puerta!";
-  const cuerpo = payload.notification?.body  || "Abrí TimbreAr para atender";
+  const titulo = payload.notification?.title || "🔔 Notificación";
+  const cuerpo = payload.notification?.body  || "Tenés una notificación";
   const datos  = payload.data || {};
+  const app    = datos.app || 'timbrear';
+  const esTimbre = app === 'timbrear';
 
-  // Mostrar múltiples notificaciones para forzar sonido en Xiaomi/MIUI
+  // Opciones de notificación
   const notifOpts = {
-    body:             cuerpo,
-    icon:             "/timbrear/timbrear-residente.html",
-    badge:            "/timbrear/timbrear-residente.html",
-    tag:              "timbrear-llamada",
-    renotify:         true,
+    body:               cuerpo,
+    icon:               '/icon-192.png',
+    badge:              '/icon-192.png',
+    tag:                'raventechs-' + app,
+    renotify:           true,
     requireInteraction: true,
-    silent:           false,
-    vibrate:          [500, 200, 500, 200, 500, 200, 500, 200, 500],
-    data:             datos,
-    actions: [
-      { action: "atender",  title: "📞 Atender" },
-      { action: "rechazar", title: "📵 Rechazar" }
-    ]
+    silent:             false,
+    vibrate:            esTimbre
+      ? [500, 200, 500, 200, 500, 200, 500, 200, 500]
+      : [300, 100, 300, 100, 300],
+    data: datos,
+    actions: esTimbre
+      ? [{ action: "atender", title: "📞 Atender" }, { action: "rechazar", title: "📵 Rechazar" }]
+      : [{ action: "ver", title: "📅 Ver agenda" }]
   };
 
   await self.registration.showNotification(titulo, notifOpts);
 
-  // Re-notificar cada 8 segundos hasta que se atienda (máx 3 veces)
-  // Esto fuerza el sonido en MIUI que silencia notificaciones repetidas
-  let intentos = 0;
-  const intervalo = setInterval(async () => {
-    intentos++;
-    if (intentos >= 3) { clearInterval(intervalo); return; }
-    await self.registration.showNotification(titulo, {
-      ...notifOpts,
-      tag: "timbrear-llamada-" + intentos, // tag diferente para forzar nuevo sonido
-      body: cuerpo + " · " + (intentos + 1) + "° llamada"
-    });
-  }, 8000);
+  // Para timbrear: re-notificar cada 8 segundos (máx 3 veces) para forzar sonido en Xiaomi
+  if (esTimbre) {
+    let intentos = 0;
+    const intervalo = setInterval(async () => {
+      intentos++;
+      if (intentos >= 3) { clearInterval(intervalo); return; }
+      await self.registration.showNotification(titulo, {
+        ...notifOpts,
+        tag: 'timbrear-llamada-' + intentos,
+        body: cuerpo + " · " + (intentos + 1) + "° llamada"
+      });
+    }, 8000);
+  }
 
-  // Guardar intervalo para cancelarlo si se atiende
-  self._timbrearIntervalo = intervalo;
+  // Reproducir sonido via postMessage a los clientes abiertos
+  const sonidoUrl = esTimbre ? '/notification-timbre.mp3' : '/notification-agenda.mp3';
+  const allClients = await self.clients.matchAll({ includeUncontrolled: true, type: 'window' });
+  allClients.forEach(client => client.postMessage({ type: 'PLAY_SOUND', url: sonidoUrl }));
 });
 
 // ── Click en la notificación ──
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
 
-  const sesionId = event.notification.data?.sesionId || "";
-  const url      = `/timbrear/timbrear-residente.html?sesion=${sesionId}`;
+  const datos = event.notification.data || {};
+  const app   = datos.app || 'timbrear';
+  const sesionId = datos.sesionId || "";
 
-  if (event.action === "rechazar") {
-    // En el futuro: llamar a Firebase para marcar como rechazada
-    return;
+  let url;
+  if (app === 'timbrear') {
+    url = sesionId ? `/timbrear/timbrear-residente.html?sesion=${sesionId}` : '/timbrear/timbrear-residente.html';
+  } else if (app === 'miagenda') {
+    url = '/miagenda/';
+  } else if (app === 'saludar') {
+    url = '/saludar/';
+  } else {
+    url = '/';
   }
 
-  // Atender o click general → abrir/enfocar la app
   event.waitUntil(
-    clients.matchAll({ type: "window", includeUncontrolled: true }).then((lista) => {
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((lista) => {
       for (const cliente of lista) {
-        if (cliente.url.includes("timbrear-residente") && "focus" in cliente) {
-          return cliente.focus();
-        }
+        if (cliente.url.includes(app) && "focus" in cliente) return cliente.focus();
       }
-      if (clients.openWindow) return clients.openWindow(url);
+      if (self.clients.openWindow) return self.clients.openWindow(url);
     })
   );
 });
