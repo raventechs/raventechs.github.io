@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RavenTechs — Pruebas pendientes</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0b0c10;--surface:#13151c;--surface2:#1c1f2a;--border:#252836;--text:#eef0f6;--muted:#6b7280;--accent:#f0b84a;--ok:#22c55e;--danger:#ef4444;--warn:#f59e0b;--info:#3b82f6}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);padding:20px 16px 60px;max-width:700px;margin:0 auto}
+.header{text-align:center;margin-bottom:28px}
+.header h1{font-family:'Sora',sans-serif;font-size:1.5rem;color:var(--accent)}
+.header p{font-size:0.78rem;color:var(--muted);margin-top:4px}
+.app-section{background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:12px;overflow:hidden}
+.app-head{padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;border-bottom:1px solid var(--border)}
+.app-head.collapsed{border-bottom:none}
+.app-title{display:flex;align-items:center;gap:10px;font-family:'Sora',sans-serif;font-weight:700;font-size:0.95rem}
+.app-badge{font-size:0.68rem;padding:3px 9px;border-radius:999px;font-weight:700}
+.badge-ok{background:rgba(34,197,94,.15);color:var(--ok)}
+.badge-warn{background:rgba(245,158,11,.15);color:var(--warn)}
+.badge-danger{background:rgba(239,68,68,.15);color:var(--danger)}
+.chevron{color:var(--muted);transition:transform .2s;font-size:0.9rem}
+.app-body{padding:8px 0}
+.prueba-row{display:flex;align-items:flex-start;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.prueba-row:last-child{border-bottom:none}
+.prueba-row:hover{background:var(--surface2)}
+.check-box{width:20px;height:20px;border-radius:6px;border:2px solid var(--border);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.prueba-row.done .check-box{background:var(--ok);border-color:var(--ok)}
+.prueba-row.done .prueba-label{text-decoration:line-through;color:var(--muted)}
+.prueba-info{flex:1}
+.prueba-label{font-size:0.82rem;font-weight:500}
+.prueba-detail{font-size:0.71rem;color:var(--muted);margin-top:3px;line-height:1.5}
+.prueba-tag{display:inline-block;font-size:0.62rem;padding:2px 7px;border-radius:999px;font-weight:700;margin-right:4px;margin-top:4px}
+.tag-celular{background:rgba(59,130,246,.15);color:var(--info)}
+.tag-dos-disp{background:rgba(139,92,246,.15);color:#a78bfa}
+.tag-pc{background:rgba(245,158,11,.15);color:var(--warn)}
+.tag-cliente{background:rgba(239,68,68,.15);color:var(--danger)}
+.tag-plus{background:rgba(240,184,74,.15);color:var(--accent)}
+.stats{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:6px 14px;font-size:0.73rem;display:flex;align-items:center;gap:6px}
+.stat .n{font-weight:700}
+.stat .n.ok{color:var(--ok)}
+.stat .n.pend{color:var(--warn)}
+.btn-reset-all{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:6px 14px;font-size:0.73rem;cursor:pointer;margin-top:16px;display:block;margin-left:auto}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🧪 Pruebas pendientes</h1>
+  <p>Lo que falta probar en la vida real — RavenTechs</p>
+</div>
+
+<div class="stats" id="statsBar"></div>
+
+<div id="appList"></div>
+
+<button class="btn-reset-all" onclick="resetAll()">↺ Reiniciar todas las pruebas</button>
+
+<script>
+const APPS = [
+  {
+    id: 'pizzar', emoji: '🍕', nombre: 'PizzAR',
+    pruebas: [
+      { id: 'p1', label: 'Login Google funciona en raventechs.github.io/pizzAr/', detail: 'Probarlo en celular real, no en PC', tags: ['celular'] },
+      { id: 'p2', label: 'Agregar productos al carrito y cobrar', detail: 'Flujo completo: producto → carrito → cobrar → venta registrada en Firestore', tags: ['celular'] },
+      { id: 'p3', label: 'CSV exporta correctamente', detail: '5 toques logo → PIN 2580 → Exportar CSV → verificar que el archivo tiene los datos', tags: ['celular', 'plus'] },
+      { id: 'p4', label: 'Offline: cargar venta sin internet', detail: 'Activar modo avión → hacer una venta → reconectar → verificar que se sincronizó', tags: ['celular'] },
+      { id: 'p5', label: 'Backup automático se descarga al entrar', detail: 'Borrar localStorage → entrar a la app → verificar que descarga el JSON automáticamente', tags: ['celular'] },
+      { id: 'p6', label: 'Módulo COMANDAS: enviar a cocina', detail: 'Activar feature → agregar items → "Enviar a cocina" → verificar que aparece en tab Cocina', tags: ['dos-disp', 'plus'] },
+      { id: 'p7', label: 'Módulo COMANDAS: cocina marca listo', detail: 'Desde pantalla cocina tocar "✅ Listo" → cajero recibe notificación inmediata', tags: ['dos-disp', 'plus'] },
+      { id: 'p8', label: 'Módulo COMANDAS: impresión térmica', detail: 'Enviar comanda desde PC con impresora térmica conectada → verificar que imprime automáticamente', tags: ['pc', 'plus'] },
+      { id: 'p9', label: 'Cierre de caja con WhatsApp', detail: 'Cerrar caja al final del día → verificar que el resumen llega por WhatsApp al dueño', tags: ['celular'] },
+      { id: 'p10', label: 'PIN cajero funciona', detail: 'Configurar PIN de cajero → entrar con ese PIN → verificar que solo ve lo que corresponde', tags: ['celular'] },
+    ]
+  },
+  {
+    id: 'panar', emoji: '🥖', nombre: 'PanAR',
+    pruebas: [
+      { id: 'p1', label: 'Login Google en raventechs.github.io/panar/', detail: 'Celular real, modo incógnito', tags: ['celular'] },
+      { id: 'p2', label: 'Flujo completo de venta con recetas', detail: 'Cargar receta → vender → stock descuenta ingredientes automáticamente', tags: ['celular'] },
+      { id: 'p3', label: 'Cierre de caja con WhatsApp', detail: 'Cerrar caja → resumen llega por WhatsApp', tags: ['celular'] },
+      { id: 'p4', label: 'Offline: venta sin internet', detail: 'Avión → venta → reconectar → sincroniza', tags: ['celular'] },
+      { id: 'p5', label: 'CSV exporta ventas del día', detail: 'PIN 2580 → exportar → verificar archivo', tags: ['celular', 'plus'] },
+    ]
+  },
+  {
+    id: 'carnear', emoji: '🥩', nombre: 'CarneAR',
+    pruebas: [
+      { id: 'p1', label: 'Login Google en raventechs.github.io/carneAr/', detail: 'Celular real, modo incógnito', tags: ['celular'] },
+      { id: 'p2', label: 'Venta por kilo con precio por kg', detail: 'Ingresar 1.350 kg de asado → precio por kg → total correcto', tags: ['celular'] },
+      { id: 'p3', label: 'Historial offline funciona', detail: 'Ver ventas del día sin conexión', tags: ['celular'] },
+      { id: 'p4', label: 'CSV exporta correctamente', detail: 'PIN 2580 → exportar → verificar', tags: ['celular', 'plus'] },
+      { id: 'p5', label: 'Módulo TICKET: sacar foto y leer items', detail: 'Activar feature ticket → sacar foto de ticket de balanza → verificar que IA extrae los items', tags: ['celular', 'plus'] },
+      { id: 'p6', label: 'Módulo TICKET: cargar items a la venta', detail: 'Después de leer el ticket → "Cargar venta" → verificar que los items quedan registrados', tags: ['celular', 'plus'] },
+      { id: 'p7', label: 'Offline: venta sin internet', detail: 'Avión → venta → reconectar → sincroniza', tags: ['celular'] },
+    ]
+  },
+  {
+    id: 'rodix', emoji: '🚑', nombre: 'Rodix',
+    pruebas: [
+      { id: 'p1', label: 'Login Google en raventechs.github.io/vehigest-ar/', detail: 'Celular real, modo incógnito', tags: ['celular'] },
+      { id: 'p2', label: 'Agregar vehículo y registrar service', detail: 'Crear vehículo → cargar service → aparece en historial', tags: ['celular'] },
+      { id: 'p3', label: 'Alertas de vencimiento funcionan', detail: 'Cargar VTV con fecha próxima → verificar que aparece la alerta', tags: ['celular'] },
+      { id: 'p4', label: 'Backup automático al entrar', detail: 'Verificar que descarga el JSON al primer ingreso del día', tags: ['celular'] },
+      { id: 'p5', label: 'Offline: registrar service sin internet', detail: 'Avión → service → reconectar → sincroniza', tags: ['celular'] },
+      { id: 'p6', label: 'Probar con cliente real (ambulancias)', detail: 'Entregar acceso al cliente que ya lo usa → verificar que todo funciona con sus datos', tags: ['cliente'] },
+    ]
+  },
+  {
+    id: 'puntoventa', emoji: '🏪', nombre: 'PuntoVenta',
+    pruebas: [
+      { id: 'p1', label: 'Login Google en raventechs.github.io/puntoventa/', detail: 'Celular real, modo incógnito', tags: ['celular'] },
+      { id: 'p2', label: 'Flujo completo de venta multi-local', detail: 'Crear sucursal → hacer venta → aparece en reportes de esa sucursal', tags: ['celular'] },
+      { id: 'p3', label: 'Cuenta corriente: cargar deuda y pago', detail: 'Cliente en cuenta corriente → debe $5000 → paga $2000 → saldo correcto', tags: ['celular'] },
+      { id: 'p4', label: 'Alerta de morosidad', detail: 'Cliente con deuda vencida → verificar que aparece alerta', tags: ['celular'] },
+      { id: 'p5', label: 'Offline: venta sin internet', detail: 'Avión → venta → reconectar → sincroniza', tags: ['celular'] },
+      { id: 'p6', label: 'Backup automático', detail: 'Verificar descarga del JSON al entrar', tags: ['celular'] },
+    ]
+  },
+  {
+    id: 'empresar', emoji: '🏢', nombre: 'EmpresAR',
+    pruebas: [
+      { id: 'p1', label: 'Login Google en raventechs.github.io/Garrafar/', detail: 'Celular real, modo incógnito', tags: ['celular'] },
+      { id: 'p2', label: 'Agregar documento con vencimiento', detail: 'Crear VTV → fecha de vencimiento próxima → aparece en "Por vencer" en el dashboard', tags: ['celular'] },
+      { id: 'p3', label: 'Dashboard muestra vencidos y por vencer', detail: 'Cargar 5 documentos con distintas fechas → verificar que el dashboard agrupa correctamente', tags: ['celular'] },
+      { id: 'p4', label: 'Editar y eliminar documento', detail: 'Tocar un documento → editar fecha → guardar → verificar cambio', tags: ['celular'] },
+      { id: 'p5', label: 'Demo wall vence y notifica', detail: 'Verificar que el demo wall aparece cuando vence el período de prueba', tags: ['celular'] },
+      { id: 'p6', label: 'Backup JSON funciona', detail: 'Ajustes → Descargar backup → verificar que el JSON tiene todos los documentos', tags: ['celular'] },
+      { id: 'p7', label: 'Probar con empresa de gas envasado', detail: 'Cargar los documentos reales de la empresa → verificar que el flujo es intuitivo sin ayuda', tags: ['cliente'] },
+    ]
+  },
+  {
+    id: 'legalar', emoji: '⚖️', nombre: 'LegalAR',
+    pruebas: [
+      { id: 'p1', label: 'Login Google en raventechs.github.io/legalar/', detail: 'Celular real, modo incógnito', tags: ['celular'] },
+      { id: 'p2', label: 'Consulta legal devuelve respuesta', detail: 'Escribir "¿Qué dice el Código Civil sobre alquileres?" → verificar respuesta con artículos', tags: ['celular'] },
+      { id: 'p3', label: 'Animación libro mientras procesa', detail: 'Verificar que el libro animado aparece durante los 3-5 segundos que tarda', tags: ['celular'] },
+      { id: 'p4', label: 'Historial de consultas se guarda', detail: 'Hacer 3 consultas → cerrar app → volver → historial presente', tags: ['celular'] },
+      { id: 'p5', label: 'Modo Profesional vs Ciudadano', detail: 'Cambiar entre modos → verificar que la respuesta cambia de tono (técnico vs cotidiano)', tags: ['celular'] },
+      { id: 'p6', label: 'Probar con abogado o profesional real', detail: 'Dar acceso a un conocido abogado → pedir feedback sobre la calidad de las respuestas', tags: ['cliente'] },
+    ]
+  },
+  {
+    id: 'timbrear', emoji: '🔔', nombre: 'TimbreAr',
+    pruebas: [
+      { id: 'p1', label: 'Cargar edificio raventechs-hq en Firebase', detail: 'Abrir setup → "Cargar edificio" → verificar en Firestore que aparecen los deptos', tags: ['celular'] },
+      { id: 'p2', label: 'Activar timbre desde el celular del residente', detail: 'Abrir link residente 1A → activar timbre → aceptar notificaciones → fcmToken en Firestore ≠ null', tags: ['celular'] },
+      { id: 'p3', label: 'Visitante toca depto → residente suena', detail: 'Dos celulares: visitante toca 1A → residente recibe llamada y suena', tags: ['dos-disp'] },
+      { id: 'p4', label: 'Audio bidireccional funciona', detail: 'Ambos celulares hablan y escuchan correctamente', tags: ['dos-disp'] },
+      { id: 'p5', label: 'Push con app cerrada', detail: 'Residente cierra la app completamente → visitante toca → llega notificación push al celular bloqueado', tags: ['dos-disp'] },
+      { id: 'p6', label: 'Sonido de la notificación es audible', detail: 'Verificar que el sonido 056 suena correctamente en Xiaomi y en otros Android', tags: ['dos-disp'] },
+      { id: 'p7', label: 'Permission-denied resuelto al atender', detail: 'Atender llamada → verificar que NO aparece error permission-denied en F12', tags: ['dos-disp'] },
+      { id: 'p8', label: 'Probar con edificio real', detail: 'Buscar un edificio de conocidos → instalar en la entrada → probar con residente real', tags: ['cliente'] },
+    ]
+  },
+  {
+    id: 'miagenda', emoji: '📅', nombre: 'MiAgenda',
+    pruebas: [
+      { id: 'p1', label: 'Login Google en raventechs.github.io/miagenda/', detail: 'Celular real, modo incógnito', tags: ['celular'] },
+      { id: 'p2', label: 'Pantalla de permisos aparece al entrar', detail: 'Primera vez → aparece pantalla de permisos de notificaciones → aceptar', tags: ['celular'] },
+      { id: 'p3', label: 'FCM token se guarda en Firestore', detail: 'Después de aceptar permisos → verificar en Firebase que el usuario tiene fcmToken', tags: ['celular'] },
+      { id: 'p4', label: 'Crear evento para mañana y recibir push', detail: 'Crear evento para mañana 18:30 → a las 20:00 de hoy llega notificación push', tags: ['celular'] },
+      { id: 'p5', label: 'Push llega con app cerrada', detail: 'Cerrar la app completamente → esperar el cron → verificar que llega la notificación', tags: ['celular'] },
+      { id: 'p6', label: 'Sonido de la notificación es audible', detail: 'Verificar que suena el sonido 022 correctamente', tags: ['celular'] },
+      { id: 'p7', label: 'Agenda grupal: compartir por link', detail: 'Crear agenda grupal → compartir link → otro celular accede y ve los mismos eventos', tags: ['dos-disp'] },
+    ]
+  },
+  {
+    id: 'mtc', emoji: '🧠', nombre: 'MTC',
+    pruebas: [
+      { id: 'p1', label: 'Login Google funciona en URL Netlify', detail: 'Abrir URL de Netlify Drop → login Google → entra a la app', tags: ['celular'] },
+      { id: 'p2', label: 'Chat responde correctamente', detail: 'Escribir un tema → Claude responde con imagen de Unsplash y texto adaptado al perfil', tags: ['celular'] },
+      { id: 'p3', label: 'Explicar con analogías del usuario', detail: 'Decir "soy del campo" → preguntar sobre tecnología → verificar que usa analogías rurales', tags: ['celular'] },
+      { id: 'p4', label: 'Perfil cognitivo se guarda entre sesiones', detail: 'Usar la app → cerrar → volver → el perfil persiste con los temas anteriores', tags: ['celular'] },
+      { id: 'p5', label: 'Diario de sesiones registra hora y duración', detail: 'Hacer sesión de 5 min → ir a Avances → verificar que muestra hora, duración y temas', tags: ['celular'] },
+      { id: 'p6', label: 'PIN cuidador 1234 abre el panel', detail: 'Tocar el ícono de candado → PIN 1234 → abre panel de avances del cuidador', tags: ['celular'] },
+      { id: 'p7', label: 'Crear Worker Cloudflare para la key de Anthropic', detail: 'PENDIENTE TÉCNICO: la key se revoca en GitHub. Necesita Worker proxy igual que LegalAR', tags: ['pc'] },
+      { id: 'p8', label: 'Probar con persona mayor real', detail: 'Sentar a una persona mayor → que use la app sola 10 minutos → observar si es intuitivo', tags: ['cliente'] },
+    ]
+  },
+];
+
+const TAGS_CONFIG = {
+  'celular':   { label: '📱 Celular', clase: 'tag-celular' },
+  'dos-disp':  { label: '📱📱 Dos dispositivos', clase: 'tag-dos-disp' },
+  'pc':        { label: '💻 PC', clase: 'tag-pc' },
+  'cliente':   { label: '🧑 Cliente real', clase: 'tag-cliente' },
+  'plus':      { label: '⭐ Plus', clase: 'tag-plus' },
+};
+
+function getKey(appId, pruebaId) { return `prueba_${appId}_${pruebaId}`; }
+function isDone(appId, pruebaId) { return localStorage.getItem(getKey(appId, pruebaId)) === '1'; }
+
+function toggle(appId, pruebaId) {
+  const key = getKey(appId, pruebaId);
+  localStorage.setItem(key, isDone(appId, pruebaId) ? '0' : '1');
+  render();
+}
+
+function render() {
+  let totalDone = 0, totalAll = 0;
+
+  const html = APPS.map(app => {
+    const done = app.pruebas.filter(p => isDone(app.id, p.id)).length;
+    const total = app.pruebas.length;
+    totalDone += done; totalAll += total;
+    const pct = Math.round((done/total)*100);
+    const badgeClass = pct === 100 ? 'badge-ok' : done > 0 ? 'badge-warn' : 'badge-danger';
+
+    const pruebasHTML = app.pruebas.map(p => {
+      const done = isDone(app.id, p.id);
+      const tagsHTML = (p.tags || []).map(t => {
+        const cfg = TAGS_CONFIG[t] || {};
+        return `<span class="prueba-tag ${cfg.clase||''}">${cfg.label||t}</span>`;
+      }).join('');
+      return `<div class="prueba-row ${done?'done':''}" onclick="toggle('${app.id}','${p.id}')">
+        <div class="check-box">${done?'<svg width="12" height="12" viewBox="0 0 12 12"><polyline points="2,6 5,9 10,3" fill="none" stroke="#fff" stroke-width="2"/></svg>':''}</div>
+        <div class="prueba-info">
+          <div class="prueba-label">${p.label}</div>
+          <div class="prueba-detail">${p.detail}</div>
+          <div>${tagsHTML}</div>
+        </div>
+      </div>`;
+    }).join('');
+
+    return `<div class="app-section">
+      <div class="app-head" onclick="this.closest('.app-section').querySelector('.app-body').classList.toggle('hidden');this.classList.toggle('collapsed')">
+        <div class="app-title">${app.emoji} ${app.nombre} <span class="app-badge ${badgeClass}">${done}/${total}</span></div>
+        <span class="chevron">▾</span>
+      </div>
+      <div class="app-body">${pruebasHTML}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('appList').innerHTML = html;
+
+  const pctTotal = Math.round((totalDone/totalAll)*100);
+  document.getElementById('statsBar').innerHTML = `
+    <div class="stat"><span class="n ok">${totalDone}</span> probadas</div>
+    <div class="stat"><span class="n pend">${totalAll - totalDone}</span> pendientes</div>
+    <div class="stat"><span class="n">${pctTotal}%</span> completado</div>
+  `;
+}
+
+function resetAll() {
+  if (!confirm('¿Reiniciar todas las pruebas?')) return;
+  APPS.forEach(app => app.pruebas.forEach(p => localStorage.removeItem(getKey(app.id, p.id))));
+  render();
+}
+
+window.toggle = toggle;
+window.resetAll = resetAll;
+render();
+</script>
+</body>
+</html>
