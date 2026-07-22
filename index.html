@@ -202,17 +202,17 @@ const APPS = [
     id: 'mtc', nombre: 'MTC', ar: '', emoji: '🧠',
     color: '#4fd1c5', desc: 'Motor de Traducción Cognitiva. IA educativa adaptativa para niños, adultos mayores y personas con Alzheimer.',
     estado: 'pendiente', estadoLabel: 'Key Anthropic en Netlify Drop',
-    url: 'https://netlify.app (URL variable)', beta: null, folleto: BASE + '/folletos/mtc.html',
+    url: BASE + '/mdtc/', beta: null, folleto: BASE + '/folletos/mtc.html',
     tags: ['ia', 'plus', 'push'],
     pendientes: ['Netlify Functions proxy para Anthropic key (key se revoca en GitHub)', 'Juegos cognitivos para adultos mayores', 'Modo día difícil']
   },
   {
     id: 'timbrear', nombre: 'Timbre', ar: 'Ar', emoji: '🔔',
-    color: '#c8a84b', desc: 'Timbre virtual para edificios. QR en entrada → visitante toca depto → push al residente → chat de audio/texto.',
-    estado: 'pendiente', estadoLabel: 'Push Xiaomi sin sonido personalizado',
-    url: BASE + '/timbrear/portero-virtual.html?edificio=demo', beta: null, folleto: null,
-    tags: ['push', 'ia'],
-    pendientes: ['Sonido personalizado en SW para Xiaomi/MIUI', 'Admin edificios reales', 'Modelo comercial definir']
+    color: '#c8a84b', desc: 'Timbre virtual para edificios y locales. QR en entrada → visitante toca depto → audio/texto bidireccional en tiempo real. Sin app, sin instalación.',
+    estado: 'operativa', estadoLabel: 'v1.0 — Audio + texto bidireccional ✅',
+    url: BASE + '/timbrear/portero-virtual.html?edificio=raventechs-hq', beta: null, folleto: null,
+    tags: ['push', 'audio', 'tiempo-real'],
+    pendientes: ['Push app cerrada — validar Xiaomi', 'Video bidireccional Plus', 'Modo no molestar + foto visitante']
   },
   {
     id: 'legalar', nombre: 'Legal', ar: 'AR', emoji: '⚖️',
