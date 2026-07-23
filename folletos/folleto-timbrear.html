@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Folleto TimbreAR — RavenTechs</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --accent:#c8a84b;
+  --bg:#0a0c12;--bg2:#12151f;--bg3:#1a1f2e;
+  --text:#eef0f6;--text2:#8b93ad;
+  --border:rgba(255,255,255,0.08);
+  --glow:#c8a84b26;
+}
+html{scroll-behavior:smooth;overflow-x:hidden;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px 40px;text-align:center;background:radial-gradient(ellipse 80% 60% at 50% 0%, var(--glow) 0%, transparent 70%);}
+.badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text2);padding:6px 16px;border-radius:100px;font-size:12px;font-weight:600;letter-spacing:0.5px;margin-bottom:28px;text-transform:uppercase;}
+.hero-emoji{font-size:72px;margin-bottom:20px;display:block;animation:floatEmoji 3s ease-in-out infinite;}
+@keyframes floatEmoji{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+.hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(32px,7vw,60px);font-weight:800;line-height:1.1;margin-bottom:20px;background:linear-gradient(135deg,#fff 0%,#c8a84b 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero p{font-size:clamp(15px,4vw,18px);color:var(--text2);max-width:520px;line-height:1.6;margin-bottom:36px;}
+.cta-btn{display:inline-block;padding:15px 36px;border-radius:100px;background:#c8a84b;color:#fff;font-weight:700;font-size:16px;text-decoration:none;transition:all .2s;box-shadow:0 0 32px #c8a84b66;font-family:'Space Grotesk',sans-serif;}
+.cta-btn:hover{opacity:0.85;transform:translateY(-2px);}
+.preguntas{padding:60px 24px;max-width:680px;margin:0 auto;}
+.preguntas h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(22px,5vw,36px);font-weight:700;margin-bottom:32px;text-align:center;}
+.pregunta-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px;opacity:0;transform:translateY(20px);transition:all .5s;}
+.pregunta-card.visible{opacity:1;transform:none;}
+.pregunta-card p{font-size:16px;font-weight:600;margin-bottom:8px;}
+.pregunta-card span{font-size:14px;color:var(--text2);}
+.features{padding:60px 24px;max-width:740px;margin:0 auto;}
+.features h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(22px,5vw,36px);font-weight:700;margin-bottom:32px;text-align:center;}
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.feat{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;opacity:0;transform:translateY(16px);transition:all .4s;}
+.feat.visible{opacity:1;transform:none;}
+.feat:first-child{grid-column:1/-1;border-color:#c8a84b44;background:linear-gradient(135deg,var(--bg2),#c8a84b11);}
+.feat-icon{font-size:24px;margin-bottom:10px;display:block;}
+.feat-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.feat-desc{font-size:12px;color:var(--text2);line-height:1.4;}
+.plus-section{padding:40px 24px;max-width:680px;margin:0 auto;}
+.plus-badge{display:inline-block;background:#c8a84b22;border:1px solid #c8a84b55;color:#c8a84b;padding:4px 12px;border-radius:100px;font-size:11px;font-weight:700;margin-bottom:20px;}
+.plus-list{list-style:none;}
+.plus-list li{padding:10px 0;border-bottom:1px solid var(--border);font-size:14px;color:var(--text2);display:flex;gap:10px;}
+.plus-list li::before{content:'✦';color:#c8a84b;flex-shrink:0;}
+.footer-cta{padding:60px 24px;text-align:center;background:radial-gradient(ellipse 60% 80% at 50% 100%, var(--glow) 0%, transparent 70%);}
+.footer-cta h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(24px,6vw,40px);font-weight:800;margin-bottom:16px;}
+.footer-cta p{color:var(--text2);font-size:15px;margin-bottom:32px;}
+.footer-brand{margin-top:40px;font-size:12px;color:var(--text2);}
+.footer-brand span{color:#c8a84b;font-weight:600;}
+</style>
+</head>
+<body>
+<section class="hero">
+  <div class="badge">🔔 Edificios y locales comerciales</div>
+  <span class="hero-emoji">🔔</span>
+  <h1>Tu portero virtual,
+desde cualquier celular.</h1>
+  <a href="https://raventechs.github.io/timbrear/portero-virtual.html?edificio=raventechs-hq" class="cta-btn" target="_blank">Probá TimbreAR gratis →</a>
+</section>
+
+<section class="preguntas">
+  <h2>¿Te suena esto?</h2>
+  <div class="pregunta-card"><p>¿El portero o la recepcionista no siempre está en su lugar?</p><span>¿El visitante queda esperando sin saber a quién llamar?</span></div><div class="pregunta-card"><p>¿Querés comunicarte con el visitante sin bajar a la planta baja?</p><span>TimbreAR conecta en segundos desde cualquier celular.</span></div>
+</section>
+
+<section class="features">
+  <h2>Qué incluye TimbreAR</h2>
+  <div class="feat-grid">
+    <div class="feat"><span class="feat-icon">🔔</span><div class="feat-title">Timbre digital</div><div class="feat-desc">El visitante toca el depto desde su celular, sin app</div></div><div class="feat"><span class="feat-icon">🎙️</span><div class="feat-title">Audio bidireccional</div><div class="feat-desc">Hablá con el visitante antes de abrir</div></div><div class="feat"><span class="feat-icon">💬</span><div class="feat-title">Chat de texto</div><div class="feat-desc">Enviá mensajes de texto en tiempo real</div></div><div class="feat"><span class="feat-icon">📲</span><div class="feat-title">Sin app, sin registro</div><div class="feat-desc">El visitante entra desde el navegador con el link</div></div><div class="feat"><span class="feat-icon">⚡</span><div class="feat-title">Respuesta en segundos</div><div class="feat-desc">Notificación instantánea al residente</div></div><div class="feat"><span class="feat-icon">🏢</span><div class="feat-title">Multi-depto</div><div class="feat-desc">Cada departamento tiene su propio acceso</div></div>
+  </div>
+</section>
+
+<section class="plus-section">
+  <div class="plus-badge">✦ PLUS</div>
+  <h2 style="font-family:Space Grotesk,sans-serif;font-size:22px;font-weight:700;margin-bottom:20px;">Funciones avanzadas</h2>
+  <ul class="plus-list">
+    <li>Video bidireccional (próximamente)</li><li>Modo no molestar por horario</li><li>Foto automática del visitante</li><li>Mensaje offline si no hay respuesta</li>
+  </ul>
+</section>
+
+<section class="footer-cta">
+  <h2>Tu portero virtual, disponible 24/7.</h2>
+  <p>Sin instalaciones, sin cableado. Funciona desde el celular.</p>
+  <a href="https://raventechs.github.io/timbrear/portero-virtual.html?edificio=raventechs-hq" class="cta-btn" target="_blank">Abrir TimbreAR →</a>
+  <div class="footer-brand">Una app de <span>RavenTechs</span> · raventechs.github.io</div>
+</section>
+
+<script>
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.pregunta-card, .feat').forEach(el => observer.observe(el));
+document.querySelectorAll('.feat').forEach((el, i) => { el.style.transitionDelay = (i * 0.08) + 's'; });
+</script>
+</body>
+</html>
