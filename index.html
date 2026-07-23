@@ -124,7 +124,7 @@ const APPS = [
     estado: 'operativa', estadoLabel: 'Operativa',
     url: BASE + '/pizzAr/', beta: BASE + '/pizzar-beta/', folleto: BASE + '/folletos/pizzar.html',
     tags: ['offline', 'plus', 'csv'],
-    pendientes: ['Alertas presupuesto Firebase P4']
+    pendientes: ['Alertas presupuesto Firebase P4', 'Probar comandas digitales en vivo', 'Promover beta a producción']
   },
   {
     id: 'panar', nombre: 'Pan', ar: 'AR', emoji: '🥖',
@@ -132,7 +132,7 @@ const APPS = [
     estado: 'operativa', estadoLabel: 'Operativa',
     url: BASE + '/panar/', beta: BASE + '/panar-beta/', folleto: BASE + '/folletos/panar.html',
     tags: ['offline', 'plus', 'csv'],
-    pendientes: ['Alertas presupuesto Firebase P4']
+    pendientes: ['Alertas presupuesto Firebase P4', 'Probar descuento stock por receta', 'Promover beta a producción']
   },
   {
     id: 'carnear', nombre: 'Carne', ar: 'AR', emoji: '🥩',
@@ -140,7 +140,7 @@ const APPS = [
     estado: 'operativa', estadoLabel: 'Operativa',
     url: BASE + '/carneAr/', beta: BASE + '/carnear-beta/', folleto: BASE + '/folletos/carnear.html',
     tags: ['offline', 'plus', 'csv'],
-    pendientes: ['Alertas presupuesto Firebase P4']
+    pendientes: ['Alertas presupuesto Firebase P4', 'Validar escáner tickets en historial y stock', 'Promover beta a producción']
   },
   {
     id: 'lavar', nombre: 'lav', ar: 'AR', emoji: '🚗',
@@ -148,7 +148,7 @@ const APPS = [
     estado: 'operativa', estadoLabel: 'Operativa',
     url: BASE + '/lavar/', beta: BASE + '/lavar-beta/', folleto: BASE + '/folletos/lavar.html',
     tags: ['offline', 'plus'],
-    pendientes: ['Alertas presupuesto Firebase P4', 'Backup JSON pendiente']
+    pendientes: ['Alertas presupuesto Firebase P4', 'Probar fidelización por patente', 'Probar multi-sucursal', 'Cajero pendiente (sistema propio empleados)', 'Promover beta a producción']
   },
   {
     id: 'rodix', nombre: 'Rodix', ar: '', emoji: '🚑',
@@ -156,7 +156,7 @@ const APPS = [
     estado: 'operativa', estadoLabel: 'Operativa',
     url: BASE + '/vehigest-ar/', beta: BASE + '/rodix-beta/', folleto: BASE + '/folletos/rodix.html',
     tags: ['plus', 'csv'],
-    pendientes: ['Alertas presupuesto Firebase P4']
+    pendientes: ['Alertas presupuesto Firebase P4', 'Probar vencimientos y alertas', 'Probar checklist insumos', 'Probar historial service']
   },
   {
     id: 'securepro', nombre: 'Secure', ar: 'Pro', emoji: '🔒',
@@ -164,7 +164,7 @@ const APPS = [
     estado: 'operativa', estadoLabel: 'Operativa',
     url: BASE + '/securepro/', beta: BASE + '/securepro-beta/', folleto: BASE + '/folletos/securepro.html',
     tags: ['plus', 'csv'],
-    pendientes: ['Alertas presupuesto Firebase P4', 'Offline-first pendiente', 'Backup JSON pendiente']
+    pendientes: ['Alertas presupuesto Firebase P4', 'Orden de trabajo digital + firma cliente', 'Presupuesto con aprobación online']
   },
   {
     id: 'puntoventa', nombre: 'Punto', ar: 'Venta', emoji: '🏪',
@@ -172,7 +172,7 @@ const APPS = [
     estado: 'operativa', estadoLabel: 'Operativa',
     url: BASE + '/puntoventa/', beta: BASE + '/puntoventa-beta/', folleto: BASE + '/folletos/puntoventa.html',
     tags: ['plus', 'csv'],
-    pendientes: ['Alertas presupuesto Firebase P4', 'Offline-first pendiente', 'Backup JSON pendiente']
+    pendientes: ['Alertas presupuesto Firebase P4', 'Probar crear sucursal nueva', 'Probar cuenta corriente y morosidad', 'Límite crédito + reporte morosos']
   },
   {
     id: 'empresar', nombre: 'Empres', ar: 'AR', emoji: '🏢',
@@ -196,7 +196,7 @@ const APPS = [
     estado: 'pendiente', estadoLabel: 'Notificaciones push pendientes',
     url: BASE + '/miagenda/', beta: null, folleto: BASE + '/folletos/miagenda.html',
     tags: ['push'],
-    pendientes: ['Implementar notificaciones push (igual patrón TimbreAr)', 'Alertas presupuesto Firebase P4']
+    pendientes: ['Alertas presupuesto Firebase P4', 'Push validado ✅ — cron cada 30min activo']
   },
   {
     id: 'mtc', nombre: 'MTC', ar: '', emoji: '🧠',
@@ -228,7 +228,7 @@ const APPS = [
     estado: 'operativa', estadoLabel: 'v1.0 — Reservas + canchas + caja ✅',
     url: BASE + '/PeloteAr/', beta: null, folleto: null,
     tags: ['reservas', 'offline', 'plus'],
-    pendientes: ['Firebase backend (hoy funciona en demo)', 'Notificaciones turno por WhatsApp']
+    pendientes: ['Alertas presupuesto Firebase P4', 'Offline-first (hoy usa Railway)', 'Modularizar >2500 líneas', 'Notificaciones turno por WhatsApp']
   },
   {
     id: 'centralbotar', nombre: 'Central', ar: 'botAR', emoji: '🤖',
