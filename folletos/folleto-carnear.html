@@ -3,206 +3,87 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Folleto CarnéAR — RavenTechs</title>
+<title>Folleto CarneAR — RavenTechs</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --accent:#e53935;
-  --accent2:#b71c1c;
-  --bg:#0a0c12;
-  --bg2:#12151f;
-  --bg3:#1a1f2e;
-  --card:#3b0a0a;
-  --text:#eef0f6;
-  --text2:#8b93ad;
-  --border:rgba(229,57,53,0.2);
-  --glow:rgba(229,57,53,0.15);
+  --accent:#c0392b;
+  --bg:#0a0c12;--bg2:#12151f;--bg3:#1a1f2e;
+  --text:#eef0f6;--text2:#8b93ad;
+  --border:rgba(255,255,255,0.08);
+  --glow:#c0392b26;
 }
-html{scroll-behavior:smooth;}
-html{overflow-x:hidden;}body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
-
-/* HERO */
-.hero{
-  min-height:100vh;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;padding:60px 20px 40px;text-align:center;max-width:100%;
-  background:radial-gradient(ellipse 80% 60% at 50% 0%, var(--glow) 0%, transparent 70%);
-  position:relative;overflow:hidden;
-}
-.hero::before{
-  content:'';position:absolute;inset:0;
-  background:radial-gradient(circle at 50% 100%, rgba(229,57,53,0.05) 0%, transparent 60%);
-  pointer-events:none;
-}
-.badge{
-  display:inline-flex;align-items:center;gap:8px;
-  background:rgba(229,57,53,0.12);border:1px solid rgba(229,57,53,0.3);
-  color:var(--accent);padding:6px 16px;border-radius:100px;
-  font-size:12px;font-weight:600;letter-spacing:0.5px;
-  margin-bottom:28px;text-transform:uppercase;
-}
+html{scroll-behavior:smooth;overflow-x:hidden;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px 40px;text-align:center;background:radial-gradient(ellipse 80% 60% at 50% 0%, var(--glow) 0%, transparent 70%);}
+.badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text2);padding:6px 16px;border-radius:100px;font-size:12px;font-weight:600;letter-spacing:0.5px;margin-bottom:28px;text-transform:uppercase;}
 .hero-emoji{font-size:72px;margin-bottom:20px;display:block;animation:floatEmoji 3s ease-in-out infinite;}
 @keyframes floatEmoji{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
-.hero h1{
-  font-family:'Space Grotesk',sans-serif;
-  font-size:clamp(36px,8vw,64px);font-weight:800;line-height:1.1;
-  margin-bottom:20px;white-space:pre-line;
-  background:linear-gradient(135deg,#fff 0%,var(--accent) 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-}
+.hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(32px,7vw,60px);font-weight:800;line-height:1.1;margin-bottom:20px;background:linear-gradient(135deg,#fff 0%,#c0392b 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .hero p{font-size:clamp(15px,4vw,18px);color:var(--text2);max-width:520px;line-height:1.6;margin-bottom:36px;}
-.cta-btn{
-  display:inline-block;padding:15px 36px;border-radius:100px;
-  background:var(--accent);color:#fff;font-weight:700;font-size:16px;
-  text-decoration:none;transition:all .2s;box-shadow:0 0 32px rgba(229,57,53,0.4);
-  font-family:'Space Grotesk',sans-serif;
-}
-.cta-btn:hover{background:var(--accent2);transform:translateY(-2px);box-shadow:0 0 48px rgba(229,57,53,0.6);}
-
-/* PHONE MOCKUP */
-.phone-wrap{
-  margin:40px auto 0;width:200px;
-  animation:phoneBob 4s ease-in-out infinite;
-  filter:drop-shadow(0 20px 40px rgba(229,57,53,0.3));
-}
-@keyframes phoneBob{0%,100%{transform:translateY(0) rotate(-1deg);}50%{transform:translateY(-8px) rotate(1deg);}}
-.phone{
-  background:#111;border-radius:28px;border:2px solid rgba(255,255,255,0.1);
-  padding:12px 8px;position:relative;overflow:hidden;
-}
-.phone-notch{width:60px;height:8px;background:#222;border-radius:4px;margin:0 auto 10px;}
-.phone-screen{
-  background:var(--bg3);border-radius:16px;padding:14px;min-height:160px;
-  border:1px solid var(--border);
-}
-.phone-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;min-width:0;overflow:hidden;}
-.phone-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;}
-.phone-line{height:7px;border-radius:4px;background:rgba(255,255,255,0.1);flex:1;}
-.phone-line.accent{background:var(--accent-line,rgba(100,180,255,0.4));flex:3;min-width:0;}
-.phone-line.short{flex:2;min-width:0;}
-.phone-card{
-  background:rgba(229,57,53,0.1);border:1px solid rgba(229,57,53,0.2);
-  border-radius:10px;padding:10px;margin-top:10px;
-}
-.phone-num{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;color:var(--accent);}
-.phone-lbl{font-size:9px;color:var(--text2);margin-top:2px;}
-
-/* PREGUNTAS */
+.cta-btn{display:inline-block;padding:15px 36px;border-radius:100px;background:#c0392b;color:#fff;font-weight:700;font-size:16px;text-decoration:none;transition:all .2s;box-shadow:0 0 32px #c0392b66;font-family:'Space Grotesk',sans-serif;}
+.cta-btn:hover{opacity:0.85;transform:translateY(-2px);}
 .preguntas{padding:60px 24px;max-width:680px;margin:0 auto;}
-.preguntas h2{
-  font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;
-  color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin-bottom:28px;text-align:center;
-}
-.pregunta-card{
-  background:var(--bg2);border:1px solid var(--border);border-radius:16px;
-  padding:24px;margin-bottom:16px;position:relative;overflow:hidden;
-  opacity:0;transform:translateY(24px);transition:all .5s ease;
-}
+.preguntas h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(22px,5vw,36px);font-weight:700;margin-bottom:32px;text-align:center;}
+.pregunta-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px;opacity:0;transform:translateY(20px);transition:all .5s;}
 .pregunta-card.visible{opacity:1;transform:none;}
-.pregunta-card::before{
-  content:'?';position:absolute;right:20px;top:50%;transform:translateY(-50%);
-  font-size:80px;font-weight:900;color:rgba(229,57,53,0.06);
-  font-family:'Space Grotesk',sans-serif;line-height:1;
-}
-.pregunta-card p{font-size:16px;font-weight:600;color:var(--text);line-height:1.5;margin-bottom:8px;}
-.pregunta-card span{font-size:13px;color:var(--text2);}
-
-/* FEATURES */
-.features{padding:20px 24px 60px;max-width:680px;margin:0 auto;}
-.features h2{
-  font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;
-  color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin-bottom:24px;text-align:center;
-}
-.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-@media(max-width:600px){.feat-grid{grid-template-columns:1fr;}}
-.feat{
-  background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:18px;
-  opacity:0;transform:translateY(20px);transition:all .4s ease;
-}
+.pregunta-card p{font-size:16px;font-weight:600;margin-bottom:8px;}
+.pregunta-card span{font-size:14px;color:var(--text2);}
+.features{padding:60px 24px;max-width:740px;margin:0 auto;}
+.features h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(22px,5vw,36px);font-weight:700;margin-bottom:32px;text-align:center;}
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.feat{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;opacity:0;transform:translateY(16px);transition:all .4s;}
 .feat.visible{opacity:1;transform:none;}
+.feat:first-child{grid-column:1/-1;border-color:#c0392b44;background:linear-gradient(135deg,var(--bg2),#c0392b11);}
 .feat-icon{font-size:24px;margin-bottom:10px;display:block;}
 .feat-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;}
 .feat-desc{font-size:12px;color:var(--text2);line-height:1.4;}
-.feat:first-child{grid-column:1/-1;}
-
-/* EXTRA (SaludAR) */
-.extra-banner{
-  background:rgba(229,57,53,0.08);border:1px solid rgba(229,57,53,0.25);
-  border-radius:16px;padding:20px 24px;max-width:680px;margin:0 auto 40px;
-  text-align:center;font-size:15px;color:var(--text);line-height:1.6;
-}
-
-/* FOOTER CTA */
-.footer-cta{
-  padding:60px 24px;text-align:center;
-  background:radial-gradient(ellipse 60% 80% at 50% 100%, var(--glow) 0%, transparent 70%);
-}
-.footer-cta h2{
-  font-family:'Space Grotesk',sans-serif;font-size:clamp(24px,6vw,40px);
-  font-weight:800;margin-bottom:16px;color:var(--text);
-}
+.plus-section{padding:40px 24px;max-width:680px;margin:0 auto;}
+.plus-badge{display:inline-block;background:#c0392b22;border:1px solid #c0392b55;color:#c0392b;padding:4px 12px;border-radius:100px;font-size:11px;font-weight:700;margin-bottom:20px;}
+.plus-list{list-style:none;}
+.plus-list li{padding:10px 0;border-bottom:1px solid var(--border);font-size:14px;color:var(--text2);display:flex;gap:10px;}
+.plus-list li::before{content:'✦';color:#c0392b;flex-shrink:0;}
+.footer-cta{padding:60px 24px;text-align:center;background:radial-gradient(ellipse 60% 80% at 50% 100%, var(--glow) 0%, transparent 70%);}
+.footer-cta h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(24px,6vw,40px);font-weight:800;margin-bottom:16px;}
 .footer-cta p{color:var(--text2);font-size:15px;margin-bottom:32px;}
 .footer-brand{margin-top:40px;font-size:12px;color:var(--text2);}
-.footer-brand span{color:var(--accent);font-weight:600;}
+.footer-brand span{color:#c0392b;font-weight:600;}
 </style>
 </head>
 <body>
-
 <section class="hero">
-  <div class="badge">🥩 Carnicerías</div>
+  <div class="badge">🥩 Carnicerías y frigoríficos</div>
   <span class="hero-emoji">🥩</span>
   <h1>Control total de tu carnicería,
-en la palma de la mano.</h1>
-  <p>Vendé, controlá el stock y analizá tu negocio. Todo desde el celular, sin planillas ni cuadernos.</p>
-  <a href="https://raventechs.github.io/carnear/" class="cta-btn" target="_blank">Probá CarnéAR gratis →</a>
-
-  <div class="phone-wrap">
-    <div class="phone">
-      <div class="phone-notch"></div>
-      <div class="phone-screen">
-        <div class="phone-row"><div class="phone-dot"></div><div class="phone-line accent"></div></div>
-        <div class="phone-row" style="margin-bottom:12px"><div class="phone-line short"></div><div class="phone-line"></div></div>
-        <div class="phone-card">
-          <div class="phone-num">🥩</div>
-          <div class="phone-lbl">CarnéAR · en tu celular</div>
-        </div>
-        <div class="phone-row" style="margin-top:12px"><div class="phone-line"></div><div class="phone-line short"></div></div>
-        <div class="phone-row"><div class="phone-line accent short"></div><div class="phone-line"></div></div>
-      </div>
-    </div>
-  </div>
+en el celular.</h1>
+  <a href="https://raventechs.github.io/carneAr/" class="cta-btn" target="_blank">Probá CarneAR gratis →</a>
 </section>
 
 <section class="preguntas">
-  <h2>Antes de seguir, respondé esto</h2>
-  <div class="pregunta-card reveal">
-    <p>¿Cuánto te costó la mercadería esta semana y cuánto ganaste realmente?</p>
-    <span>¿Podés responderlo ahora mismo, sin calcular de cabeza?</span>
-  </div>
-  <div class="pregunta-card reveal">
-    <p>¿Qué cortes se vendieron más ayer y si el stock alcanza para hoy?</p>
-    <span>¿O lo sabés solo cuando el cliente te pide algo que ya no tenés?</span>
+  <h2>¿Te suena esto?</h2>
+  <div class="pregunta-card"><p>¿Cuánto vendiste hoy por corte y cuánto te quedó en stock?</p><span>¿O lo calculás a ojo y a veces te quedás corto?</span></div><div class="pregunta-card"><p>¿Tu cajero puede acceder al sistema sin conocer tus claves?</p><span>CarneAR tiene roles separados por link.</span></div>
+</section>
+
+<section class="features">
+  <h2>Qué incluye CarneAR</h2>
+  <div class="feat-grid">
+    <div class="feat"><span class="feat-icon">🛒</span><div class="feat-title">Caja con pesaje</div><div class="feat-desc">Precio por kilo y unidad en el mismo sistema</div></div><div class="feat"><span class="feat-icon">👷</span><div class="feat-title">Cajero por link</div><div class="feat-desc">Empleado entra con código sin contraseña</div></div><div class="feat"><span class="feat-icon">🎫</span><div class="feat-title">Escáner de tickets</div><div class="feat-desc">Controlá ingresos y salidas con QR</div></div><div class="feat"><span class="feat-icon">📦</span><div class="feat-title">Stock por corte</div><div class="feat-desc">Control de inventario en tiempo real</div></div><div class="feat"><span class="feat-icon">📊</span><div class="feat-title">Cierre de caja</div><div class="feat-desc">Resumen diario con desglose por producto</div></div><div class="feat"><span class="feat-icon">📴</span><div class="feat-title">Funciona offline</div><div class="feat-desc">Registra ventas sin conexión y sincroniza</div></div>
   </div>
 </section>
 
-
-
-<section class="features">
-  <h2>Qué incluye CarnéAR</h2>
-  <div class="feat-grid">
-    <div class="feat reveal"><span class="feat-icon">🥩</span><div class="feat-title">Catálogo de cortes argentinos</div><div class="feat-desc">Vacuna, cerdo, pollo, achuras y más</div></div>
-    <div class="feat reveal"><span class="feat-icon">📦</span><div class="feat-title">Stock por tipo de carne</div><div class="feat-desc">Alertas antes de quedarte sin mercadería</div></div>
-    <div class="feat reveal"><span class="feat-icon">📊</span><div class="feat-title">Balance diario y semanal</div><div class="feat-desc">Ganancia real, no estimada</div></div>
-    <div class="feat reveal"><span class="feat-icon">💸</span><div class="feat-title">Gastos y proveedores</div><div class="feat-desc">Cada compra registrada (plus)</div></div>
-    <div class="feat reveal"><span class="feat-icon">👷</span><div class="feat-title">Roles cajero / dueño</div><div class="feat-desc">Tu empleado cobra, vos controlás</div></div>
-    <div class="feat reveal"><span class="feat-icon">📲</span><div class="feat-title">Resumen del día por WhatsApp</div><div class="feat-desc">Ventas, gastos y totales — automático sin tipear nada</div></div>
-  </div>
+<section class="plus-section">
+  <div class="plus-badge">✦ PLUS</div>
+  <h2 style="font-family:Space Grotesk,sans-serif;font-size:22px;font-weight:700;margin-bottom:20px;">Funciones avanzadas</h2>
+  <ul class="plus-list">
+    <li>Proveedores y gastos</li><li>Historial por cliente</li><li>Multi-sucursal</li>
+  </ul>
 </section>
 
 <section class="footer-cta">
   <h2>Empezá hoy, sin instalar nada.</h2>
-  <p>Funciona desde el navegador de tu celular.<br>Sin descargas, sin contratos.</p>
-  <a href="https://raventechs.github.io/carnear/" class="cta-btn" target="_blank">Abrir CarnéAR →</a>
+  <p>Funciona desde el navegador de tu celular.</p>
+  <a href="https://raventechs.github.io/carneAr/" class="cta-btn" target="_blank">Abrir CarneAR →</a>
   <div class="footer-brand">Una app de <span>RavenTechs</span> · raventechs.github.io</div>
 </section>
 
@@ -210,11 +91,8 @@ en la palma de la mano.</h1>
 const observer = new IntersectionObserver(entries => {
   entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
 }, { threshold: 0.1 });
-document.querySelectorAll('.reveal, .pregunta-card, .feat').forEach(el => observer.observe(el));
-// Stagger features
-document.querySelectorAll('.feat').forEach((el, i) => {
-  el.style.transitionDelay = (i * 0.08) + 's';
-});
+document.querySelectorAll('.pregunta-card, .feat').forEach(el => observer.observe(el));
+document.querySelectorAll('.feat').forEach((el, i) => { el.style.transitionDelay = (i * 0.08) + 's'; });
 </script>
 </body>
 </html>
