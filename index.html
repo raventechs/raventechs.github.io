@@ -121,6 +121,14 @@ const BASE = 'https://raventechs.github.io';
 
 const APPS = [
   {
+    id: 'comprazona', nombre: 'Compra', ar: 'Zona', emoji: '⛽',
+    color: '#f0b84a', desc: '★ Marketplace de garrafas y agua para La Matanza. App cliente + panel empresa + admin multi-tenant.',
+    estado: 'operativa', estadoLabel: 'MVP funcional — prioritaria',
+    url: 'https://comprazona.raventechsapp.com', beta: null, folleto: null,
+    tags: ['plus', 'marketplace'],
+    pendientes: ['Publicar reglas Firestore v0.2', 'Configurar App Check reCAPTCHA v3', 'Actualizar zona en Firestore']
+  },
+  {
     id: 'pizzar', nombre: 'Pizz', ar: 'AR', emoji: '🍕',
     color: '#e74c3c', desc: 'Caja registradora para pizzerías. Catálogo, stock, roles cajero/dueño, cierre de caja.',
     estado: 'operativa', estadoLabel: 'Operativa',
@@ -265,7 +273,7 @@ const STATUS_CONFIG = {
 };
 
 const CATEGORIAS = {
-  comercio: ['pizzar','panar','carnear','lavar','rodix','securepro','puntoventa','empresar','centralbotar','ahorrar'],
+  comercio: ['comprazona','pizzar','panar','carnear','lavar','rodix','securepro','puntoventa','empresar','centralbotar','ahorrar'],
   salud:    ['saludar','miagenda','mtc','charlar'],
   ia:       ['mtc','timbrear','legalar','centralbotar','charlar'],
 };
