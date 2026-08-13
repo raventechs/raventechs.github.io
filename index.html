@@ -121,6 +121,14 @@ const BASE = 'https://raventechs.github.io';
 
 const APPS = [
   {
+    id: 'barbear', nombre: 'Barbe', ar: 'AR', emoji: '💈', panelAdmin: true,
+    color: '#C9A227', desc: 'Caja + turnos + reservas online para barberías. Clientes reservan solos por link, el barbero completa turno y se factura automático.',
+    estado: 'operativa', estadoLabel: 'Operativa — turnos + reservas online',
+    url: 'https://barbear.raventechsapp.com', beta: null, folleto: null,
+    tags: ['plus', 'turnos'],
+    pendientes: []
+  },
+  {
     id: 'comprazona', nombre: 'Compra', ar: 'Zona', emoji: '⛽',
     color: '#f0b84a', desc: '★ Marketplace de garrafas y agua para La Matanza. App cliente + panel empresa + admin multi-tenant.',
     estado: 'operativa', estadoLabel: 'MVP funcional — prioritaria',
@@ -273,7 +281,7 @@ const STATUS_CONFIG = {
 };
 
 const CATEGORIAS = {
-  comercio: ['comprazona','pizzar','panar','carnear','lavar','rodix','securepro','puntoventa','empresar','centralbotar','ahorrar'],
+  comercio: ['barbear','comprazona','pizzar','panar','carnear','lavar','rodix','securepro','puntoventa','empresar','centralbotar','ahorrar'],
   salud:    ['saludar','miagenda','mtc','charlar'],
   ia:       ['mtc','timbrear','legalar','centralbotar','charlar'],
 };
