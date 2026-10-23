@@ -272,6 +272,14 @@ const APPS = [
     tags: ['plus'],
     pendientes: ['Definir modelo comercial B2B', 'Panel admin de promos', 'Geolocalización por zona']
   },
+  {
+    id: 'logisar', nombre: 'Logis', ar: 'AR', emoji: '🚚',
+    color: '#f2b705', desc: 'Logística y distribución para operadores con depósito central. Stock por empresa con etiquetas Code 128, presupuestos con tarifario editable, hojas de ruta, app del chofer y liquidación de fletes. Proyecto en desarrollo para un cliente.',
+    estado: 'pendiente', estadoLabel: 'Demo v0.2 navegable — sin backend todavía',
+    url: BASE + '/logisar-demo/', beta: null, folleto: null,
+    tags: ['plus', 'offline', 'csv'],
+    pendientes: ['Mostrar la demo al cliente y juntar cambios', 'Definir tarifas reales con el cliente (km, carga fría, mínimo)', 'Crear proyecto Firebase y pegar config: login por rol + Firestore multi-tenant', 'Publicar reglas Firestore (ya redactadas)', 'Probar lectura de códigos con cámara en celular real', 'Km automáticos con servicio de mapas']
+  },
 ];
 
 const STATUS_CONFIG = {
@@ -281,7 +289,7 @@ const STATUS_CONFIG = {
 };
 
 const CATEGORIAS = {
-  comercio: ['barbear','comprazona','pizzar','panar','carnear','lavar','rodix','securepro','puntoventa','empresar','centralbotar','ahorrar'],
+  comercio: ['barbear','comprazona','pizzar','panar','carnear','lavar','rodix','securepro','puntoventa','empresar','centralbotar','ahorrar','logisar'],
   salud:    ['saludar','miagenda','mtc','charlar'],
   ia:       ['mtc','timbrear','legalar','centralbotar','charlar'],
 };
