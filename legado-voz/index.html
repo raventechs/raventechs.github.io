@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; media-src blob: data:; connect-src https://api.anthropic.com https://api.elevenlabs.io; worker-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="theme-color" content="#0f1115">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f1115'/%3E%3Cpath d='M7 16h2M12 11v10M17 7v18M22 11v10M27 16h-2' stroke='%23e0a84e' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
+<title>Legado de Voz</title>
+<!--
+  LEGADO DE VOZ — piloto privado (proyecto paralelo, NO comercial)
+  Versión:  0.2.0
+  Fecha:    2026-10-24
+  Changelog:
+    0.2.0  Un solo HTML, sin servidor ni Netlify: llama directo a Anthropic y ElevenLabs desde el
+           navegador con claves que pega el usuario (se guardan solo en su dispositivo, nunca en el código).
+           CSP que limita la conexión a esos dos dominios. Service Worker con rutas relativas.
+    0.1.0  Primera versión (con funciones de Netlify): recuerdos CRUD, perfil, chat, voz clonada,
+           admin oculto (5 toques + PIN), exportar CSV/JSON, modo oscuro/claro, log de errores local.
+  Desvíos conscientes del estándar del portfolio:
+    - Datos y claves en localStorage del navegador (sin Firebase ni servidor), solo para este piloto personal.
+    - Log de errores local (visible en el admin), no en Firestore.
+  PENDIENTE:
+    - Tope de gasto mensual en ElevenLabs y en Anthropic (manual, en sus paneles).
+    - Si el piloto valida y se vende: mover las claves a un servidor y los datos a Firestore con reglas por usuario.
+-->
+<style>
+:root{
+  --bg:#0f1115; --panel:#171a21; --panel2:#1e222b; --borde:#2a2f3a;
+  --texto:#e8eaf0; --suave:#9aa3b2; --acento:#e0a84e; --acento-t:#1a1305;
+  --ok:#5bc08a; --error:#ef6b6b; --sombra:0 8px 28px rgba(0,0,0,.35);
+}
+:root[data-theme="light"]{
+  --bg:#f4f1ea; --panel:#ffffff; --panel2:#f0ece3; --borde:#ddd6c6;
+  --texto:#1d1b16; --suave:#6a6558; --acento:#a6711a; --acento-t:#ffffff;
+  --ok:#2c8a5b; --error:#c0392b; --sombra:0 8px 28px rgba(60,45,10,.14);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--texto);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  -webkit-font-smoothing:antialiased;padding-bottom:env(safe-area-inset-bottom)}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border-radius:10px;padding:10px 16px;background:var(--panel2);border:1px solid var(--borde)}
+button:hover{border-color:var(--acento)}
+button:disabled{opacity:.5;cursor:not-allowed}
+button.primario{background:var(--acento);color:var(--acento-t);border-color:var(--acento);font-weight:600}
+button.peligro{color:var(--error)}
+button.chico{padding:6px 10px;font-size:14px}
+input[type=text],input[type=password],input[type=file],textarea{width:100%;background:var(--panel2);border:1px solid var(--borde);
+  border-radius:10px;padding:10px 12px}
+textarea{resize:vertical;min-height:110px}
+input:focus,textarea:focus,button:focus-visible{outline:2px solid var(--acento);outline-offset:1px}
+label{display:block;font-size:14px;color:var(--suave);margin:12px 0 6px}
+h2{font-size:18px;margin-bottom:6px}
+p.ayuda{color:var(--suave);font-size:14px}
+a{color:var(--acento)}
+.oculto{display:none!important}
+
+/* Pantalla de carga */
+#carga{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:18px;background:var(--bg);transition:opacity .5s}
+#carga.fuera{opacity:0;pointer-events:none}
+.onda{display:flex;gap:6px;align-items:center;height:48px}
+.onda i{display:block;width:6px;border-radius:3px;background:var(--acento);animation:onda 1s ease-in-out infinite}
+.onda i:nth-child(2){animation-delay:.12s}.onda i:nth-child(3){animation-delay:.24s}
+.onda i:nth-child(4){animation-delay:.36s}.onda i:nth-child(5){animation-delay:.48s}
+@keyframes onda{0%,100%{height:10px}50%{height:44px}}
+#carga span{color:var(--suave);letter-spacing:.12em;font-size:13px;text-transform:uppercase}
+
+/* Estructura */
+.contenedor{max-width:760px;margin:0 auto;padding:0 16px}
+header{position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--borde)}
+.barra{display:flex;align-items:center;justify-content:space-between;padding:12px 0}
+.logo{font-weight:700;font-size:20px;letter-spacing:.02em;user-select:none;-webkit-user-select:none;cursor:default}
+.logo b{color:var(--acento)}
+.aviso{background:var(--panel2);border-bottom:1px solid var(--borde);color:var(--suave);font-size:13px;padding:8px 0;text-align:center}
+nav{display:flex;gap:6px;padding:0 0 10px}
+nav button{flex:1 1 0;min-width:0;white-space:nowrap;font-size:14px;padding:10px 6px}
+nav button.activa{background:var(--acento);color:var(--acento-t);border-color:var(--acento);font-weight:600}
+main{padding:18px 0 120px}
+.tarjeta{background:var(--panel);border:1px solid var(--borde);border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:var(--sombra)}
+.fila{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.fila.entre{justify-content:space-between}
+.vacio{color:var(--suave);text-align:center;padding:28px 8px}
+
+/* Recuerdos */
+.rec-texto{white-space:pre-wrap;margin:6px 0 10px}
+.rec-fecha{color:var(--suave);font-size:13px}
+.ficha{background:var(--panel2);border:1px dashed var(--borde);border-radius:10px;padding:10px 12px;font-size:14px;margin-bottom:10px}
+.ficha b{color:var(--acento)}
+
+/* Chat */
+#hilo{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.msg{max-width:88%;padding:10px 14px;border-radius:14px;white-space:pre-wrap;border:1px solid var(--borde)}
+.msg.user{align-self:flex-end;background:var(--acento);color:var(--acento-t);border-color:var(--acento)}
+.msg.ia{align-self:flex-start;background:var(--panel)}
+.msg .oir{margin-top:8px;display:block}
+.escribiendo{color:var(--suave);font-size:14px;padding:4px 2px}
+
+/* Reproductor */
+#reproductor{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--panel);border-top:1px solid var(--borde);
+  padding:8px 16px calc(8px + env(safe-area-inset-bottom))}
+#reproductor audio{width:100%;max-width:760px;display:block;margin:0 auto}
+
+/* Modales */
+.velo{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:40;display:flex;align-items:flex-end;justify-content:center}
+.hoja{background:var(--panel);width:100%;max-width:560px;max-height:88vh;overflow:auto;border-radius:18px 18px 0 0;padding:18px 16px 28px;border:1px solid var(--borde)}
+@media(min-width:600px){.velo{align-items:center}.hoja{border-radius:18px}}
+pre.log{background:var(--panel2);border:1px solid var(--borde);border-radius:10px;padding:10px;font-size:12px;max-height:180px;overflow:auto;white-space:pre-wrap}
+
+/* Toast */
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--texto);color:var(--bg);padding:10px 16px;border-radius:10px;
+  z-index:60;max-width:90%;font-size:14px;opacity:0;pointer-events:none;transition:opacity .25s}
+#toast.ver{opacity:1}
+#toast.err{background:var(--error);color:#fff}
+.check{display:flex;gap:10px;align-items:flex-start;margin:12px 0}
+.check input{margin-top:5px;width:18px;height:18px;accent-color:var(--acento)}
+.estado{font-size:13px;margin-top:6px}
+.estado.ok{color:var(--ok)}.estado.no{color:var(--error)}
+</style>
+</head>
+<body>
+
+<div id="carga"><div class="onda"><i></i><i></i><i></i><i></i><i></i></div><span>Legado de Voz</span></div>
+
+<div id="app" class="oculto">
+  <header>
+    <div class="contenedor">
+      <div class="barra">
+        <div class="logo" id="logo">Legado<b> de Voz</b></div>
+        <div class="fila">
+          <button id="btnClaves" class="chico">Claves</button>
+          <button id="btnTema" class="chico" aria-label="Cambiar tema">Tema</button>
+        </div>
+      </div>
+      <nav id="tabs">
+        <button data-tab="recuerdos" class="activa">Recuerdos</button>
+        <button data-tab="perfil">Perfil</button>
+        <button data-tab="conversar">Conversar</button>
+        <button data-tab="voz">Voz</button>
+      </nav>
+    </div>
+    <div class="aviso">Recreación hecha con IA a partir de recuerdos cargados por vos. No es una persona real.</div>
+  </header>
+
+  <main class="contenedor">
+    <!-- Recuerdos -->
+    <section id="tab-recuerdos">
+      <div class="tarjeta">
+        <h2 id="tituloForm">Contar una anécdota</h2>
+        <p class="ayuda">Escribila como se la contarías a alguien: un día, una frase típica, cómo reaccionaba, qué le hacía gracia.</p>
+        <label for="inNombre">Nombre de la persona</label>
+        <input id="inNombre" type="text" maxlength="40">
+        <label for="inTexto">Anécdota o forma de ser</label>
+        <textarea id="inTexto" maxlength="4000" placeholder="Ej.: Siempre me acuerdo del día que fuimos al cine y se reía con los chistes de…"></textarea>
+        <div class="fila" style="margin-top:12px">
+          <button id="btnGuardarRec" class="primario">Guardar recuerdo</button>
+          <button id="btnCancelarEd" class="oculto">Cancelar edición</button>
+        </div>
+      </div>
+      <div id="listaRec"></div>
+    </section>
+
+    <!-- Perfil -->
+    <section id="tab-perfil" class="oculto">
+      <div class="tarjeta">
+        <h2>Perfil de personalidad</h2>
+        <p class="ayuda">La IA resume tus recuerdos en un perfil. Podés corregirlo a mano: el chat se basa en este texto y en los recuerdos.</p>
+        <div class="fila" style="margin:12px 0">
+          <button id="btnPerfil" class="primario">Generar perfil con mis recuerdos</button>
+        </div>
+        <textarea id="inPerfil" style="min-height:260px" maxlength="6000" placeholder="Todavía no hay perfil. Cargá recuerdos y generalo."></textarea>
+        <div class="fila" style="margin-top:12px"><button id="btnGuardarPerfil">Guardar cambios del perfil</button></div>
+      </div>
+    </section>
+
+    <!-- Conversar -->
+    <section id="tab-conversar" class="oculto">
+      <div class="tarjeta">
+        <div class="fila entre">
+          <h2>Conversación</h2>
+          <button id="btnLimpiarChat" class="chico">Borrar conversación</button>
+        </div>
+        <p class="ayuda">Responde solo con lo que cargaste. Si no tiene un recuerdo, lo dice.</p>
+      </div>
+      <div id="hilo"></div>
+      <div id="escribiendo" class="escribiendo oculto">Pensando…</div>
+      <div class="tarjeta">
+        <textarea id="inMsg" style="min-height:70px" maxlength="800" placeholder="Escribile algo…"></textarea>
+        <div class="fila" style="margin-top:10px"><button id="btnEnviar" class="primario">Enviar</button></div>
+      </div>
+    </section>
+
+    <!-- Voz -->
+    <section id="tab-voz" class="oculto">
+      <div class="tarjeta">
+        <h2>1. Crear la voz</h2>
+        <p class="ayuda">Subí un audio tuyo (MP3 o M4A, hasta 10 MB, 1 a 3 minutos, sin ruido). Se envía directo a ElevenLabs.</p>
+        <label for="inAudio">Audio</label>
+        <input id="inAudio" type="file" accept="audio/*">
+        <div class="check">
+          <input id="chkConsent" type="checkbox">
+          <label for="chkConsent" style="margin:0;color:var(--texto)">Confirmo que es mi propia voz o que tengo autorización expresa de la persona (o de su familiar responsable) para clonarla.</label>
+        </div>
+        <button id="btnClonar" class="primario">Crear voz clonada</button>
+        <p class="ayuda" style="margin-top:12px">¿Ya la creaste en la web de ElevenLabs? Pegá acá su Voice ID:</p>
+        <label for="inVoiceId">Voice ID</label>
+        <input id="inVoiceId" type="text" maxlength="40" autocomplete="off" spellcheck="false">
+        <div class="fila" style="margin-top:10px"><button id="btnGuardarVoz">Guardar Voice ID</button></div>
+      </div>
+      <div class="tarjeta">
+        <h2>2. Probar la voz</h2>
+        <label for="inPrueba">Texto a decir (máx. 600 caracteres)</label>
+        <textarea id="inPrueba" maxlength="600" style="min-height:90px">Hola, esta es una prueba de mi voz en el piloto de Legado de Voz.</textarea>
+        <div class="fila" style="margin-top:10px"><button id="btnProbar" class="primario">Escuchar</button></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div id="reproductor" class="oculto"><audio id="player" controls></audio></div>
+<div id="toast" role="status"></div>
+
+<!-- Claves -->
+<div id="veloClaves" class="velo oculto">
+  <div class="hoja">
+    <h2>Claves de acceso</h2>
+    <p class="ayuda">Se guardan solo en este dispositivo y viajan directo a cada proveedor. No quedan escritas en la página ni en GitHub. Pegalas una sola vez.</p>
+    <label for="inKeyIA">Key de Anthropic (empieza con sk-ant-)</label>
+    <input id="inKeyIA" type="password" autocomplete="off" spellcheck="false" autocapitalize="off">
+    <p class="ayuda" style="margin-top:6px">Se crea en <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener noreferrer">console.anthropic.com</a> (cuenta de API, con saldo cargado).</p>
+    <label for="inKeyVoz">Key de ElevenLabs</label>
+    <input id="inKeyVoz" type="password" autocomplete="off" spellcheck="false" autocapitalize="off">
+    <p class="ayuda" style="margin-top:6px">Se crea en <a href="https://elevenlabs.io/app/settings/api-keys" target="_blank" rel="noopener noreferrer">elevenlabs.io</a> &gt; Developers &gt; API Keys.</p>
+    <div id="estadoClaves" class="estado"></div>
+    <div class="fila" style="margin-top:14px">
+      <button id="btnGuardarClaves" class="primario">Guardar claves</button>
+      <button id="btnCerrarClaves">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin oculto -->
+<div id="velo" class="velo oculto">
+  <div class="hoja">
+    <div id="adminPin">
+      <h2>Administración</h2>
+      <label for="inPin">PIN</label>
+      <input id="inPin" type="password" inputmode="numeric" maxlength="8" autocomplete="off">
+      <div class="fila" style="margin-top:12px">
+        <button id="btnPin" class="primario">Entrar</button>
+        <button class="cerrar">Cerrar</button>
+      </div>
+    </div>
+    <div id="adminPanel" class="oculto">
+      <h2>Administración</h2>
+      <p class="ayuda" id="resumenAdmin"></p>
+      <div class="fila" style="margin:12px 0">
+        <button id="btnCsv">Exportar recuerdos (CSV)</button>
+        <button id="btnJson">Exportar todo (JSON)</button>
+        <button id="btnImportar">Importar JSON</button>
+        <input id="inImportar" type="file" accept="application/json" class="oculto">
+      </div>
+      <h2 style="margin-top:14px">Errores recientes</h2>
+      <pre class="log" id="verLog"></pre>
+      <div class="fila" style="margin-top:12px">
+        <button id="btnLimpiarLog" class="chico">Limpiar errores</button>
+        <button id="btnBorrarClaves" class="peligro chico">Borrar claves</button>
+        <button id="btnBorrarTodo" class="peligro chico">Borrar todos los datos</button>
+        <button class="cerrar chico">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+'use strict';
+var KEY = 'legadoVoz.v1', KEYS = 'legadoVoz.claves', LOGK = 'legadoVoz.log', PIN_ADMIN = '2580';
+var MODELO_IA = 'claude-sonnet-5-5';          // modelo de texto
+var MODELO_VOZ = 'eleven_multilingual_v2';     // modelo de voz
+var API_IA = 'https://api.anthropic.com/v1';
+var API_VOZ = 'https://api.elevenlabs.io/v1';
+var MAX_ANECDOTA = 4000, MAX_TOTAL = 15000, MAX_PERFIL = 6000, MAX_MENSAJE = 800, MAX_TTS = 600, MAX_AUDIO = 10 * 1024 * 1024;
+var memoria = {};
+
+/* ---------- Almacenamiento (siempre con try/catch) ---------- */
+function lget(k) { try { var v = localStorage.getItem(k); return v === null && k in memoria ? memoria[k] : v; } catch (e) { return k in memoria ? memoria[k] : null; } }
+function lset(k, v) { memoria[k] = v; try { localStorage.setItem(k, v); } catch (e) {} }
+function ldel(k) { delete memoria[k]; try { localStorage.removeItem(k); } catch (e) {} }
+
+function porDefecto() { return { nombre: 'Ruben', voiceId: '', perfil: '', anecdotas: [], chat: [], tema: 'dark' }; }
+function cargar() {
+  var o = null;
+  try { o = JSON.parse(lget(KEY) || 'null'); } catch (e) { o = null; }
+  var d = porDefecto();
+  if (o && typeof o === 'object') for (var k in d) if (o[k] !== undefined) d[k] = o[k];
+  if (!Array.isArray(d.anecdotas)) d.anecdotas = [];
+  if (!Array.isArray(d.chat)) d.chat = [];
+  return d;
+}
+var S = cargar();
+function guardar() { lset(KEY, JSON.stringify(S)); }
+
+function leerClaves() {
+  try { var o = JSON.parse(lget(KEYS) || '{}'); return { ia: String(o.ia || ''), voz: String(o.voz || '') }; }
+  catch (e) { return { ia: '', voz: '' }; }
+}
+var K = leerClaves();
+
+/* ---------- Utilidades ---------- */
+function $(s) { return document.querySelector(s); }
+function esc(t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function hoy() { return new Date().toLocaleDateString('es-AR'); }
+function recortar(s, n) { return String(s == null ? '' : s).slice(0, n); }
+var toastT;
+function toast(msg, error) {
+  var t = $('#toast'); t.textContent = msg; t.className = (error ? 'err ' : '') + 'ver';
+  clearTimeout(toastT); toastT = setTimeout(function () { t.className = error ? 'err' : ''; }, 4000);
+}
+function logErr(ctx, e) {
+  var l = []; try { l = JSON.parse(lget(LOGK) || '[]'); } catch (x) {}
+  l.unshift({ t: new Date().toISOString(), ctx: ctx, msg: String((e && e.message) || e) });
+  lset(LOGK, JSON.stringify(l.slice(0, 50)));
+}
+async function ocupado(btn, fn) {
+  if (btn.disabled) return;
+  var txt = btn.textContent; btn.disabled = true; btn.textContent = 'Un momento…';
+  try { await fn(); } catch (e) { logErr(btn.id, e); toast(e.message || 'Error', true); }
+  finally { btn.disabled = false; btn.textContent = txt; }
+}
+function descargar(nombre, contenido, tipo) {
+  var url = URL.createObjectURL(new Blob([contenido], { type: tipo }));
+  var a = document.createElement('a'); a.href = url; a.download = nombre;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+}
+
+/* ---------- Red: Anthropic (texto) ---------- */
+async function pedir(url, opciones, proveedor) {
+  var r;
+  try { r = await fetch(url, opciones); }
+  catch (e) { throw new Error('No pude conectar con ' + proveedor + '. Revisá tu conexión.'); }
+  return r;
+}
+function mensajeError(d, status, proveedor) {
+  if (status === 401) return 'La key de ' + proveedor + ' no es válida o no tiene permisos. Revisala en Claves.';
+  if (status === 429) return proveedor + ' está limitando los pedidos o te quedaste sin saldo. Probá en un rato.';
+  var det = d && (d.error && d.error.message || (d.detail && (d.detail.message || d.detail)));
+  return (typeof det === 'string' && det) ? det.slice(0, 250) : (proveedor + ' respondió con error ' + status);
+}
+async function llamarIA(system, messages, maxTokens) {
+  if (!K.ia) { abrirClaves(); throw new Error('Falta la key de Anthropic'); }
+  var r = await pedir(API_IA + '/messages', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json', 'x-api-key': K.ia, 'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({ model: MODELO_IA, max_tokens: maxTokens, system: system, messages: messages })
+  }, 'Anthropic');
+  var d = {}; try { d = await r.json(); } catch (e) {}
+  if (!r.ok) throw new Error(mensajeError(d, r.status, 'Anthropic'));
+  return (d.content || []).filter(function (b) { return b.type === 'text'; }).map(function (b) { return b.text; }).join('').trim();
+}
+
+function limpiarNombre(n) {
+  var x = recortar(n, 40).replace(/[^\p{L}\p{N} .'-]/gu, '').trim();
+  return x || 'la persona';
+}
+function listaAnecdotas() {
+  var out = [], total = 0;
+  S.anecdotas.forEach(function (a) {
+    var s = recortar(a.texto, MAX_ANECDOTA).trim();
+    if (!s || total + s.length > MAX_TOTAL) return;
+    total += s.length; out.push(s);
+  });
+  return out;
+}
+function normalizarHistorial(hist, mensaje) {
+  var base = hist.filter(function (m) { return m && m.content && m.content.trim(); }).slice(-12)
+    .map(function (m) { return { role: m.role, content: recortar(m.content, 2000) }; });
+  base.push({ role: 'user', content: recortar(mensaje, MAX_MENSAJE) });
+  var out = [];
+  base.forEach(function (m) {
+    var u = out[out.length - 1];
+    if (u && u.role === m.role) u.content += '\n' + m.content; else out.push({ role: m.role, content: m.content });
+  });
+  while (out.length && out[0].role !== 'user') out.shift();
+  return out;
+}
+function sistemaChat(nombre, perfil, an) {
+  return [
+    'Sos una recreación con IA de ' + nombre + ', construida con recuerdos y descripciones que la propia persona cargó. Hablás en primera persona, con su manera de expresarse, su humor y sus muletillas tal como aparecen en el material.',
+    '',
+    'REGLAS (obligatorias):',
+    '1. Solo afirmás hechos, gustos, anécdotas y opiniones que estén en el material. Si te preguntan algo que no está, decilo con naturalidad ("de eso no tengo un recuerdo cargado") y no inventes.',
+    '2. Si te preguntan si sos real o si estás vivo, aclarás con amabilidad que sos una recreación hecha con IA a partir de recuerdos.',
+    '3. No das consejos médicos, legales ni financieros.',
+    '4. Si la persona que escribe muestra angustia profunda, desesperanza o menciona hacerse daño, dejás el personaje con calidez, le sugerís hablar con alguien de confianza y con un profesional (en Argentina, la línea 135 de asistencia en crisis) y no seguís el juego.',
+    '5. Respondé corto (2 a 5 oraciones), en español rioplatense natural, sin emojis, sin listas, sin markdown ni acotaciones entre paréntesis: el texto se va a leer en voz alta.',
+    '',
+    perfil ? 'PERFIL DE PERSONALIDAD:\n' + perfil : '',
+    an.length ? 'RECUERDOS (material fuente):\n' + an.map(function (a, i) { return '(' + (i + 1) + ') ' + a; }).join('\n') : ''
+  ].filter(Boolean).join('\n');
+}
+function extraerJson(texto) {
+  var i = texto.indexOf('{'), f = texto.lastIndexOf('}');
+  if (i < 0 || f < i) return null;
+  try { return JSON.parse(texto.slice(i, f + 1)); } catch (e) { return null; }
+}
+async function iaFicha(texto) {
+  var sys = 'Analizás un recuerdo o anécdota sobre una persona y extraés rasgos SOLO a partir del texto, sin inventar. Respondé únicamente con un objeto JSON con estas claves: "resumen" (una oración), "muletillas" (array de frases o formas de decir textuales, vacío si no hay), "humor" (string, vacío si no hay), "gustos" (array), "valores" (array), "formaDeHablar" (string, vacío si no hay). Sin texto fuera del JSON.';
+  var out = await llamarIA(sys, [{ role: 'user', content: recortar(texto, MAX_ANECDOTA) }], 600);
+  var f = extraerJson(out);
+  if (!f) throw new Error('La IA no devolvió un formato válido, probá de nuevo');
+  return f;
+}
+async function iaPerfil() {
+  var an = listaAnecdotas();
+  if (!an.length) throw new Error('Cargá al menos una anécdota primero');
+  var sys = 'Armás el perfil de personalidad de ' + limpiarNombre(S.nombre) + ' usando SOLO el material que te pasa el usuario. No inventes datos. Escribí en español, en secciones cortas con estos títulos: "Cómo habla", "Humor", "Gustos", "Valores", "Cómo reacciona", "Datos y hechos mencionados". Si una sección no tiene sustento en el material, escribí "Sin datos todavía". Máximo 350 palabras, sin markdown ni asteriscos.';
+  return llamarIA(sys, [{ role: 'user', content: an.map(function (a, i) { return '(' + (i + 1) + ') ' + a; }).join('\n\n') }], 1200);
+}
+async function iaChat(hist, mensaje) {
+  var perfil = recortar(S.perfil, MAX_PERFIL).trim(), an = listaAnecdotas();
+  if (!perfil && !an.length) throw new Error('Cargá al menos una anécdota primero');
+  return llamarIA(sistemaChat(limpiarNombre(S.nombre), perfil, an), normalizarHistorial(hist, mensaje), 400);
+}
+
+/* ---------- Red: ElevenLabs (voz) ---------- */
+async function vozClonar(archivo) {
+  if (!K.voz) { abrirClaves(); throw new Error('Falta la key de ElevenLabs'); }
+  var fd = new FormData();
+  fd.append('name', 'Voz de ' + limpiarNombre(S.nombre));
+  fd.append('description', 'Voz propia del usuario, consentimiento confirmado en la app');
+  fd.append('remove_background_noise', 'false');
+  fd.append('files', archivo, archivo.name || 'muestra.mp3');
+  var r = await pedir(API_VOZ + '/voices/add', { method: 'POST', headers: { 'xi-api-key': K.voz }, body: fd }, 'ElevenLabs');
+  var d = {}; try { d = await r.json(); } catch (e) {}
+  if (!r.ok) throw new Error(mensajeError(d, r.status, 'ElevenLabs'));
+  return d;
+}
+async function vozHablar(texto) {
+  if (!K.voz) { abrirClaves(); throw new Error('Falta la key de ElevenLabs'); }
+  if (!S.voiceId) throw new Error('Primero creá la voz en la pestaña Voz');
+  var r = await pedir(API_VOZ + '/text-to-speech/' + encodeURIComponent(S.voiceId) + '?output_format=mp3_44100_128', {
+    method: 'POST',
+    headers: { 'xi-api-key': K.voz, 'content-type': 'application/json', accept: 'audio/mpeg' },
+    body: JSON.stringify({
+      text: recortar(texto, MAX_TTS), model_id: MODELO_VOZ,
+      voice_settings: { stability: 0.5, similarity_boost: 0.8, style: 0.0, use_speaker_boost: true }
+    })
+  }, 'ElevenLabs');
+  if (!r.ok) { var d = {}; try { d = await r.json(); } catch (e) {} throw new Error(mensajeError(d, r.status, 'ElevenLabs')); }
+  return r.blob();
+}
+
+/* ---------- Reproductor ---------- */
+var urlAudio = null;
+function reproducir(blob) {
+  var p = $('#player'); $('#reproductor').classList.remove('oculto');
+  if (urlAudio) URL.revokeObjectURL(urlAudio);
+  urlAudio = URL.createObjectURL(blob); p.src = urlAudio;
+  var pr = p.play(); if (pr && pr.catch) pr.catch(function () { toast('Tocá play en el reproductor de abajo'); });
+}
+async function hablar(texto) { reproducir(await vozHablar(texto)); }
+
+/* ---------- Claves ---------- */
+function estadoClaves() {
+  var ia = K.ia ? 'Anthropic: guardada' : 'Anthropic: falta', vz = K.voz ? 'ElevenLabs: guardada' : 'ElevenLabs: falta';
+  var el = $('#estadoClaves'); el.textContent = ia + ' · ' + vz; el.className = 'estado ' + (K.ia && K.voz ? 'ok' : 'no');
+}
+function abrirClaves() { $('#inKeyIA').value = ''; $('#inKeyVoz').value = ''; estadoClaves(); $('#veloClaves').classList.remove('oculto'); }
+function cerrarClaves() { $('#veloClaves').classList.add('oculto'); }
+$('#btnClaves').onclick = abrirClaves;
+$('#btnCerrarClaves').onclick = cerrarClaves;
+$('#veloClaves').addEventListener('click', function (e) { if (e.target === this) cerrarClaves(); });
+$('#btnGuardarClaves').onclick = function () {
+  var b = this;
+  ocupado(b, async function () {
+    // .replace(/\s+/g,'') quita saltos de línea o espacios que se pegan desde el celular
+    var ia = $('#inKeyIA').value.replace(/\s+/g, ''), vz = $('#inKeyVoz').value.replace(/\s+/g, '');
+    if (!ia && !vz) throw new Error('Pegá al menos una key');
+    if (ia && ia.indexOf('sk-ant-') !== 0) throw new Error('La key de Anthropic debería empezar con sk-ant-');
+    var nuevas = { ia: ia || K.ia, voz: vz || K.voz };
+    if (ia) { // validación gratuita: listar modelos
+      var r = await pedir(API_IA + '/models?limit=1', { headers: { 'x-api-key': ia, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' } }, 'Anthropic');
+      if (!r.ok) { var d = {}; try { d = await r.json(); } catch (e) {} throw new Error(mensajeError(d, r.status, 'Anthropic')); }
+    }
+    K = nuevas; lset(KEYS, JSON.stringify(K)); estadoClaves();
+    $('#inKeyIA').value = ''; $('#inKeyVoz').value = '';
+    toast(K.ia && K.voz ? 'Claves guardadas' : 'Guardada. Todavía falta una key');
+    if (K.ia && K.voz) cerrarClaves();
+  });
+};
+
+/* ---------- Tema ---------- */
+function aplicarTema() {
+  document.documentElement.setAttribute('data-theme', S.tema);
+  var m = document.querySelector('meta[name=theme-color]'); if (m) m.content = S.tema === 'dark' ? '#0f1115' : '#f4f1ea';
+}
+$('#btnTema').onclick = function () { S.tema = S.tema === 'dark' ? 'light' : 'dark'; guardar(); aplicarTema(); };
+
+/* ---------- Pestañas ---------- */
+function irA(tab) {
+  ['recuerdos', 'perfil', 'conversar', 'voz'].forEach(function (t) { $('#tab-' + t).classList.toggle('oculto', t !== tab); });
+  document.querySelectorAll('#tabs button').forEach(function (b) { b.classList.toggle('activa', b.dataset.tab === tab); });
+  if (tab === 'conversar') finHilo();
+}
+$('#tabs').onclick = function (e) { var b = e.target.closest('button'); if (b) irA(b.dataset.tab); };
+
+/* ---------- Recuerdos (CRUD) ---------- */
+var editandoId = null;
+function renderRecuerdos() {
+  var cont = $('#listaRec');
+  if (!S.anecdotas.length) { cont.innerHTML = '<div class="vacio">Todavía no hay recuerdos. Contá el primero arriba.</div>'; return; }
+  cont.innerHTML = S.anecdotas.map(function (a) {
+    var f = a.ficha ? '<div class="ficha"><b>Resumen:</b> ' + esc(a.ficha.resumen) +
+      (a.ficha.muletillas && a.ficha.muletillas.length ? '<br><b>Muletillas:</b> ' + esc(a.ficha.muletillas.join(' · ')) : '') +
+      (a.ficha.humor ? '<br><b>Humor:</b> ' + esc(a.ficha.humor) : '') +
+      (a.ficha.gustos && a.ficha.gustos.length ? '<br><b>Gustos:</b> ' + esc(a.ficha.gustos.join(', ')) : '') +
+      (a.ficha.valores && a.ficha.valores.length ? '<br><b>Valores:</b> ' + esc(a.ficha.valores.join(', ')) : '') +
+      (a.ficha.formaDeHablar ? '<br><b>Forma de hablar:</b> ' + esc(a.ficha.formaDeHablar) : '') + '</div>' : '';
+    return '<div class="tarjeta" data-id="' + esc(a.id) + '"><div class="rec-fecha">' + esc(a.fecha) + '</div>' +
+      '<div class="rec-texto">' + esc(a.texto) + '</div>' + f +
+      '<div class="fila"><button class="chico" data-acc="ficha">Extraer rasgos</button>' +
+      '<button class="chico" data-acc="editar">Editar</button>' +
+      '<button class="chico peligro" data-acc="borrar">Borrar</button></div></div>';
+  }).join('');
+}
+function limpiarForm() {
+  editandoId = null; $('#inTexto').value = ''; $('#tituloForm').textContent = 'Contar una anécdota';
+  $('#btnGuardarRec').textContent = 'Guardar recuerdo'; $('#btnCancelarEd').classList.add('oculto');
+}
+$('#btnGuardarRec').onclick = function () {
+  var nombre = $('#inNombre').value.trim(), texto = $('#inTexto').value.trim();
+  if (!texto) return toast('Escribí la anécdota primero', true);
+  if (nombre) S.nombre = nombre;
+  if (editandoId) {
+    var a = S.anecdotas.find(function (x) { return x.id === editandoId; });
+    if (a) { if (a.texto !== texto) a.ficha = null; a.texto = texto; }
+  } else {
+    S.anecdotas.unshift({ id: uid(), fecha: hoy(), texto: texto, ficha: null });
+  }
+  guardar(); limpiarForm(); renderRecuerdos(); toast('Recuerdo guardado');
+};
+$('#btnCancelarEd').onclick = limpiarForm;
+$('#inNombre').addEventListener('change', function () { var v = this.value.trim(); if (v) { S.nombre = v; guardar(); } });
+$('#listaRec').onclick = function (e) {
+  var b = e.target.closest('button[data-acc]'); if (!b) return;
+  var id = b.closest('[data-id]').dataset.id;
+  var a = S.anecdotas.find(function (x) { return x.id === id; }); if (!a) return;
+  if (b.dataset.acc === 'borrar') {
+    if (!confirm('¿Borrar este recuerdo?')) return;
+    S.anecdotas = S.anecdotas.filter(function (x) { return x.id !== id; });
+    guardar(); renderRecuerdos();
+  } else if (b.dataset.acc === 'editar') {
+    editandoId = id; $('#inTexto').value = a.texto; $('#tituloForm').textContent = 'Editar recuerdo';
+    $('#btnGuardarRec').textContent = 'Guardar cambios'; $('#btnCancelarEd').classList.remove('oculto');
+    $('#inTexto').focus(); window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else if (b.dataset.acc === 'ficha') {
+    ocupado(b, async function () { a.ficha = await iaFicha(a.texto); guardar(); renderRecuerdos(); });
+  }
+};
+
+/* ---------- Perfil ---------- */
+$('#btnPerfil').onclick = function () {
+  ocupado(this, async function () { S.perfil = await iaPerfil(); guardar(); $('#inPerfil').value = S.perfil; toast('Perfil generado'); });
+};
+$('#btnGuardarPerfil').onclick = function () { S.perfil = $('#inPerfil').value; guardar(); toast('Perfil guardado'); };
+
+/* ---------- Chat ---------- */
+function renderHilo() {
+  var h = $('#hilo');
+  if (!S.chat.length) { h.innerHTML = '<div class="vacio">Escribile algo para empezar.</div>'; return; }
+  h.innerHTML = S.chat.map(function (m, i) {
+    return '<div class="msg ' + (m.r === 'user' ? 'user' : 'ia') + '">' + esc(m.c) +
+      (m.r === 'ia' ? '<button class="chico oir" data-i="' + i + '">Escuchar</button>' : '') + '</div>';
+  }).join('');
+}
+function finHilo() { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }
+$('#hilo').onclick = function (e) {
+  var b = e.target.closest('button.oir'); if (!b) return;
+  var m = S.chat[+b.dataset.i]; if (!m) return;
+  ocupado(b, function () { return hablar(m.c); });
+};
+$('#btnEnviar').onclick = function () {
+  var txt = $('#inMsg').value.trim(); if (!txt) return;
+  if (!S.anecdotas.length && !S.perfil.trim()) return toast('Cargá al menos una anécdota primero', true);
+  ocupado(this, async function () {
+    var hist = S.chat.slice(-12).map(function (m) { return { role: m.r === 'user' ? 'user' : 'assistant', content: m.c }; });
+    S.chat.push({ r: 'user', c: txt }); guardar(); $('#inMsg').value = ''; renderHilo();
+    $('#escribiendo').classList.remove('oculto'); finHilo();
+    try { S.chat.push({ r: 'ia', c: await iaChat(hist, txt) }); guardar(); }
+    finally { $('#escribiendo').classList.add('oculto'); renderHilo(); finHilo(); }
+  });
+};
+$('#inMsg').addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) $('#btnEnviar').click(); });
+$('#btnLimpiarChat').onclick = function () { if (!S.chat.length || !confirm('¿Borrar la conversación?')) return; S.chat = []; guardar(); renderHilo(); };
+
+/* ---------- Voz ---------- */
+$('#btnClonar').onclick = function () {
+  ocupado(this, async function () {
+    var f = $('#inAudio').files[0];
+    if (!f) throw new Error('Elegí un audio');
+    if (f.size > MAX_AUDIO) throw new Error('El audio pesa más de 10 MB. Usá un MP3 más liviano');
+    if (!$('#chkConsent').checked) throw new Error('Tenés que confirmar el consentimiento');
+    var d = await vozClonar(f);
+    S.voiceId = d.voice_id; guardar(); $('#inVoiceId').value = S.voiceId;
+    toast(d.requires_verification ? 'Voz creada, pero ElevenLabs pide verificarla en su web' : 'Voz creada. Probala abajo');
+  });
+};
+$('#btnGuardarVoz').onclick = function () {
+  var v = $('#inVoiceId').value.trim();
+  if (v && !/^[A-Za-z0-9]{10,40}$/.test(v)) return toast('El Voice ID no parece válido', true);
+  S.voiceId = v; guardar(); toast(v ? 'Voice ID guardado' : 'Voice ID borrado');
+};
+$('#btnProbar').onclick = function () {
+  var t = $('#inPrueba').value.trim();
+  ocupado(this, async function () { if (!t) throw new Error('Escribí un texto'); await hablar(t); });
+};
+
+/* ---------- Admin oculto: 5 toques al logo + PIN ---------- */
+var toques = 0, tT;
+$('#logo').addEventListener('click', function () {
+  toques++; clearTimeout(tT); tT = setTimeout(function () { toques = 0; }, 1500);
+  if (toques >= 5) { toques = 0; abrirAdmin(); }
+});
+function abrirAdmin() { $('#adminPin').classList.remove('oculto'); $('#adminPanel').classList.add('oculto'); $('#inPin').value = ''; $('#velo').classList.remove('oculto'); setTimeout(function () { $('#inPin').focus(); }, 50); }
+function cerrarAdmin() { $('#velo').classList.add('oculto'); }
+document.querySelectorAll('.cerrar').forEach(function (b) { b.onclick = cerrarAdmin; });
+$('#velo').addEventListener('click', function (e) { if (e.target === this) cerrarAdmin(); });
+$('#btnPin').onclick = function () {
+  if ($('#inPin').value !== PIN_ADMIN) { toast('PIN incorrecto', true); return; }
+  $('#adminPin').classList.add('oculto'); $('#adminPanel').classList.remove('oculto'); renderAdmin();
+};
+$('#inPin').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('#btnPin').click(); });
+function renderAdmin() {
+  $('#resumenAdmin').textContent = S.anecdotas.length + ' recuerdos · ' + S.chat.length + ' mensajes · voz: ' + (S.voiceId ? 'configurada' : 'sin configurar') +
+    ' · claves: ' + (K.ia ? 'IA ' : '') + (K.voz ? 'voz' : '') + (!K.ia && !K.voz ? 'ninguna' : '');
+  var l = []; try { l = JSON.parse(lget(LOGK) || '[]'); } catch (e) {}
+  $('#verLog').textContent = l.length ? l.map(function (x) { return x.t + '  [' + x.ctx + ']  ' + x.msg; }).join('\n') : 'Sin errores registrados.';
+}
+function csvCelda(v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; }
+$('#btnCsv').onclick = function () {
+  var filas = [['fecha', 'texto', 'resumen', 'muletillas', 'humor', 'gustos', 'valores', 'forma_de_hablar']];
+  S.anecdotas.forEach(function (a) {
+    var f = a.ficha || {};
+    filas.push([a.fecha, a.texto, f.resumen, (f.muletillas || []).join(' | '), f.humor, (f.gustos || []).join(' | '), (f.valores || []).join(' | '), f.formaDeHablar]);
+  });
+  descargar('legado-recuerdos.csv', '﻿' + filas.map(function (r) { return r.map(csvCelda).join(','); }).join('\r\n'), 'text/csv;charset=utf-8');
+};
+// El respaldo JSON NO incluye las claves.
+$('#btnJson').onclick = function () { descargar('legado-respaldo.json', JSON.stringify(S, null, 2), 'application/json'); };
+$('#btnImportar').onclick = function () { $('#inImportar').click(); };
+$('#inImportar').onchange = function () {
+  var f = this.files[0]; if (!f) return;
+  var fr = new FileReader();
+  fr.onload = function () {
+    try {
+      var o = JSON.parse(fr.result);
+      if (!o || !Array.isArray(o.anecdotas)) throw new Error('El archivo no es un respaldo válido');
+      if (!confirm('Esto reemplaza los datos actuales. ¿Seguir?')) return;
+      S = Object.assign(porDefecto(), o); guardar(); renderTodo(); renderAdmin(); toast('Respaldo importado');
+    } catch (e) { logErr('importar', e); toast(e.message, true); }
+  };
+  fr.readAsText(f); this.value = '';
+};
+$('#btnLimpiarLog').onclick = function () { ldel(LOGK); renderAdmin(); };
+$('#btnBorrarClaves').onclick = function () {
+  if (!confirm('Se borran las dos keys de este dispositivo. ¿Seguro?')) return;
+  K = { ia: '', voz: '' }; ldel(KEYS); renderAdmin(); toast('Claves borradas');
+};
+$('#btnBorrarTodo').onclick = function () {
+  if (!confirm('Se borran recuerdos, perfil, conversación y Voice ID de este navegador. ¿Seguro?')) return;
+  S = porDefecto(); guardar(); renderTodo(); renderAdmin(); toast('Datos borrados');
+};
+
+/* ---------- Render general ---------- */
+function renderTodo() {
+  aplicarTema();
+  $('#inNombre').value = S.nombre; $('#inPerfil').value = S.perfil; $('#inVoiceId').value = S.voiceId;
+  renderRecuerdos(); renderHilo();
+}
+
+/* ---------- Arranque ---------- */
+aplicarTema();
+setTimeout(function () {
+  $('#carga').classList.add('fuera');
+  $('#app').classList.remove('oculto'); renderTodo();
+  if (!K.ia || !K.voz) abrirClaves();   // primera vez: pedir las claves
+}, 1100);
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw-legado-voz.js', { scope: './' }).catch(function (e) { logErr('sw', e); });
+  });
+}
+window.addEventListener('error', function (e) { logErr('window', e.message); });
+window.addEventListener('unhandledrejection', function (e) { logErr('promesa', e.reason); });
+})();
+</script>
+</body>
+</html>
