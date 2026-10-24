@@ -1,21 +1,25 @@
 <!DOCTYPE html>
 <!--
-  LogisAR — DEMO navegable
-  Versión: v0.2-demo
-  Fecha: 2026-10-23
+  LogisAR — Logística y distribución
+  Versión: v0.3
+  Fecha: 2026-10-24
   Changelog:
-    v0.2-demo — PWA instalable (manifest, service worker, íconos), exportación CSV de stock y pedidos,
-                registro local de errores y botón de instalación. Reglas Firestore entregadas aparte.
-    v0.1-demo — Primera maqueta con los 4 roles (administrador, operario, empresa, chofer).
-                Datos de ejemplo guardados en el dispositivo (localStorage), sin Firebase todavía.
-                Incluye: ingreso con etiqueta Code 128, stock por empresa, tarifario editable,
-                generador de presupuestos (impresión/PDF), pedidos con estados, hojas de ruta,
-                app del chofer con foto y ubicación, y liquidación con exportación a CSV.
+    v0.3 — Modo real con Firebase: login con Google, usuarios por rol (admin, operario, empresa, chofer),
+           datos compartidos en tiempo real, contadores atómicos (E-0001, P-0001), fotos de entrega,
+           ubicación en vivo del chofer y funcionamiento sin conexión.
+           Modo demo local si no hay configuración o con ?demo=1.
+           Nuevo: Equipo (alta de usuarios), alta de camiones, pedido directo, cancelar y reprogramar,
+           presupuestos vencidos ya no se pueden aceptar, detalle de la carga, baja y ubicación de bultos,
+           quitar bulto al preparar, datos de ejemplo que se pueden quitar. Reglas de Firestore en archivo aparte.
+    v0.2-demo — PWA instalable, CSV de stock y pedidos, registro local de errores.
+    v0.1-demo — Primera maqueta con los 4 roles, datos de ejemplo en el dispositivo.
   PENDIENTE:
-    - Login real y Firestore con reglas por rol y por empresa (multi-tenant)
-    - Kilómetros automáticos con servicio de mapas (hoy se cargan por destino)
-    - Probar lectura con cámara en celulares reales
-    - Fotos de entrega en Storage (hoy se guardan reducidas en el dispositivo)
+    - Pegar la configuración de Firebase en FB_CFG y publicar las reglas (ver guía)
+    - Probar con dos celulares reales: operario + empresa, y chofer en ruta
+    - Km automáticos con servicio de mapas (hoy se cargan por destino)
+    - Alertas de presupuesto de Firebase (requiere plan Blaze)
+    - Fotos en Storage si el volumen crece (requiere plan Blaze)
+    - Avisos push al cambiar el estado de un envío
     - Admin PIN: 5 toques sobre el logo (PIN estándar del portfolio)
 -->
 <html lang="es" data-theme="dark">
@@ -28,7 +32,7 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<title>LogisAR — Demo</title>
+<title>LogisAR — Logística y distribución</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
@@ -171,6 +175,10 @@ video#cam{display:none;width:100%;border-radius:10px;margin-top:10px;background:
   .noprint{display:none!important}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.login .btn.full+.btn.full{margin-top:8px}
+.brow .btn.sm{min-height:30px;padding:0 10px}
+a{color:inherit}
 </style>
 </head>
 <body>
@@ -178,8 +186,17 @@ video#cam{display:none;width:100%;border-radius:10px;margin-top:10px;background:
 <div id="app"></div>
 <script>
 'use strict';
+/* ===== configuración ===== */
+const VERSION='v0.3',PIN='2580',ADMIN_MAIL='rgaraventa@gmail.com',SDK='10.12.2';
+/* Pegá acá la configuración de tu proyecto Firebase (Configuración del proyecto > Tus apps > Web).
+   Mientras diga PEGAR..., la app funciona en modo demo local, sin login. */
+const FB_CFG={apiKey:'PEGAR_API_KEY',authDomain:'PEGAR_PROYECTO.firebaseapp.com',projectId:'PEGAR_PROYECTO',storageBucket:'PEGAR_PROYECTO.appspot.com',messagingSenderId:'PEGAR',appId:'PEGAR'};
+const FORCE_DEMO=/[?&]demo=1/.test(location.search);
+const LIVE=!FORCE_DEMO&&!/^PEGAR/.test(FB_CFG.apiKey);
+const KEY='logisar_demo_v3';
+const COLS=['empresas','productos','bultos','avisos','destinos','tarifas','camiones','presupuestos','pedidos','usuarios'];
+
 /* ===== utilidades ===== */
-const VERSION='v0.2-demo',KEY='logisar_demo_v1',PIN='2580';
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=p=>p+Math.random().toString(36).slice(2,8);
@@ -189,6 +206,7 @@ const fmt$=new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS',maximu
 const money=n=>fmt$.format(Math.round(n||0));
 const fdt=t=>new Date(t).toLocaleString('es-AR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
 const fd=t=>new Date(t).toLocaleDateString('es-AR',{day:'2-digit',month:'2-digit',year:'numeric'});
+const km2=(a,b,c,d)=>{const R=6371e3,r=x=>x*Math.PI/180,dl=r(c-a),dn=r(d-b),h=Math.sin(dl/2)**2+Math.cos(r(a))*Math.cos(r(c))*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(h))};
 
 /* ===== iconos ===== */
 const IC={
@@ -205,10 +223,12 @@ scan:'<path d="M4 8V4h4M16 4h4v4M20 16v4h-4M8 20H4v-4M4 12h16"/>',
 pin:'<path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/>',
 sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"/>',
 moon:'<path d="M20 14.5A8 8 0 019.5 4 8 8 0 1020 14.5z"/>',
-swap:'<path d="M7 7h12l-3-3M17 17H5l3 3"/>'};
+swap:'<path d="M7 7h12l-3-3M17 17H5l3 3"/>',
+team:'<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M17 11a3 3 0 100-6M21 20c0-2.5-1.5-4.6-4-5.5"/>',
+logout:'<path d="M9 4H5v16h4M16 8l4 4-4 4M20 12H9"/>'};
 const ic=(n,s=22)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]||''}</svg>`;
 
-/* ===== Code 128 (tabla generada con python-barcode) ===== */
+/* ===== Code 128 (tabla verificada con python-barcode y lectura con zxing) ===== */
 const C128=["11011001100", "11001101100", "11001100110", "10010011000", "10010001100", "10001001100", "10011001000", "10011000100", "10001100100", "11001001000", "11001000100", "11000100100", "10110011100", "10011011100", "10011001110", "10111001100", "10011101100", "10011100110", "11001110010", "11001011100", "11001001110", "11011100100", "11001110100", "11101101110", "11101001100", "11100101100", "11100100110", "11101100100", "11100110100", "11100110010", "11011011000", "11011000110", "11000110110", "10100011000", "10001011000", "10001000110", "10110001000", "10001101000", "10001100010", "11010001000", "11000101000", "11000100010", "10110111000", "10110001110", "10001101110", "10111011000", "10111000110", "10001110110", "11101110110", "11010001110", "11000101110", "11011101000", "11011100010", "11011101110", "11101011000", "11101000110", "11100010110", "11101101000", "11101100010", "11100011010", "11101111010", "11001000010", "11110001010", "10100110000", "10100001100", "10010110000", "10010000110", "10000101100", "10000100110", "10110010000", "10110000100", "10011010000", "10011000010", "10000110100", "10000110010", "11000010010", "11001010000", "11110111010", "11000010100", "10001111010", "10100111100", "10010111100", "10010011110", "10111100100", "10011110100", "10011110010", "11110100100", "11110010100", "11110010010", "11011011110", "11011110110", "11110110110", "10101111000", "10100011110", "10001011110", "10111101000", "10111100010", "11110101000", "11110100010", "10111011110", "10111101110", "11101011110", "11110101110", "11010000100", "11010010000", "11010011100"];
 function code128svg(text){
   const vals=[104];for(const ch of text)vals.push(ch.charCodeAt(0)-32);
@@ -249,20 +269,46 @@ function calcular(o,D){
 }
 const pTotal=p=>(p.ajuste!=null&&p.ajuste!=='')?+p.ajuste:p.total;
 
-/* ===== datos ===== */
-let db;
-function load(){try{const r=localStorage.getItem(KEY);if(r){db=JSON.parse(r);return}}catch(e){}db=seed();save()}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){}}
-function logAdd(txt){db.log.unshift({t:Date.now(),txt});db.log=db.log.slice(0,40)}
-const emp=id=>db.empresas.find(x=>x.id===id)||{nombre:'(borrada)',cod:'XX',contacto:'',tel:''};
+/* ===== datos en memoria ===== */
+function blank(){const d={seq:{bulto:0,ped:0,pres:0},log:[]};COLS.forEach(c=>d[c]=[]);return d}
+let db=blank();
+const emp=id=>db.empresas.find(x=>x.id===id)||{nombre:'(sin datos)',cod:'XX',contacto:'',tel:''};
 const prod=id=>db.productos.find(x=>x.id===id)||{nombre:'(producto)'};
 const dest=id=>db.destinos.find(x=>x.id===id)||{nombre:'(destino)',dir:'',km:0};
 const cam=id=>db.camiones.find(x=>x.id===id);
 const ped=id=>db.pedidos.find(x=>x.id===id);
 const pres=id=>db.presupuestos.find(x=>x.id===id);
+/* Un bulto reservado cuyo pedido ya salió se considera despachado (se deduce del pedido, así el chofer no necesita tocar el stock) */
+function bEst(b){
+  if(b.estado==='reservado'&&b.pedidoId){const o=ped(b.pedidoId);if(o&&(o.estado==='En camino'||o.estado==='Entregado'))return 'despachado'}
+  return b.estado;
+}
+function logAdd(txt){
+  if(LIVE){if(fs&&ME)fs.collection('actividad').add({t:Date.now(),txt,u:ME.email}).catch(()=>{});return}
+  db.log.unshift({t:Date.now(),txt});db.log=db.log.slice(0,40);
+}
+async function nextNum(kind){
+  if(!LIVE){db.seq[kind]++;return db.seq[kind]}
+  const r=fs.collection('config').doc('contadores');
+  return fs.runTransaction(async t=>{const s=await t.get(r);const n=((s.exists&&s.data()[kind])||0)+1;t.set(r,{[kind]:n},{merge:true});return n});
+}
 
+/* ===== persistencia local (modo demo) ===== */
+function loadLocal(){try{const r=localStorage.getItem(KEY);if(r){db=JSON.parse(r);return}}catch(e){}db=seed();saveLocal()}
+function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){}}
+function save(){if(LIVE)liveSave();else saveLocal()}
+
+/* ===== datos de ejemplo ===== */
+const TARIFAS_PLANTILLA=(z)=>[
+  {id:uid('t'),nombre:'Kilómetro (carga normal)',modo:'km',valor:z?0:900,aplica:'normal',activo:true},
+  {id:uid('t'),nombre:'Kilómetro (carga fría)',modo:'km',valor:z?0:1300,aplica:'frio',activo:true},
+  {id:uid('t'),nombre:'Por bulto',modo:'bulto',valor:z?0:400,aplica:'siempre',activo:true},
+  {id:uid('t'),nombre:'Recargo carga frágil',modo:'pct',valor:z?0:15,aplica:'fragil',activo:true},
+  {id:uid('t'),nombre:'Mínimo por viaje',modo:'min',valor:z?0:25000,aplica:'siempre',activo:true},
+  {id:uid('t'),nombre:'Ayudante',modo:'fijo',valor:z?0:12000,aplica:'siempre',opcional:true,activo:true},
+  {id:uid('t'),nombre:'Entrega en horario especial',modo:'fijo',valor:z?0:8000,aplica:'siempre',opcional:true,activo:true}];
 function seed(){
-  const d={seq:{bulto:0,ped:0,pres:0},log:[],avisos:[],bultos:[],pedidos:[],presupuestos:[]};
+  const d=blank();
   d.empresas=[
     {id:'e1',nombre:'Distribuidora Del Sur',cod:'DS',contacto:'Laura Pérez',tel:'11 5555-0101'},
     {id:'e2',nombre:'Almacén Los Andes',cod:'AA',contacto:'Jorge Ríos',tel:'11 5555-0102'},
@@ -291,88 +337,226 @@ function seed(){
     {id:'c4',patente:'AE 321 IJ',chofer:'Sergio Molina',tipo:'Seco'},
     {id:'c5',patente:'AF 654 KL',chofer:'Raúl Benítez',tipo:'Refrigerado'},
     {id:'c6',patente:'AG 987 MN',chofer:'Nicolás Paz',tipo:'Seco'}];
-  d.tarifas=[
-    {id:'t1',nombre:'Kilómetro (carga normal)',modo:'km',valor:900,aplica:'normal',activo:true},
-    {id:'t2',nombre:'Kilómetro (carga fría)',modo:'km',valor:1300,aplica:'frio',activo:true},
-    {id:'t3',nombre:'Por bulto',modo:'bulto',valor:400,aplica:'siempre',activo:true},
-    {id:'t4',nombre:'Recargo carga frágil',modo:'pct',valor:15,aplica:'fragil',activo:true},
-    {id:'t5',nombre:'Mínimo por viaje',modo:'min',valor:25000,aplica:'siempre',activo:true},
-    {id:'t6',nombre:'Ayudante',modo:'fijo',valor:12000,aplica:'siempre',opcional:true,activo:true},
-    {id:'t7',nombre:'Entrega en horario especial',modo:'fijo',valor:8000,aplica:'siempre',opcional:true,activo:true}];
-  const mk=(e,p,cant,ubic,estado,ago)=>{
+  d.tarifas=TARIFAS_PLANTILLA(false);
+  const mk=(e,p,cant,ubic,ago)=>{
     d.seq.bulto++;const em=d.empresas.find(x=>x.id===e);
-    const b={id:uid('b'),code:'LG'+em.cod+pad(d.seq.bulto),empresaId:e,productoId:p,cant,ubic,estado:estado||'stock',lote:'L'+(240+d.seq.bulto),venc:'',t:Date.now()-(ago||d.seq.bulto*5)*HOUR};
+    const b={id:uid('b'),code:'LG'+em.cod+pad(d.seq.bulto),empresaId:e,productoId:p,cant,ubic,estado:'stock',lote:'L'+(240+d.seq.bulto),venc:'',t:Date.now()-(ago||d.seq.bulto*5)*HOUR};
     d.bultos.push(b);return b;
   };
   const steps=['Pendiente','En preparación','Listo','En camino','Entregado'];
   const hist=(est,ago)=>{const n=steps.indexOf(est);return steps.slice(0,n+1).map((e,i)=>({e,t:Date.now()-ago*HOUR+i*0.7*HOUR}))};
   const mkP=(e,dst,n,est,c,o,bs,cobro,ago,extra)=>{
     d.seq.ped++;
-    const p=Object.assign({id:uid('pd'),num:'E-'+pad(d.seq.ped),empresaId:e,destinoId:dst,nBultos:n,bultoIds:bs.map(b=>b.id),estado:est,camionId:c,precio:calcular(o,d).total,fecha:Date.now()-ago*HOUR,cobro:cobro,hist:hist(est,ago)},extra||{});
+    const p=Object.assign({id:uid('pd'),num:'E-'+pad(d.seq.ped),empresaId:e,destinoId:dst,nBultos:n,bultoIds:bs.map(b=>b.id),estado:est,camionId:c,precio:calcular(o,d).total,fecha:Date.now()-ago*HOUR,cobro:cobro,hist:hist(est,ago),detalle:''},extra||{});
+    bs.forEach(b=>{b.estado='reservado';b.pedidoId=p.id});
     d.pedidos.push(p);return p;
   };
-  /* stock */
   [['e1','p1',10,'A-01'],['e1','p1',10,'A-01'],['e1','p2',20,'A-02'],['e1','p2',20,'A-02'],['e1','p2',20,'A-03']].forEach(a=>mk(a[0],a[1],a[2],a[3]));
   [['e2','p3',10,'B-01'],['e2','p3',10,'B-01'],['e2','p4',10,'B-02'],['e2','p4',10,'B-02']].forEach(a=>mk(a[0],a[1],a[2],a[3]));
   [['e3','p5',48,'F-01'],['e3','p5',48,'F-01'],['e3','p5',48,'F-02'],['e3','p5',48,'F-02'],['e3','p6',4,'F-03'],['e3','p6',4,'F-03']].forEach(a=>mk(a[0],a[1],a[2],a[3]));
   [['e4','p7',1,'C-01'],['e4','p7',1,'C-01'],['e4','p7',1,'C-02'],['e4','p8',5,'C-05'],['e4','p8',5,'C-05']].forEach(a=>mk(a[0],a[1],a[2],a[3]));
-  /* pedidos en distintos estados */
-  const x1=[mk('e1','p1',10,'—','despachado',30),mk('e1','p2',20,'—','despachado',30),mk('e1','p2',20,'—','despachado',30)];
-  mkP('e1','d1',3,'En camino','c1',{destinoId:'d1',kg:0,bultos:3},x1,'Pendiente',6);
-  const x2=[mk('e2','p3',10,'—','reservado',9),mk('e2','p4',10,'—','reservado',9)];
+  const x1=[mk('e1','p1',10,'—',30),mk('e1','p2',20,'—',30),mk('e1','p2',20,'—',30)];
+  mkP('e1','d1',3,'En camino','c1',{destinoId:'d1',kg:0,bultos:3},x1,'Pendiente',6,{detalle:'Aceite y fideos para el Mercado Central'});
+  const x2=[mk('e2','p3',10,'—',9),mk('e2','p4',10,'—',9)];
   mkP('e2','d2',2,'Listo','c2',{destinoId:'d2',kg:0,bultos:2},x2,'Pendiente',8);
-  const pr1={id:uid('pr'),num:'P-0001',empresaId:'e3',destinoId:'d3',kg:800,bultos:6,frio:true,fragil:false,extras:[],ajuste:null,notas:'',estado:'Aceptado',fecha:Date.now()-26*HOUR,enviado:Date.now()-25*HOUR,valido:7};
-  Object.assign(pr1,calcular(pr1,d));
-  const p3=mkP('e3','d3',6,'Pendiente',null,pr1,[],'Pendiente',4,{presId:pr1.id});
+  const pr1={id:uid('pr'),num:'P-0001',empresaId:'e3',destinoId:'d3',kg:800,bultos:6,frio:true,fragil:false,extras:[],ajuste:null,detalle:'Hamburguesas congeladas, 6 cajas',notas:'',estado:'Aceptado',origen:'admin',visibleEmpresa:true,fecha:Date.now()-26*HOUR,enviado:Date.now()-25*HOUR,respondido:Date.now()-5*HOUR,valido:7};
+  Object.assign(pr1,calcular(pr1,d));pr1.precioFinal=pTotal(pr1);
+  const p3=mkP('e3','d3',6,'Pendiente',null,pr1,[],'Pendiente',4,{id:pr1.id,presId:pr1.id,detalle:pr1.detalle,precio:pr1.precioFinal});
   pr1.pedidoId=p3.id;
   d.seq.pres=3;
-  const x4=[mk('e1','p1',10,'—','despachado',60),mk('e1','p2',20,'—','despachado',60)];
-  mkP('e1','d6',2,'Entregado','c4',{destinoId:'d6',kg:0,bultos:2,extras:['t6']},x4,'Facturado',52);
-  const x5=[mk('e4','p7',1,'—','despachado',40),mk('e4','p8',5,'—','despachado',40)];
+  const x4=[mk('e1','p1',10,'—',60),mk('e1','p2',20,'—',60)];
+  mkP('e1','d6',2,'Entregado','c4',{destinoId:'d6',kg:0,bultos:2,extras:[d.tarifas[5].id]},x4,'Facturado',52);
+  const x5=[mk('e4','p7',1,'—',40),mk('e4','p8',5,'—',40)];
   mkP('e4','d4',2,'Entregado','c6',{destinoId:'d4',kg:0,bultos:2,fragil:true},x5,'Pendiente',30);
-  const pr2={id:uid('pr'),num:'P-0002',empresaId:'e2',destinoId:'d5',kg:400,bultos:8,frio:false,fragil:false,extras:['t6'],ajuste:null,notas:'Retiro en depósito por la mañana.',estado:'Enviado',fecha:Date.now()-3*HOUR,enviado:Date.now()-2*HOUR,valido:7};
-  Object.assign(pr2,calcular(pr2,d));
-  const pr3={id:uid('pr'),num:'P-0003',empresaId:'e4',destinoId:'d4',kg:300,bultos:5,frio:false,fragil:true,extras:[],ajuste:null,notas:'Vidrio templado, manipular con cuidado.',estado:'Solicitado',fecha:Date.now()-HOUR,valido:7,lineas:[],total:0};
+  const pr2={id:uid('pr'),num:'P-0002',empresaId:'e2',destinoId:'d5',kg:400,bultos:8,frio:false,fragil:false,extras:[d.tarifas[5].id],ajuste:null,detalle:'Yerba y azúcar, 8 cajas',notas:'Retiro en depósito por la mañana.',estado:'Enviado',origen:'admin',visibleEmpresa:true,fecha:Date.now()-3*HOUR,enviado:Date.now()-2*HOUR,valido:7};
+  Object.assign(pr2,calcular(pr2,d));pr2.precioFinal=pTotal(pr2);
+  const pr3={id:uid('pr'),num:'P-0003',empresaId:'e4',destinoId:'d4',kg:300,bultos:5,frio:false,fragil:true,extras:[],ajuste:null,detalle:'Vidrio templado, 5 packs',notas:'Manipular con cuidado.',estado:'Solicitado',origen:'empresa',visibleEmpresa:true,fecha:Date.now()-HOUR,valido:7,lineas:[],total:0,precioFinal:0};
   d.presupuestos=[pr3,pr2,pr1];
   d.log=[{t:Date.now()-HOUR,txt:'P-0003: nueva solicitud de Ferretería Industrial Norte'},{t:Date.now()-2*HOUR,txt:'P-0002: enviado a Almacén Los Andes'},{t:Date.now()-4*HOUR,txt:'E-0003: pedido creado desde P-0001'},{t:Date.now()-6*HOUR,txt:'E-0001: salió en camión'}];
   d.avisos=[{id:uid('av'),empresaId:'e1',texto:'Aceite girasol 900 ml, 4 cajas',fecha:Date.now()-2*HOUR}];
+  COLS.forEach(c=>d[c].forEach(x=>{x.demo=true}));
   return d;
 }
 
+/* ===== capa Firebase (solo modo real) ===== */
+let FB=null,fs=null,auth=null,ME=null,UNSUB=[],SH={},errCount=0;
+const sj=v=>JSON.stringify(v,(k,x)=>x&&typeof x==='object'&&!Array.isArray(x)?Object.keys(x).sort().reduce((o,k2)=>(o[k2]=x[k2],o),{}):x);
+const clean=v=>v===undefined?null:JSON.parse(JSON.stringify(v));
+const dataOf=x=>{const o=clean(x);delete o.id;return o};
+const shadowOf=x=>{const o={};for(const k in x){if(k==='id')continue;o[k]=sj(x[k])}return o};
+const ref=(col,id)=>fs.collection(col).doc(id);
+function writeFail(e){
+  logErr('write: '+(e.code||'')+' '+e.message);
+  toast(e.code==='permission-denied'?'No tenés permiso para esa acción':'No se pudo guardar: '+(e.message||e.code),1);
+}
+/* Compara la memoria contra lo último que se sincronizó y manda un solo lote atómico con las diferencias */
+function liveSave(){
+  if(!fs||!ME)return;
+  const ops=[];
+  COLS.forEach(col=>{
+    const SHc=SH[col]||(SH[col]={}),ids=new Set();
+    db[col].forEach(x=>{
+      ids.add(x.id);const s=SHc[x.id];
+      if(!s){ops.push(b=>b.set(ref(col,x.id),dataOf(x)));SHc[x.id]=shadowOf(x);return}
+      const ch={};let any=false;
+      for(const k in x){if(k==='id')continue;if(s[k]!==sj(x[k])){ch[k]=clean(x[k]);any=true}}
+      for(const k in s){if(!(k in x)){ch[k]=FB.firestore.FieldValue.delete();any=true}}
+      if(any){ops.push(b=>b.update(ref(col,x.id),ch));SHc[x.id]=shadowOf(x)}
+    });
+    Object.keys(SHc).forEach(id=>{if(!ids.has(id)){ops.push(b=>b.delete(ref(col,id)));delete SHc[id]}});
+  });
+  if(!ops.length)return;
+  for(let i=0;i<ops.length;i+=400){const b=fs.batch();ops.slice(i,i+400).forEach(f=>f(b));b.commit().catch(writeFail)}
+}
+function applyChange(col,type,id,data){
+  const SHc=SH[col]||(SH[col]={}),arr=db[col],i=arr.findIndex(x=>x.id===id);
+  if(type==='removed'){if(i>=0)arr.splice(i,1);delete SHc[id];return}
+  const d=Object.assign({},data,{id});
+  if(i>=0)arr[i]=d;else arr.push(d);
+  SHc[id]=shadowOf(d);
+}
+function listen(col,q){
+  UNSUB.push(q.onSnapshot(snap=>{
+    snap.docChanges().forEach(ch=>applyChange(col,ch.type,ch.doc.id,ch.doc.data()));
+    scheduleRender();
+  },e=>{logErr('listen '+col+': '+(e.code||e.message))}));
+}
+function listenDoc(col,id){
+  UNSUB.push(ref(col,id).onSnapshot(s=>{applyChange(col,s.exists?'modified':'removed',id,s.exists?s.data():null);scheduleRender()},e=>{logErr('listenDoc '+col+': '+(e.code||e.message))}));
+}
+function stopListeners(){UNSUB.forEach(u=>{try{u()}catch(e){}});UNSUB=[];SH={};db=blank()}
+function startListeners(){
+  const c=n=>fs.collection(n),r=ME.rol;
+  listen('destinos',c('destinos'));
+  if(r==='admin'||r==='oper'){
+    ['empresas','productos','bultos','avisos','camiones','pedidos'].forEach(n=>listen(n,c(n)));
+    if(r==='admin'){
+      ['tarifas','presupuestos','usuarios'].forEach(n=>listen(n,c(n)));
+      UNSUB.push(c('actividad').orderBy('t','desc').limit(25).onSnapshot(s=>{db.log=s.docs.map(x=>x.data());scheduleRender()},e=>logErr('actividad: '+(e.code||e.message))));
+    }
+  }else if(r==='empresa'){
+    const E=ME.empresaId;
+    listenDoc('empresas',E);
+    ['productos','bultos','pedidos'].forEach(n=>listen(n,c(n).where('empresaId','==',E)));
+    listen('presupuestos',c('presupuestos').where('empresaId','==',E).where('visibleEmpresa','==',true));
+  }else if(r==='chofer'){
+    listenDoc('camiones',ME.camionId);
+    listen('pedidos',c('pedidos').where('camionId','==',ME.camionId));
+    listen('empresas',c('empresas'));
+  }
+}
+function loadScript(u){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=u;s.onload=res;s.onerror=()=>rej(new Error('No se pudo cargar '+u));document.head.appendChild(s)})}
+async function loadSdk(){for(const m of['app','auth','firestore'])await loadScript(`https://www.gstatic.com/firebasejs/${SDK}/firebase-${m}-compat.js`)}
+async function bootLive(){
+  await loadSdk();
+  FB=window.firebase;FB.initializeApp(FB_CFG);auth=FB.auth();fs=FB.firestore();
+  try{await fs.enablePersistence({synchronizeTabs:true})}catch(e){}
+  auth.getRedirectResult().catch(e=>{S.authErr=authMsg(e);render()});
+  auth.onAuthStateChanged(onUser);
+}
+const authMsg=e=>e&&e.code==='auth/unauthorized-domain'?'Este dominio no está autorizado en Firebase (Authentication > Configuración > Dominios autorizados).':(e&&e.code==='auth/operation-not-allowed'?'El acceso con Google no está activado en Firebase.':'No se pudo iniciar sesión: '+((e&&(e.code||e.message))||''));
+async function onUser(u){
+  stopListeners();ME=null;S.role=null;S.tab=null;
+  if(!u){S.state='login';render();return}
+  S.state='perfil';render();
+  const mail=(u.email||'').toLowerCase();
+  try{
+    const snap=await fs.collection('usuarios').doc(mail).get();
+    let p=snap.exists?snap.data():null;
+    if(!p&&mail===ADMIN_MAIL){p={email:mail,nombre:u.displayName||'Administrador',rol:'admin',activo:true};await fs.collection('usuarios').doc(mail).set(p)}
+    if(!p||p.activo===false){S.state='denied';S.mail=mail;render();return}
+    ME=Object.assign({},p,{email:mail});
+    S.role=p.rol;S.empId=p.empresaId||null;S.camId=p.camionId||null;S.state='app';
+    if(p.rol==='admin')await ensureCounters();
+    startListeners();render();
+  }catch(e){logErr('perfil: '+(e.code||e.message));S.state='error';S.err=e.code||e.message;render()}
+}
+async function ensureCounters(){
+  const r=fs.collection('config').doc('contadores'),s=await r.get();
+  if(!s.exists)await r.set({bulto:0,ped:0,pres:0});
+}
+async function seedLive(){
+  const s=seed(),ops=[];
+  COLS.forEach(c=>s[c].forEach(x=>ops.push([c,x])));
+  for(let i=0;i<ops.length;i+=400){const b=fs.batch();ops.slice(i,i+400).forEach(([c,x])=>b.set(ref(c,x.id),dataOf(x)));await b.commit()}
+  const r=fs.collection('config').doc('contadores');
+  await fs.runTransaction(async t=>{const x=await t.get(r),cur=x.exists?x.data():{};t.set(r,{bulto:Math.max(cur.bulto||0,s.seq.bulto),ped:Math.max(cur.ped||0,s.seq.ped),pres:Math.max(cur.pres||0,s.seq.pres)},{merge:true})});
+}
+/* ===== fotos de entrega ===== */
+function savePhoto(o,data){
+  o.hasFoto=true;
+  if(!LIVE){o.foto=data;return}
+  fs.collection('fotos').doc(o.id).set({pedidoId:o.id,empresaId:o.empresaId,camionId:o.camionId,data,t:Date.now()}).catch(writeFail);
+}
+async function loadPhoto(o){
+  if(!LIVE)return o.foto||null;
+  const s=await fs.collection('fotos').doc(o.id).get();return s.exists?s.data().data:null;
+}
+/* ===== registro de errores ===== */
+const ERRKEY='logisar_errlog';
+function getErrs(){try{return JSON.parse(localStorage.getItem(ERRKEY)||'[]')}catch(e){return[]}}
+function logErr(m){
+  try{const l=getErrs();l.unshift({t:new Date().toISOString(),v:VERSION,m:String(m).slice(0,300)});localStorage.setItem(ERRKEY,JSON.stringify(l.slice(0,30)))}catch(e){}
+  if(LIVE&&fs&&ME&&errCount<5){errCount++;fs.collection('errores').add({t:Date.now(),v:VERSION,u:ME.email,m:String(m).slice(0,300)}).catch(()=>{})}
+}
+
 /* ===== estado de la interfaz ===== */
-const S={role:null,empId:null,camId:null,tab:null,pick:null,q:'',pf:'Todos'};
-const TABS={
-  admin:[['panel','Panel','grid'],['pres','Presupuestos','doc'],['ped','Pedidos','box'],['rutas','Rutas','truck'],['emp','Empresas','building'],['tar','Tarifario','tag'],['cob','Cobros','cash']],
-  oper:[['ing','Ingreso','plus'],['stock','Stock','layers'],['prep','Preparar','scan']],
-  empresa:[['estock','Mi stock','layers'],['epres','Presupuestos','doc'],['eenv','Mis envíos','truck']],
-  chofer:[['ruta','Mi ruta','pin']]};
+const S={state:LIVE?'boot':'app',role:null,empId:null,camId:null,tab:null,pick:null,q:'',pf:'Todos',authErr:'',err:'',mail:''};
 const ROLE_NAME={admin:'Administrador',oper:'Operario de depósito',empresa:'Empresa cliente',chofer:'Chofer'};
-const CHIP={'Pendiente':'c-mute','En preparación':'c-info','Listo':'c-acc','En camino':'c-acc','Entregado':'c-ok','No entregado':'c-bad','Borrador':'c-mute','Solicitado':'c-info','Enviado':'c-acc','Aceptado':'c-ok','Rechazado':'c-bad','Vencido':'c-bad','Facturado':'c-info','Cobrado':'c-ok','Sin cargo':'c-mute'};
+function tabsFor(r){
+  if(r==='admin')return[['panel','Panel','grid'],['pres','Presupuestos','doc'],['ped','Pedidos','box'],['rutas','Rutas','truck'],['emp','Empresas','building'],['tar','Tarifario','tag'],['cob','Cobros','cash']].concat(LIVE?[['equipo','Equipo','team']]:[]);
+  if(r==='oper')return[['ing','Ingreso','plus'],['stock','Stock','layers'],['prep','Preparar','scan']];
+  if(r==='empresa')return[['estock','Mi stock','layers'],['epres','Presupuestos','doc'],['eenv','Mis envíos','truck']];
+  if(r==='chofer')return[['ruta','Mi ruta','pin']];
+  return[];
+}
+const CHIP={'Pendiente':'c-mute','En preparación':'c-info','Listo':'c-acc','En camino':'c-acc','Entregado':'c-ok','No entregado':'c-bad','Cancelado':'c-bad','Borrador':'c-mute','Solicitado':'c-info','Enviado':'c-acc','Aceptado':'c-ok','Rechazado':'c-bad','Vencido':'c-bad','Facturado':'c-info','Cobrado':'c-ok','Sin cargo':'c-mute'};
 const chip=e=>`<span class="chip ${CHIP[e]||'c-mute'}">${esc(e)}</span>`;
 const logo=(s=26)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC.truck}</svg>`;
 const estPres=p=>(p.estado==='Enviado'&&Date.now()>(p.enviado||p.fecha)+p.valido*DAY)?'Vencido':p.estado;
 const PASOS=['Pendiente','En preparación','Listo','En camino','Entregado'];
+const FIN=['Entregado','No entregado','Cancelado'];
 function tl(o){
-  const cur=o.estado==='No entregado'?4:PASOS.indexOf(o.estado);
-  return `<div class="tl">${PASOS.map((s,i)=>`<div class="st ${i<cur?'done':''} ${i===cur?(o.estado==='No entregado'?'bad':'now'):''}"><i></i><span>${i===4&&o.estado==='No entregado'?'No entregado':s}</span></div>`).join('')}</div>`;
+  const malo=o.estado==='No entregado'||o.estado==='Cancelado';
+  const cur=malo?4:PASOS.indexOf(o.estado);
+  return `<div class="tl">${PASOS.map((s,i)=>`<div class="st ${i<cur?'done':''} ${i===cur?(malo?'bad':'now'):''}"><i></i><span>${i===4&&malo?o.estado:s}</span></div>`).join('')}</div>`;
 }
 
 /* ===== armado general ===== */
-function render(){
-  const app=$('#app');
-  if(!S.role){app.innerHTML=vLogin();return}
-  const tabs=TABS[S.role];
-  if(!S.tab||!tabs.find(t=>t[0]===S.tab))S.tab=tabs[0][0];
-  const V={panel:vPanel,pres:vPres,ped:vPed,rutas:vRutas,emp:vEmp,tar:vTar,cob:vCob,ing:vIng,stock:vStock,prep:vPrep,estock:vStock,epres:vPres,eenv:vEnv,ruta:vRuta};
-  app.innerHTML=header()+'<main class="main">'+V[S.tab]()+'</main>'+(tabs.length>1?nav(tabs):'');
+let rq=0;
+function scheduleRender(){if(rq)return;rq=setTimeout(()=>{rq=0;render(true)},40)}
+function formSnap(){const o={};$$('#app input[id],#app select[id],#app textarea[id]').forEach(e=>{o[e.id]=e.type==='checkbox'?e.checked:e.value});return o}
+function formRestore(o){for(const id in o){const e=document.getElementById(id);if(!e)continue;if(e.type==='checkbox')e.checked=o[id];else if(e.tagName==='SELECT'){if([...e.options].some(x=>x.value===o[id]))e.value=o[id]}else e.value=o[id]}}
+function render(keep){
+  const app=$('#app'),y=window.scrollY,f=document.activeElement,fid=keep&&f&&f.id&&app.contains(f)?f.id:null,fpos=fid&&f.selectionStart!=null?f.selectionStart:null,snap=keep?formSnap():null;
+  if(LIVE&&S.state!=='app')app.innerHTML=vGate();
+  else if(!S.role)app.innerHTML=vLogin();
+  else{
+    const tabs=tabsFor(S.role);
+    if(!S.tab||!tabs.find(t=>t[0]===S.tab))S.tab=tabs[0][0];
+    const V={panel:vPanel,pres:vPres,ped:vPed,rutas:vRutas,emp:vEmp,tar:vTar,cob:vCob,equipo:vEquipo,ing:vIng,stock:vStock,prep:vPrep,estock:vStock,epres:vPres,eenv:vEnv,ruta:vRuta};
+    app.innerHTML=header()+'<main class="main">'+V[S.tab]()+'</main>'+(tabs.length>1?nav(tabs):'');
+    if(S.tab==='ing')fillProds();
+  }
+  if(snap){formRestore(snap);if(S.tab==='ing')syncIngNew();window.scrollTo(0,y);if(fid){const e=document.getElementById(fid);if(e){e.focus();try{if(fpos!=null)e.setSelectionRange(fpos,fpos)}catch(x){}}}}
 }
 function header(){
-  const sub=S.role==='empresa'?esc(emp(S.empId).nombre):S.role==='chofer'?esc(cam(S.camId).chofer)+' · '+esc(cam(S.camId).patente):ROLE_NAME[S.role];
+  const c=S.role==='chofer'?cam(S.camId):null;
+  const sub=S.role==='empresa'?esc(emp(S.empId).nombre):S.role==='chofer'?esc(c?c.chofer+' · '+c.patente:'sin camión asignado'):ROLE_NAME[S.role];
   const dark=document.documentElement.dataset.theme==='dark';
-  return `<header class="top"><div class="brand" data-act="logo">${logo()}<div><b>LogisAR</b><small>${sub}</small></div></div><div class="top-r"><button class="ib" data-act="theme" aria-label="Cambiar tema claro u oscuro">${ic(dark?'sun':'moon')}</button><button class="ib" data-act="switch" aria-label="Cambiar de rol">${ic('swap')}</button></div></header>`;
+  const off=navigator.onLine===false?'<span class="chip c-bad" style="align-self:center;margin-right:4px">Sin conexión</span>':'';
+  return `<header class="top"><div class="brand" data-act="logo">${logo()}<div><b>LogisAR</b><small>${sub}</small></div></div><div class="top-r">${off}<button class="ib" data-act="theme" aria-label="Cambiar tema claro u oscuro">${ic(dark?'sun':'moon')}</button><button class="ib" data-act="switch" aria-label="${LIVE?'Salir':'Cambiar de rol'}">${ic(LIVE?'logout':'swap')}</button></div></header>`;
 }
 function nav(tabs){return `<nav class="nav" aria-label="Secciones">${tabs.map(t=>`<button class="${S.tab===t[0]?'on':''}" data-act="tab" data-t="${t[0]}">${ic(t[2],20)}<span>${t[1]}</span></button>`).join('')}</nav>`}
 
+/* ===== pantallas de ingreso ===== */
+function vGate(){
+  const brand=`<div class="lg" style="color:var(--acc)">${logo(54)}</div><h1>LogisAR</h1><p class="mute sm">Logística y distribución · ${VERSION}</p>`;
+  if(S.state==='login')return `<div class="login">${brand}<h2>Ingresá a tu cuenta</h2><p class="mute">Entrá con el email que cargó el administrador.</p><button class="btn pri full" data-act="gsign">Entrar con Google</button>${S.authErr?`<p class="c-bad sm" style="margin-top:12px" role="alert">${esc(S.authErr)}</p>`:''}<p class="mute sm" style="margin-top:14px">Si el link se abrió dentro de WhatsApp u otra app, abrilo en Chrome o Safari.</p><p class="sm" style="margin-top:18px"><a href="?demo=1" style="color:var(--acc-t)">Ver la demo sin cuenta</a></p></div>`;
+  if(S.state==='denied')return `<div class="login">${brand}<h2>Tu cuenta todavía no tiene acceso</h2><p class="mute">El email <b>${esc(S.mail)}</b> no está habilitado. Pedile al administrador que lo cargue en la sección Equipo.</p><button class="btn full" data-act="switch">Salir</button></div>`;
+  if(S.state==='error')return `<div class="login">${brand}<h2>No pudimos abrir tu cuenta</h2><p class="mute">${esc(S.err||'Error desconocido')}. Revisá la conexión y probá de nuevo.</p><button class="btn pri full" data-act="reload">Reintentar</button><button class="btn full" style="margin-top:8px" data-act="switch">Salir</button></div>`;
+  return `<div class="login">${brand}<p class="mute" role="status">Conectando…</p></div>`;
+}
 function vLogin(){
   let body;
   if(S.pick==='empresa')body=`<h2>¿Qué empresa?</h2><p class="mute">Cada empresa ve solamente su propia mercadería.</p>`+db.empresas.map(e=>`<button class="pick" data-act="role" data-r="empresa" data-id="${e.id}"><b>${esc(e.nombre)}</b><small>${esc(e.contacto)}</small></button>`).join('')+`<button class="btn full" data-act="back">Volver</button>`;
@@ -382,17 +566,21 @@ function vLogin(){
   <button class="pick" data-act="role" data-r="oper"><b>Operario de depósito</b><small>Recibe, etiqueta, ubica y prepara pedidos</small></button>
   <button class="pick" data-act="pick" data-r="empresa"><b>Empresa cliente</b><small>Ve su stock, pide presupuestos y sigue sus envíos</small></button>
   <button class="pick" data-act="pick" data-r="chofer"><b>Chofer</b><small>Ve sus entregas, confirma con foto y comparte ubicación</small></button>`;
-  return `<div class="login"><div class="lg" style="color:var(--acc)">${logo(54)}</div><h1>LogisAR</h1><p class="mute sm">Logística y distribución · demo ${VERSION}</p>${(!S.pick&&deferredPrompt)?'<button class="btn full" style="margin-top:12px" data-act="install">Instalar la app en este dispositivo</button>':''}${body}</div>`;
+  const inst=(!S.pick&&deferredPrompt)?'<button class="btn full" style="margin-top:12px" data-act="install">Instalar la app en este dispositivo</button>':'';
+  return `<div class="login"><div class="lg" style="color:var(--acc)">${logo(54)}</div><h1>LogisAR</h1><p class="mute sm">Logística y distribución · demo ${VERSION}</p>${inst}${body}</div>`;
 }
 
 /* ===== ADMIN: panel ===== */
 function vPanel(){
   const bult=db.bultos.filter(b=>b.estado==='stock').length;
-  const act=db.pedidos.filter(p=>!['Entregado','No entregado'].includes(p.estado));
+  const act=db.pedidos.filter(p=>!FIN.includes(p.estado));
   const calle=new Set(db.pedidos.filter(p=>p.estado==='En camino').map(p=>p.camionId)).size;
   const porCobrar=db.pedidos.filter(p=>p.estado==='Entregado'&&p.cobro!=='Cobrado').reduce((a,p)=>a+p.precio,0);
   const nuevas=db.presupuestos.filter(p=>p.estado==='Solicitado').length;
+  const pasos=[['Cargá tus camiones',db.camiones.length>0,'rutas'],['Cargá las empresas que te dejan mercadería',db.empresas.length>0,'emp'],['Completá los precios del tarifario',db.tarifas.some(t=>t.valor>0),'tar']].concat(LIVE?[['Dale acceso a tu equipo',db.usuarios.length>1,'equipo']]:[]);
+  const falta=pasos.some(p=>!p[1]);
   return `<h2>Panel</h2><p class="lead">Resumen del día del depósito y la flota.</p>
+  ${falta?`<div class="card"><b>Primeros pasos</b>${pasos.map(p=>`<button class="rowb" style="width:100%;text-align:left;padding:8px 0;border-top:1px dashed var(--line);margin-top:8px" data-act="tab" data-t="${p[2]}"><span>${p[1]?'✓':'○'} ${p[0]}</span><span class="chip ${p[1]?'c-ok':'c-mute'}">${p[1]?'Listo':'Pendiente'}</span></button>`).join('')}</div>`:''}
   <div class="stats">
     <div class="stat"><div class="num">${bult}</div><small>Bultos en depósito</small></div>
     <div class="stat"><div class="num">${act.length}</div><small>Pedidos activos</small></div>
@@ -407,40 +595,44 @@ function vPanel(){
 }
 function pedCard(p){
   const c=p.camionId?cam(p.camionId):null;
-  return `<button class="card tap ped" data-act="ped" data-id="${p.id}"><div class="stub"><span class="num">${p.num}</span><small>${fd(p.fecha).slice(0,5)}</small></div><div class="body"><div class="rowb"><b>${esc(emp(p.empresaId).nombre)}</b>${chip(p.estado)}</div><span class="sm">${esc(dest(p.destinoId).nombre)}</span><span class="mute sm">${p.nBultos} bulto${p.nBultos>1?'s':''} · ${c?esc(c.patente):'sin camión'}${S.role==='admin'||S.role==='empresa'?' · '+money(p.precio):''}</span></div></button>`;
+  return `<button class="card tap ped" data-act="ped" data-id="${p.id}"><div class="stub"><span class="num">${esc(p.num)}</span><small>${fd(p.fecha).slice(0,5)}</small></div><div class="body"><div class="rowb"><b>${esc(emp(p.empresaId).nombre)}</b>${chip(p.estado)}</div><span class="sm">${esc(dest(p.destinoId).nombre)}</span><span class="mute sm">${p.nBultos} bulto${p.nBultos>1?'s':''} · ${c?esc(c.patente):'sin camión'}${S.role==='admin'||S.role==='empresa'?' · '+money(p.precio):''}</span></div></button>`;
 }
 
 /* ===== PRESUPUESTOS ===== */
 function vPres(){
   const isE=S.role==='empresa';
   let L=db.presupuestos.filter(p=>!isE||(p.empresaId===S.empId&&p.estado!=='Borrador'));
-  const filtros=['Todos','Solicitado','Borrador','Enviado','Aceptado','Rechazado'];
+  const filtros=['Todos','Solicitado','Borrador','Enviado','Aceptado','Rechazado','Vencido'];
   if(S.pf!=='Todos')L=L.filter(p=>estPres(p)===S.pf);
   return `<div class="rowb"><h2>Presupuestos</h2><button class="btn pri sm" data-act="pnew">${ic('plus',18)} ${isE?'Pedir':'Nuevo'}</button></div>
   <p class="lead">${isE?'Pedí un precio antes de hacer el viaje. Cuando el operador lo envíe, lo aceptás desde acá.':'Armá el precio con el tarifario, ajustalo si hace falta y enviáselo a la empresa.'}</p>
   ${isE?'':`<div class="seg">${filtros.map(f=>`<button class="${S.pf===f?'on':''}" data-act="pf" data-f="${f}">${f}</button>`).join('')}</div>`}
-  ${L.length?L.map(p=>{const e=estPres(p);const cot=(p.estado==='Solicitado'||(isE&&p.estado==='Borrador'));return `<button class="card tap" data-act="psheet" data-id="${p.id}"><div class="rowb"><b class="num">${p.num}</b>${chip(e)}</div><div>${isE?'':esc(emp(p.empresaId).nombre)+' → '}${esc(dest(p.destinoId).nombre)}</div><div class="rowb sm mute"><span>${p.bultos} bultos${p.frio?' · frío':''}${p.fragil?' · frágil':''}</span><b style="color:var(--ink)">${cot?'A cotizar':money(pTotal(p))}</b></div></button>`}).join(''):'<div class="empty">No hay presupuestos para mostrar.</div>'}`;
+  ${L.length?L.map(p=>{const e=estPres(p);const cot=(p.estado==='Solicitado'||p.estado==='Borrador');return `<button class="card tap" data-act="psheet" data-id="${p.id}"><div class="rowb"><b class="num">${esc(p.num)}</b>${chip(e)}</div><div>${isE?'':esc(emp(p.empresaId).nombre)+' → '}${esc(dest(p.destinoId).nombre)}</div><div class="rowb sm mute"><span>${p.bultos} bultos${p.frio?' · frío':''}${p.fragil?' · frágil':''}</span><b style="color:var(--ink)">${cot?'A cotizar':money(pTotal(p))}</b></div></button>`}).join(''):'<div class="empty">No hay presupuestos para mostrar.</div>'}`;
 }
 function fPres(id){
   const p=id?pres(id):null,isE=S.role==='empresa';
   const eId=isE?S.empId:(p?p.empresaId:db.empresas[0]&&db.empresas[0].id);
-  const v=p||{destinoId:db.destinos[0]&&db.destinos[0].id,kg:'',bultos:1,frio:false,fragil:false,extras:[],notas:'',ajuste:null};
-  modal(`<h3>${p?'Presupuesto '+p.num:(isE?'Pedir presupuesto':'Nuevo presupuesto')}</h3>
+  const v=p||{destinoId:db.destinos[0]&&db.destinos[0].id,kg:'',bultos:1,frio:false,fragil:false,extras:[],notas:'',detalle:'',ajuste:null};
+  const solic=p&&p.estado==='Solicitado';
+  if(!isE&&!db.empresas.length)return toast('Primero cargá una empresa',1);
+  if(!db.destinos.length)return toast(isE?'El operador todavía no cargó destinos':'Primero cargá un destino en Tarifario',1);
+  modal(`<h3>${p?'Presupuesto '+esc(p.num):(isE?'Pedir presupuesto':'Nuevo presupuesto')}</h3>
   ${isE?'':`<label>Empresa<select id="pf-emp" class="pf">${db.empresas.map(e=>`<option value="${e.id}" ${e.id===eId?'selected':''}>${esc(e.nombre)}</option>`).join('')}</select></label>`}
   <label>Destino<select id="pf-dest" class="pf">${db.destinos.map(d=>`<option value="${d.id}" ${d.id===v.destinoId?'selected':''}>${esc(d.nombre)}</option>`).join('')}</select></label>
+  <label>Qué se transporta<textarea id="pf-det" rows="2" placeholder="Ej.: 6 cajas de hamburguesas congeladas">${esc(v.detalle||'')}</textarea></label>
   <div class="two"><label>Peso total (kg)<input id="pf-kg" class="pf" type="number" min="0" inputmode="decimal" value="${v.kg}"></label><label>Bultos<input id="pf-bul" class="pf" type="number" min="1" inputmode="numeric" value="${v.bultos}"></label></div>
   <div class="checks"><label class="chk"><input id="pf-frio" class="pf" type="checkbox" ${v.frio?'checked':''}> Carga fría</label><label class="chk"><input id="pf-fragil" class="pf" type="checkbox" ${v.fragil?'checked':''}> Carga frágil</label></div>
   ${isE?'':`<div class="checks">${db.tarifas.filter(t=>t.opcional&&t.activo).map(t=>`<label class="chk"><input class="pf pf-x" type="checkbox" value="${t.id}" ${(v.extras||[]).includes(t.id)?'checked':''}> ${esc(t.nombre)}</label>`).join('')}</div>
   <div id="desg" class="desg"></div>
   <label>Precio final (vacío = usar el calculado)<input id="pf-aj" class="pf" type="number" inputmode="numeric" value="${v.ajuste==null?'':v.ajuste}"></label>`}
   <label>Notas<textarea id="pf-notas" rows="2">${esc(v.notas)}</textarea></label>
-  <div class="actions">${isE?`<button class="btn pri" data-act="pf-save" data-st="Solicitado">Pedir presupuesto</button>`:`<button class="btn" data-act="pf-save" data-st="Borrador" data-id="${id||''}">Guardar borrador</button><button class="btn pri" data-act="pf-save" data-st="Enviado" data-id="${id||''}">Guardar y enviar</button>`}</div>
+  <div class="actions">${isE?`<button class="btn pri" data-act="pf-save" data-st="Solicitado">Pedir presupuesto</button>`:`${solic?'':`<button class="btn" data-act="pf-save" data-st="Borrador" data-id="${id||''}">Guardar borrador</button>`}<button class="btn pri" data-act="pf-save" data-st="Enviado" data-id="${id||''}">Guardar y enviar</button>`}</div>
   <div class="actions"><button class="btn" data-act="close">Cancelar</button></div>`);
   if(!isE)recomputeForm();
 }
 function readForm(){
   const g=s=>$(s);
-  return{empresaId:g('#pf-emp')?g('#pf-emp').value:S.empId,destinoId:g('#pf-dest').value,kg:+g('#pf-kg').value||0,bultos:+g('#pf-bul').value||1,frio:g('#pf-frio').checked,fragil:g('#pf-fragil').checked,extras:$$('.pf-x:checked').map(x=>x.value),ajuste:(g('#pf-aj')&&g('#pf-aj').value!=='')?+g('#pf-aj').value:null,notas:g('#pf-notas').value.trim()};
+  return{empresaId:g('#pf-emp')?g('#pf-emp').value:S.empId,destinoId:g('#pf-dest').value,kg:+g('#pf-kg').value||0,bultos:+g('#pf-bul').value||1,frio:g('#pf-frio').checked,fragil:g('#pf-fragil').checked,extras:$$('.pf-x:checked').map(x=>x.value),ajuste:(g('#pf-aj')&&g('#pf-aj').value!=='')?+g('#pf-aj').value:null,detalle:g('#pf-det').value.trim(),notas:g('#pf-notas').value.trim()};
 }
 function lineasHtml(L){return L.map(l=>`<div class="l"><span>${esc(l.n)}<small>${esc(l.det)}</small></span><b>${money(l.m)}</b></div>`).join('')}
 function recomputeForm(){
@@ -451,24 +643,28 @@ function recomputeForm(){
   d.innerHTML=(h||'<span class="mute">Elegí un destino y cargá la mercadería.</span>')+`<div class="l t"><span>Total</span><span>${money(o.ajuste!=null?o.ajuste:r.total)}</span></div>`;
 }
 function resumenTexto(p){
-  return `Presupuesto ${p.num} — LogisAR\n${emp(p.empresaId).nombre} → ${dest(p.destinoId).nombre}\n${p.bultos} bultos${p.kg?', '+p.kg+' kg':''}${p.frio?' · carga fría':''}${p.fragil?' · carga frágil':''}\nTotal: ${money(pTotal(p))}\nVálido ${p.valido} días desde ${fd(p.enviado||p.fecha)}.`;
+  return `Presupuesto ${p.num} — LogisAR\n${emp(p.empresaId).nombre} → ${dest(p.destinoId).nombre}\n${p.detalle?p.detalle+'\n':''}${p.bultos} bultos${p.kg?', '+p.kg+' kg':''}${p.frio?' · carga fría':''}${p.fragil?' · carga frágil':''}\nTotal: ${money(pTotal(p))}\nVálido ${p.valido} días desde ${fd(p.enviado||p.fecha)}.`;
 }
 function fSheet(id){
-  const p=pres(id),isE=S.role==='empresa',e=estPres(p);
+  const p=pres(id);if(!p)return;
+  const isE=S.role==='empresa',e=estPres(p);
   const pend=p.estado==='Solicitado'||p.estado==='Borrador';
+  const carga=`${p.bultos} bultos${p.kg?' · '+p.kg+' kg':''}${p.frio?' · fría':''}${p.fragil?' · frágil':''}`;
   let sheet;
   if(isE&&pend){
-    sheet=`<div class="sheet printarea"><div class="hd"><div><h3>${p.num}</h3><small>Pedido el ${fd(p.fecha)}</small></div></div><div class="l"><span>Destino</span><b>${esc(dest(p.destinoId).nombre)}</b></div><div class="l"><span>Carga</span><b>${p.bultos} bultos${p.kg?' · '+p.kg+' kg':''}${p.frio?' · fría':''}${p.fragil?' · frágil':''}</b></div>${p.notas?`<div class="mm">${esc(p.notas)}</div>`:''}<div class="mm">El operador está armando el precio. Te avisamos cuando esté listo.</div></div>`;
+    sheet=`<div class="sheet printarea"><div class="hd"><div><h3>${esc(p.num)}</h3><small>Pedido el ${fd(p.fecha)}</small></div></div><div class="l"><span>Destino</span><b>${esc(dest(p.destinoId).nombre)}</b></div><div class="l"><span>Carga</span><b>${esc(carga)}</b></div>${p.detalle?`<div class="mm">${esc(p.detalle)}</div>`:''}${p.notas?`<div class="mm">${esc(p.notas)}</div>`:''}<div class="mm">El operador está armando el precio. Te avisamos cuando esté listo.</div></div>`;
   }else{
     const ajl=(p.ajuste!=null&&p.ajuste!=='')?`<div class="l"><span>Ajuste manual</span><b>${money(p.ajuste-p.total)}</b></div>`:'';
-    sheet=`<div class="sheet printarea"><div class="hd"><div><h3>Presupuesto ${p.num}</h3><small>Emitido el ${fd(p.enviado||p.fecha)} · válido ${p.valido} días</small></div><b style="font-family:'Space Grotesk',sans-serif">LogisAR</b></div>
-    <div class="l"><span>Empresa</span><b>${esc(emp(p.empresaId).nombre)}</b></div><div class="l"><span>Destino</span><b>${esc(dest(p.destinoId).nombre)}</b></div><div class="l"><span>Carga</span><b>${p.bultos} bultos${p.kg?' · '+p.kg+' kg':''}${p.frio?' · fría':''}${p.fragil?' · frágil':''}</b></div>
-    ${lineasHtml(p.lineas||[])}${ajl}<div class="t"><span>Total</span><span>${money(pTotal(p))}</span></div>${p.notas?`<div class="mm">${esc(p.notas)}</div>`:''}<div class="mm">Valores en pesos argentinos. Facturación por fuera de la app.</div></div>`;
+    sheet=`<div class="sheet printarea"><div class="hd"><div><h3>Presupuesto ${esc(p.num)}</h3><small>Emitido el ${fd(p.enviado||p.fecha)} · válido ${p.valido} días</small></div><b style="font-family:'Space Grotesk',sans-serif">LogisAR</b></div>
+    <div class="l"><span>Empresa</span><b>${esc(emp(p.empresaId).nombre)}</b></div><div class="l"><span>Destino</span><b>${esc(dest(p.destinoId).nombre)}</b></div><div class="l"><span>Carga</span><b>${esc(carga)}</b></div>
+    ${lineasHtml(p.lineas||[])}${ajl}<div class="t"><span>Total</span><span>${money(pTotal(p))}</span></div>${p.detalle?`<div class="mm">${esc(p.detalle)}</div>`:''}${p.notas?`<div class="mm">${esc(p.notas)}</div>`:''}<div class="mm">Valores en pesos argentinos. Facturación por fuera de la app.</div></div>`;
   }
   let acts='';
   if(!isE&&pend)acts=`<button class="btn pri" data-act="pedit" data-id="${id}">${p.estado==='Solicitado'?'Armar presupuesto':'Editar'}</button>`;
-  if(!isE&&p.estado==='Enviado')acts=`<button class="btn pri" data-act="pst" data-id="${id}" data-st="Aceptado">Registrar aceptado</button><button class="btn danger" data-act="pst" data-id="${id}" data-st="Rechazado">Rechazado</button>`;
-  if(isE&&p.estado==='Enviado')acts=`<button class="btn pri" data-act="pst" data-id="${id}" data-st="Aceptado">Aceptar presupuesto</button><button class="btn danger" data-act="pst" data-id="${id}" data-st="Rechazado">Rechazar</button>`;
+  if(!isE&&e==='Enviado')acts=`<button class="btn pri" data-act="pst" data-id="${id}" data-st="Aceptado">Registrar aceptado</button><button class="btn danger" data-act="pst" data-id="${id}" data-st="Rechazado">Rechazado</button>`;
+  if(!isE&&e==='Vencido')acts=`<button class="btn pri" data-act="prenew" data-id="${id}">Renovar validez</button><button class="btn danger" data-act="pst" data-id="${id}" data-st="Rechazado">Rechazado</button>`;
+  if(isE&&e==='Enviado')acts=`<button class="btn pri" data-act="pst" data-id="${id}" data-st="Aceptado">Aceptar presupuesto</button><button class="btn danger" data-act="pst" data-id="${id}" data-st="Rechazado">Rechazar</button>`;
+  if(isE&&e==='Vencido')acts='<p class="mute sm" style="flex:1 1 100%">Este presupuesto venció. Pedí uno nuevo.</p>';
   if(p.pedidoId)acts+=`<button class="btn" data-act="ped" data-id="${p.pedidoId}">Ver pedido</button>`;
   const share=(!pend)?`<button class="btn" data-act="print">Imprimir / guardar PDF</button><button class="btn" data-act="wa" data-id="${id}">WhatsApp</button><button class="btn" data-act="copy" data-id="${id}">Copiar</button>`:'';
   modal(`<div class="rowb"><span class="mute sm">Estado</span>${chip(e)}</div><div style="margin-top:10px">${sheet}</div><div class="actions noprint">${acts}${share}</div><div class="actions noprint"><button class="btn" data-act="close">Cerrar</button></div>`);
@@ -476,34 +672,61 @@ function fSheet(id){
 
 /* ===== PEDIDOS ===== */
 function vPed(){
-  const act=db.pedidos.filter(p=>!['Entregado','No entregado'].includes(p.estado)),fin=db.pedidos.filter(p=>['Entregado','No entregado'].includes(p.estado));
-  return `<div class="rowb"><h2>Pedidos</h2><button class="btn sm" data-act="csvPed">CSV</button></div><p class="lead">Asigná camión a cada pedido. El depósito los prepara y el chofer los entrega.</p>
+  const act=db.pedidos.filter(p=>!FIN.includes(p.estado)),fin=db.pedidos.filter(p=>FIN.includes(p.estado));
+  return `<div class="rowb"><h2>Pedidos</h2><div style="display:flex;gap:6px"><button class="btn sm" data-act="csvPed">CSV</button><button class="btn pri sm" data-act="pdnew">${ic('plus',18)} Nuevo</button></div></div><p class="lead">Asigná camión a cada pedido. El depósito los prepara y el chofer los entrega.</p>
   <h4 class="grp">En curso (${act.length})</h4>${act.length?act.map(pedCard).join(''):'<div class="empty">No hay pedidos en curso.</div>'}
   <h4 class="grp">Finalizados (${fin.length})</h4>${fin.length?fin.map(pedCard).join(''):'<div class="empty">Todavía no hay entregas finalizadas.</div>'}`;
 }
+function fPedNew(){
+  if(!db.empresas.length||!db.destinos.length)return toast('Primero cargá al menos una empresa y un destino',1);
+  modal(`<h3>Nuevo pedido directo</h3><p class="mute sm">Para envíos sin presupuesto previo: el precio sale del tarifario.</p>
+  <label>Empresa<select id="pf-emp" class="pf">${db.empresas.map(e=>`<option value="${e.id}">${esc(e.nombre)}</option>`).join('')}</select></label>
+  <label>Destino<select id="pf-dest" class="pf">${db.destinos.map(d=>`<option value="${d.id}">${esc(d.nombre)}</option>`).join('')}</select></label>
+  <label>Qué se transporta<textarea id="pf-det" rows="2"></textarea></label>
+  <div class="two"><label>Peso total (kg)<input id="pf-kg" class="pf" type="number" min="0" inputmode="decimal"></label><label>Bultos<input id="pf-bul" class="pf" type="number" min="1" inputmode="numeric" value="1"></label></div>
+  <div class="checks"><label class="chk"><input id="pf-frio" class="pf" type="checkbox"> Carga fría</label><label class="chk"><input id="pf-fragil" class="pf" type="checkbox"> Carga frágil</label></div>
+  <div class="checks">${db.tarifas.filter(t=>t.opcional&&t.activo).map(t=>`<label class="chk"><input class="pf pf-x" type="checkbox" value="${t.id}"> ${esc(t.nombre)}</label>`).join('')}</div>
+  <div id="desg" class="desg"></div>
+  <label>Precio final (vacío = usar el calculado)<input id="pf-aj" class="pf" type="number" inputmode="numeric"></label>
+  <input id="pf-notas" type="hidden" value="">
+  <div class="actions"><button class="btn pri" data-act="pd-save">Crear pedido</button><button class="btn" data-act="close">Cancelar</button></div>`);
+  recomputeForm();
+}
 function fPed(id){
-  const p=ped(id),c=p.camionId?cam(p.camionId):null,isA=S.role==='admin';
+  const p=ped(id);if(!p)return;
+  const c=p.camionId?cam(p.camionId):null,isA=S.role==='admin';
   const cods=p.bultoIds.map(bid=>{const b=db.bultos.find(x=>x.id===bid);return b?b.code:''}).filter(Boolean);
-  modal(`<div class="rowb"><h3>${p.num}</h3>${chip(p.estado)}</div>
+  const hasF=p.hasFoto||p.foto;
+  modal(`<div class="rowb"><h3>${esc(p.num)}</h3>${chip(p.estado)}</div>
   <div class="mute">${esc(emp(p.empresaId).nombre)}</div>
   <div style="margin-top:6px"><b>${esc(dest(p.destinoId).nombre)}</b><div class="mute sm">${esc(dest(p.destinoId).dir)}</div></div>
+  ${p.detalle?`<div class="sm" style="margin-top:6px">${esc(p.detalle)}</div>`:''}
   ${tl(p)}
-  <div class="card" style="margin-top:10px"><div class="rowb sm"><span>Bultos</span><b>${p.bultoIds.length} de ${p.nBultos} preparados</b></div>${cods.length?`<div class="mute sm" style="margin-top:4px">${cods.map(x=>`<span class="code">${x}</span>`).join(' · ')}</div>`:''}
-  ${S.role==='chofer'?'':`<div class="rowb sm" style="margin-top:6px"><span>Flete</span><b>${money(p.precio)}</b></div>`}
+  <div class="card" style="margin-top:10px"><div class="rowb sm"><span>Bultos</span><b>${p.bultoIds.length} de ${p.nBultos} preparados</b></div>${cods.length?`<div class="mute sm" style="margin-top:4px">${cods.map(x=>`<span class="code">${esc(x)}</span>`).join(' · ')}</div>`:''}
+  ${S.role==='chofer'||S.role==='oper'?'':`<div class="rowb sm" style="margin-top:6px"><span>Flete</span><b>${money(p.precio)}</b></div>`}
   <div class="rowb sm" style="margin-top:6px"><span>Camión</span><b>${c?esc(c.patente)+' · '+esc(c.chofer):'Sin asignar'}</b></div></div>
   ${p.motivo?`<div class="card sm"><b>Motivo:</b> ${esc(p.motivo)}</div>`:''}
-  ${p.foto?`<div class="sm mute">Constancia de entrega</div><img class="foto" src="${p.foto}" alt="Foto de entrega">`:''}
+  ${hasF?`<div class="sm mute">Constancia de entrega</div><div id="fotobox" class="mute sm">Cargando foto…</div>`:''}
   <div class="mute sm" style="margin-top:8px">${p.hist.map(h=>`${fdt(h.t)} · ${esc(h.e)}`).join('<br>')}</div>
-  ${isA&&!['Entregado','No entregado','En camino'].includes(p.estado)?`<label>Asignar camión<select id="asig">${'<option value="">Sin asignar</option>'+db.camiones.map(k=>`<option value="${k.id}" ${p.camionId===k.id?'selected':''}>${esc(k.patente)} · ${esc(k.chofer)} (${esc(k.tipo)})</option>`).join('')}</select></label><div class="actions"><button class="btn pri" data-act="asig-ok" data-id="${id}">Guardar camión</button></div>`:''}
+  ${isA&&!FIN.includes(p.estado)&&p.estado!=='En camino'?`<label>Asignar camión<select id="asig">${'<option value="">Sin asignar</option>'+db.camiones.map(k=>`<option value="${k.id}" ${p.camionId===k.id?'selected':''}>${esc(k.patente)} · ${esc(k.chofer)} (${esc(k.tipo)})</option>`).join('')}</select></label><div class="actions"><button class="btn pri" data-act="asig-ok" data-id="${id}">Guardar camión</button></div>`:''}
+  ${isA&&['Pendiente','En preparación','Listo'].includes(p.estado)?`<div class="actions"><button class="btn danger" data-act="cancelar" data-id="${id}">Cancelar pedido</button></div>`:''}
+  ${isA&&p.estado==='No entregado'?`<div class="actions"><button class="btn pri" data-act="reprog" data-id="${id}">Reprogramar entrega</button></div>`:''}
   <div class="actions"><button class="btn" data-act="close">Cerrar</button></div>`);
+  if(hasF)loadPhoto(p).then(src=>{const b=$('#fotobox');if(!b)return;if(src){b.className='';b.innerHTML=`<img class="foto" src="${src}" alt="Foto de entrega">`}else b.textContent='No hay foto disponible.'}).catch(()=>{const b=$('#fotobox');if(b)b.textContent='No se pudo cargar la foto.'});
 }
 
-/* ===== RUTAS (admin) ===== */
+/* ===== RUTAS y CAMIONES (admin) ===== */
 function vRutas(){
-  return `<h2>Rutas</h2><p class="lead">Cada camión con sus entregas del día, en orden.</p>`+db.camiones.map(c=>{
-    const L=db.pedidos.filter(p=>p.camionId===c.id&&!['Entregado','No entregado'].includes(p.estado));
-    return `<div class="card"><div class="rowb"><b class="num">${esc(c.patente)}</b><span class="chip ${c.tipo==='Refrigerado'?'c-info':'c-mute'}">${esc(c.tipo)}</span></div><div class="mute sm">${esc(c.chofer)}${c.locT?` · <a href="https://www.google.com/maps?q=${c.lat},${c.lng}" target="_blank" rel="noopener" style="color:var(--acc-t)">ubicación ${fdt(c.locT)}</a>`:' · sin ubicación compartida'}</div>
-    ${L.length?L.map((p,i)=>`<button class="brow" style="width:100%;margin-top:6px" data-act="ped" data-id="${p.id}"><span><b style="color:var(--ink)">${i+1}. ${esc(dest(p.destinoId).nombre)}</b><br>${esc(emp(p.empresaId).nombre)}</span>${chip(p.estado)}</button>`).join(''):'<div class="mute sm" style="margin-top:6px">Sin entregas asignadas.</div>'}</div>`}).join('');
+  return `<div class="rowb"><h2>Rutas</h2><button class="btn pri sm" data-act="camnew">${ic('plus',18)} Camión</button></div><p class="lead">Cada camión con sus entregas del día, en orden.</p>`+
+  (db.camiones.length?db.camiones.map(c=>{
+    const L=db.pedidos.filter(p=>p.camionId===c.id&&!FIN.includes(p.estado));
+    return `<div class="card"><div class="rowb"><button style="text-align:left" data-act="camedit" data-id="${c.id}"><b class="num">${esc(c.patente)}</b></button><span class="chip ${c.tipo==='Refrigerado'?'c-info':'c-mute'}">${esc(c.tipo)}</span></div><div class="mute sm">${esc(c.chofer)}${c.locT?` · <a href="https://www.google.com/maps?q=${c.lat},${c.lng}" target="_blank" rel="noopener" style="color:var(--acc-t)">ubicación ${fdt(c.locT)}</a>`:' · sin ubicación compartida'}</div>
+    ${L.length?L.map((p,i)=>`<button class="brow" style="width:100%;margin-top:6px" data-act="ped" data-id="${p.id}"><span><b style="color:var(--ink)">${i+1}. ${esc(dest(p.destinoId).nombre)}</b><br>${esc(emp(p.empresaId).nombre)}</span>${chip(p.estado)}</button>`).join(''):'<div class="mute sm" style="margin-top:6px">Sin entregas asignadas.</div>'}</div>`}).join(''):'<div class="empty">Todavía no cargaste camiones.</div>');
+}
+function fCam(id){
+  const c=id?cam(id):{patente:'',chofer:'',tipo:'Seco'};
+  modal(`<h3>${id?'Editar camión':'Nuevo camión'}</h3><label>Patente<input id="k-p" value="${esc(c.patente)}" autocapitalize="characters"></label><label>Chofer habitual<input id="k-c" value="${esc(c.chofer)}"></label><label>Tipo<select id="k-t"><option ${c.tipo==='Seco'?'selected':''}>Seco</option><option ${c.tipo==='Refrigerado'?'selected':''}>Refrigerado</option></select></label>
+  <div class="actions"><button class="btn pri" data-act="cam-save" data-id="${id||''}">Guardar</button>${id?`<button class="btn danger" data-act="cam-del" data-id="${id}">Borrar</button>`:''}<button class="btn" data-act="close">Cancelar</button></div>`);
 }
 
 /* ===== EMPRESAS (admin) ===== */
@@ -521,11 +744,11 @@ function fEmp(id){
 const MODOS={km:'por km',kg:'por kg',bulto:'por bulto',fijo:'monto fijo',pct:'% sobre el total',min:'mínimo por viaje'};
 const APL={siempre:'siempre',normal:'solo carga normal',frio:'solo carga fría',fragil:'solo carga frágil'};
 function vTar(){
-  return `<div class="rowb"><h2>Tarifario</h2><button class="btn pri sm" data-act="tnew">${ic('plus',18)} Renglón</button></div><p class="lead">Cada precio es un renglón editable. Los valores de abajo son de ejemplo: el operador carga los suyos.</p>
-  ${db.tarifas.map(t=>`<div class="card"><div class="rowb"><button style="text-align:left;flex:1" data-act="tedit" data-id="${t.id}"><b>${esc(t.nombre)}</b><div class="mute sm">${t.modo==='pct'?t.valor+'%':money(t.valor)} · ${MODOS[t.modo]} · ${APL[t.aplica]}${t.opcional?' · opcional':''}</div></button><button class="sw ${t.activo?'on':''}" data-act="ttog" data-id="${t.id}" role="switch" aria-checked="${t.activo}" aria-label="Activar ${esc(t.nombre)}"></button></div></div>`).join('')}
+  return `<div class="rowb"><h2>Tarifario</h2><button class="btn pri sm" data-act="tnew">${ic('plus',18)} Renglón</button></div><p class="lead">Cada precio es un renglón editable. Los que vienen de la plantilla quedan en cero hasta que cargues los valores reales.</p>
+  ${db.tarifas.length?db.tarifas.map(t=>`<div class="card"><div class="rowb"><button style="text-align:left;flex:1" data-act="tedit" data-id="${t.id}"><b>${esc(t.nombre)}</b><div class="mute sm">${t.modo==='pct'?t.valor+'%':money(t.valor)} · ${MODOS[t.modo]} · ${APL[t.aplica]}${t.opcional?' · opcional':''}</div></button><button class="sw ${t.activo?'on':''}" data-act="ttog" data-id="${t.id}" role="switch" aria-checked="${t.activo}" aria-label="Activar ${esc(t.nombre)}"></button></div></div>`).join(''):`<div class="empty">No hay renglones.<br><button class="btn pri" style="margin-top:10px" data-act="tplan">Cargar plantilla sugerida</button></div>`}
   <div class="rowb" style="margin-top:22px"><h4 class="grp" style="margin:0">Destinos y kilómetros</h4><button class="btn sm" data-act="dnew">${ic('plus',16)} Destino</button></div>
   <p class="mute sm" style="margin:4px 0 10px">Los kilómetros se cargan una vez por destino. Más adelante se pueden calcular solos con un servicio de mapas.</p>
-  ${db.destinos.map(d=>`<button class="card tap" data-act="dedit" data-id="${d.id}"><div class="rowb"><b>${esc(d.nombre)}</b><span class="num">${d.km} km</span></div><div class="mute sm">${esc(d.dir)}</div></button>`).join('')}`;
+  ${db.destinos.length?db.destinos.map(d=>`<button class="card tap" data-act="dedit" data-id="${d.id}"><div class="rowb"><b>${esc(d.nombre)}</b><span class="num">${d.km} km</span></div><div class="mute sm">${esc(d.dir)}</div></button>`).join(''):'<div class="empty">Todavía no cargaste destinos.</div>'}`;
 }
 function fTar(id){
   const t=id?db.tarifas.find(x=>x.id===id):{nombre:'',modo:'km',valor:'',aplica:'siempre',opcional:false,activo:true};
@@ -549,30 +772,51 @@ function vCob(){
   const mes=new Date().toLocaleDateString('es-AR',{month:'long',year:'numeric'});
   return `<div class="rowb"><h2>Cobros</h2><button class="btn sm" data-act="csv">Exportar CSV</button></div><p class="lead">Liquidación de fletes por empresa · ${mes}. La factura se emite por fuera de la app.</p>`+
   (grupos.length?grupos.map(g=>{const tot=g.L.reduce((a,p)=>a+p.precio,0),pen=g.L.filter(p=>p.cobro!=='Cobrado').reduce((a,p)=>a+p.precio,0);
-    return `<div class="card"><div class="rowb"><b>${esc(g.e.nombre)}</b><span class="num big">${money(tot)}</span></div><div class="mute sm">Pendiente de cobro: ${money(pen)}</div>${g.L.map(p=>`<div class="rowb sm" style="padding:8px 0;border-top:1px dashed var(--line);margin-top:8px"><span>${p.num} · ${esc(dest(p.destinoId).nombre)}<br><span class="mute">${money(p.precio)}</span></span><button data-act="cobro" data-id="${p.id}" aria-label="Cambiar estado de cobro">${chip(p.cobro)}</button></div>`).join('')}</div>`}).join(''):'<div class="empty">Cuando se entregue un pedido aparece acá con su flete.</div>')+
+    return `<div class="card"><div class="rowb"><b>${esc(g.e.nombre)}</b><span class="num big">${money(tot)}</span></div><div class="mute sm">Pendiente de cobro: ${money(pen)}</div>${g.L.map(p=>`<div class="rowb sm" style="padding:8px 0;border-top:1px dashed var(--line);margin-top:8px"><span>${esc(p.num)} · ${esc(dest(p.destinoId).nombre)}<br><span class="mute">${money(p.precio)}</span></span><button data-act="cobro" data-id="${p.id}" aria-label="Cambiar estado de cobro">${chip(p.cobro)}</button></div>`).join('')}</div>`}).join(''):'<div class="empty">Cuando se entregue un pedido aparece acá con su flete.</div>')+
   `<p class="mute sm">Tocá el estado de cada entrega para pasarlo a Facturado o Cobrado.</p>`;
 }
+
+/* ===== EQUIPO (admin, solo modo real) ===== */
+const rolDesc=u=>ROLE_NAME[u.rol]+(u.rol==='empresa'?' · '+emp(u.empresaId).nombre:'')+(u.rol==='chofer'?' · '+((cam(u.camionId)||{}).patente||'sin camión'):'');
+function vEquipo(){
+  const L=db.usuarios.slice().sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||''));
+  return `<div class="rowb"><h2>Equipo</h2><button class="btn pri sm" data-act="unew">${ic('plus',18)} Nuevo</button></div><p class="lead">Las personas que pueden entrar a la app. Entran con Google usando el email que cargues acá.</p>`+
+  (L.length?L.map(u=>`<div class="card"><div class="rowb"><button style="text-align:left;flex:1" data-act="uedit" data-id="${esc(u.id)}"><b>${esc(u.nombre||u.id)}</b><div class="mute sm">${esc(u.id)}</div><div class="sm">${esc(rolDesc(u))}</div></button><button class="sw ${u.activo!==false?'on':''}" data-act="utog" data-id="${esc(u.id)}" role="switch" aria-checked="${u.activo!==false}" aria-label="Acceso de ${esc(u.nombre||u.id)}"></button></div></div>`).join(''):'<div class="empty">Todavía no cargaste personas.</div>');
+}
+function fUser(id){
+  const u=id?db.usuarios.find(x=>x.id===id):{email:'',nombre:'',rol:'oper',activo:true};
+  modal(`<h3>${id?'Editar persona':'Nueva persona'}</h3>
+  <label>Email de Google<input id="u-m" type="email" inputmode="email" autocapitalize="none" value="${esc(u.email||'')}" ${id?'disabled':''}></label>
+  <label>Nombre<input id="u-n" value="${esc(u.nombre||'')}"></label>
+  <label>Rol<select id="u-r">${Object.keys(ROLE_NAME).map(r=>`<option value="${r}" ${u.rol===r?'selected':''}>${ROLE_NAME[r]}</option>`).join('')}</select></label>
+  <div id="u-e-box"><label>Empresa<select id="u-e">${db.empresas.map(e=>`<option value="${e.id}" ${u.empresaId===e.id?'selected':''}>${esc(e.nombre)}</option>`).join('')}</select></label></div>
+  <div id="u-c-box"><label>Camión<select id="u-c">${db.camiones.map(c=>`<option value="${c.id}" ${u.camionId===c.id?'selected':''}>${esc(c.patente)} · ${esc(c.chofer)}</option>`).join('')}</select></label></div>
+  <div class="actions"><button class="btn pri" data-act="u-save" data-id="${id?esc(id):''}">Guardar</button>${id?`<button class="btn danger" data-act="u-del" data-id="${esc(id)}">Quitar acceso</button>`:''}<button class="btn" data-act="close">Cancelar</button></div>`);
+  syncUserBoxes();
+}
+function syncUserBoxes(){const r=$('#u-r');if(!r)return;$('#u-e-box').style.display=r.value==='empresa'?'block':'none';$('#u-c-box').style.display=r.value==='chofer'?'block':'none'}
 
 /* ===== OPERARIO: ingreso, stock, preparar ===== */
 function vIng(){
   const ult=db.bultos.slice().sort((a,b)=>b.t-a.t).slice(0,5);
   return `<h2>Ingreso de mercadería</h2><p class="lead">Registrá lo que llega, generá la etiqueta y pegala en el bulto.</p>
   ${db.avisos.length?`<h4 class="grp" style="margin-top:0">Avisos de las empresas</h4>`+db.avisos.map(a=>`<div class="card"><div class="rowb"><div><b>${esc(emp(a.empresaId).nombre)}</b><div class="sm mute">${esc(a.texto)} · ${fdt(a.fecha)}</div></div><button class="btn sm" data-act="av-ok" data-id="${a.id}">Llegó</button></div></div>`).join(''):''}
-  <div class="card"><label style="margin-top:0">Empresa<select id="ing-emp">${db.empresas.map(e=>`<option value="${e.id}">${esc(e.nombre)}</option>`).join('')}</select></label>
+  ${db.empresas.length?`<div class="card"><label style="margin-top:0">Empresa<select id="ing-emp">${db.empresas.map(e=>`<option value="${e.id}">${esc(e.nombre)}</option>`).join('')}</select></label>
   <label>Producto<select id="ing-prod"></select></label>
   <div id="ing-new" style="display:none"><label>Nombre del producto nuevo<input id="ing-pn"></label><div class="checks"><label class="chk"><input id="ing-pf" type="checkbox"> Carga fría</label><label class="chk"><input id="ing-pg" type="checkbox"> Frágil</label></div></div>
   <div class="two"><label>Cantidad en el bulto<input id="ing-cant" type="number" min="1" inputmode="numeric" value="1"></label><label>Lote<input id="ing-lote"></label></div>
   <div class="two"><label>Vencimiento (opcional)<input id="ing-venc" type="date"></label><label>Ubicación<input id="ing-ubic" placeholder="Ej.: A-03"></label></div>
-  <div class="actions"><button class="btn pri" data-act="ing-ok">Registrar y generar etiqueta</button></div></div>
-  <h4 class="grp">Últimos ingresos</h4>${ult.map(b=>`<button class="card tap" data-act="label" data-id="${b.id}"><div class="rowb"><span class="code">${b.code}</span><span class="mute sm">${fdt(b.t)}</span></div><div class="sm">${esc(prod(b.productoId).nombre)} · ${esc(emp(b.empresaId).nombre)}</div></button>`).join('')}`;
+  <div class="actions"><button class="btn pri" data-act="ing-ok">Registrar y generar etiqueta</button></div></div>`:'<div class="empty">El administrador todavía no cargó empresas.</div>'}
+  <h4 class="grp">Últimos ingresos</h4>${ult.length?ult.map(b=>`<button class="card tap" data-act="label" data-id="${b.id}"><div class="rowb"><span class="code">${esc(b.code)}</span><span class="mute sm">${fdt(b.t)}</span></div><div class="sm">${esc(prod(b.productoId).nombre)} · ${esc(emp(b.empresaId).nombre)}</div></button>`).join(''):'<div class="empty">Todavía no hay ingresos.</div>'}`;
 }
 function fillProds(){
   const se=$('#ing-emp'),sp=$('#ing-prod');if(!se||!sp)return;
   sp.innerHTML=db.productos.filter(p=>p.empresaId===se.value).map(p=>`<option value="${p.id}">${esc(p.nombre)}</option>`).join('')+'<option value="__new">+ Producto nuevo…</option>';
-  $('#ing-new').style.display=sp.value==='__new'?'block':'none';
+  syncIngNew();
 }
+function syncIngNew(){const sp=$('#ing-prod'),n=$('#ing-new');if(sp&&n)n.style.display=sp.value==='__new'?'block':'none'}
 function stockList(){
-  const q=S.q.toLowerCase();let bs=db.bultos.filter(b=>b.estado!=='despachado');
+  const q=S.q.toLowerCase();let bs=db.bultos.filter(b=>b.estado!=='baja'&&bEst(b)!=='despachado');
   if(S.role==='empresa')bs=bs.filter(b=>b.empresaId===S.empId);
   if(q)bs=bs.filter(b=>prod(b.productoId).nombre.toLowerCase().includes(q)||b.code.toLowerCase().includes(q)||emp(b.empresaId).nombre.toLowerCase().includes(q));
   if(!bs.length)return '<div class="empty">No hay bultos para mostrar.</div>';
@@ -581,7 +825,7 @@ function stockList(){
     const byP={};byE[eid].forEach(b=>{(byP[b.productoId]=byP[b.productoId]||[]).push(b)});
     return (S.role==='empresa'?'':`<h4 class="grp">${esc(emp(eid).nombre)}</h4>`)+Object.keys(byP).map(pid=>{
       const L=byP[pid],pr=prod(pid),tot=L.filter(b=>b.estado==='stock').reduce((a,b)=>a+b.cant,0);
-      return `<div class="card"><div class="rowb"><b>${esc(pr.nombre)}</b><span class="num big">${tot}</span></div><div class="mute sm">${pr.frio?'Frío · ':''}${pr.fragil?'Frágil · ':''}${L.length} bulto${L.length>1?'s':''} · unidades disponibles</div><div class="blist">${L.map(b=>`<button class="brow" data-act="label" data-id="${b.id}"><span class="code">${b.code}</span><span>${b.cant} u · ${esc(b.ubic||'sin ubicar')}</span>${b.estado==='reservado'?'<span class="chip c-info">Reservado</span>':''}</button>`).join('')}</div></div>`}).join('');
+      return `<div class="card"><div class="rowb"><b>${esc(pr.nombre)}</b><span class="num big">${tot}</span></div><div class="mute sm">${pr.frio?'Frío · ':''}${pr.fragil?'Frágil · ':''}${L.length} bulto${L.length>1?'s':''} · unidades disponibles</div><div class="blist">${L.map(b=>`<button class="brow" data-act="label" data-id="${b.id}"><span class="code">${esc(b.code)}</span><span>${b.cant} u · ${esc(b.ubic||'sin ubicar')}</span>${b.estado==='reservado'?'<span class="chip c-info">Reservado</span>':''}</button>`).join('')}</div></div>`}).join('');
   }).join('');
 }
 function vStock(){
@@ -590,20 +834,24 @@ function vStock(){
 }
 function fLabel(id){
   const b=db.bultos.find(x=>x.id===id);if(!b)return;
-  modal(`<h3>Etiqueta del bulto</h3><div class="label printarea"><span style="font-size:12px">${esc(emp(b.empresaId).nombre)}</span><b>${esc(prod(b.productoId).nombre)}</b>${code128svg(b.code)}<div class="code">${b.code}</div><div class="meta">${b.cant} u · Lote ${esc(b.lote||'—')}${b.venc?' · Vence '+esc(b.venc):''} · Ubic. ${esc(b.ubic||'—')}</div></div>
-  <p class="mute sm noprint" style="margin-top:8px">Código Code 128, el formato estándar de los lectores de depósito.</p><div class="actions noprint"><button class="btn pri" data-act="print">Imprimir etiqueta</button><button class="btn" data-act="close">Cerrar</button></div>`);
+  const staff=S.role==='admin'||S.role==='oper';
+  modal(`<h3>Etiqueta del bulto</h3><div class="label printarea"><span style="font-size:12px">${esc(emp(b.empresaId).nombre)}</span><b>${esc(prod(b.productoId).nombre)}</b>${code128svg(b.code)}<div class="code">${esc(b.code)}</div><div class="meta">${b.cant} u · Lote ${esc(b.lote||'—')}${b.venc?' · Vence '+esc(b.venc):''} · Ubic. ${esc(b.ubic||'—')}</div></div>
+  <p class="mute sm noprint" style="margin-top:8px">Código Code 128, el formato estándar de los lectores de depósito.</p>
+  ${staff&&b.estado==='stock'?`<div class="noprint"><label>Ubicación en el depósito<input id="lb-ub" value="${esc(b.ubic||'')}"></label><div class="actions"><button class="btn" data-act="lb-save" data-id="${id}">Guardar ubicación</button><button class="btn danger" data-act="lb-baja" data-id="${id}">Dar de baja</button></div></div>`:''}
+  <div class="actions noprint"><button class="btn pri" data-act="print">Imprimir etiqueta</button><button class="btn" data-act="close">Cerrar</button></div>`);
 }
 function vPrep(){
   const L=db.pedidos.filter(p=>['Pendiente','En preparación'].includes(p.estado));
   return `<h2>Preparar pedidos</h2><p class="lead">Escaneá los bultos que van en cada pedido. Si el bulto es de otra empresa, la app avisa.</p>`+
-  (L.length?L.map(p=>`<button class="card tap ped" data-act="prep" data-id="${p.id}"><div class="stub"><span class="num">${p.num}</span><small>${p.bultoIds.length}/${p.nBultos}</small></div><div class="body"><div class="rowb"><b>${esc(emp(p.empresaId).nombre)}</b>${chip(p.estado)}</div><span class="sm">${esc(dest(p.destinoId).nombre)}</span></div></button>`).join(''):'<div class="empty">No hay pedidos para preparar.</div>');
+  (L.length?L.map(p=>`<button class="card tap ped" data-act="prep" data-id="${p.id}"><div class="stub"><span class="num">${esc(p.num)}</span><small>${p.bultoIds.length}/${p.nBultos}</small></div><div class="body"><div class="rowb"><b>${esc(emp(p.empresaId).nombre)}</b>${chip(p.estado)}</div><span class="sm">${esc(dest(p.destinoId).nombre)}</span></div></button>`).join(''):'<div class="empty">No hay pedidos para preparar.</div>');
 }
 function fPrep(id){
-  const p=ped(id),falta=p.nBultos-p.bultoIds.length;
-  const cods=p.bultoIds.map(bid=>{const b=db.bultos.find(x=>x.id===bid);return b?`<div class="brow"><span class="code">${b.code}</span><span>${esc(prod(b.productoId).nombre)}</span></div>`:''}).join('');
-  modal(`<div class="rowb"><h3>${p.num}</h3>${chip(p.estado)}</div><div class="mute">${esc(emp(p.empresaId).nombre)} → ${esc(dest(p.destinoId).nombre)}</div>
+  const p=ped(id);if(!p)return;
+  const falta=p.nBultos-p.bultoIds.length;
+  const cods=p.bultoIds.map(bid=>{const b=db.bultos.find(x=>x.id===bid);return b?`<div class="brow"><span class="code">${esc(b.code)}</span><span>${esc(prod(b.productoId).nombre)}</span><button class="btn sm" data-act="unscan" data-id="${id}" data-b="${b.id}" aria-label="Quitar ${esc(b.code)}">Quitar</button></div>`:''}).join('');
+  modal(`<div class="rowb"><h3>${esc(p.num)}</h3>${chip(p.estado)}</div><div class="mute">${esc(emp(p.empresaId).nombre)} → ${esc(dest(p.destinoId).nombre)}</div>${p.detalle?`<div class="sm" style="margin-top:6px">${esc(p.detalle)}</div>`:''}
   <div class="card" style="margin-top:10px"><div class="rowb"><span>Bultos escaneados</span><b class="num big">${p.bultoIds.length} / ${p.nBultos}</b></div>${cods?`<div class="blist">${cods}</div>`:''}</div>
-  ${falta>0?`<div class="scanrow"><div><label style="margin-top:0">Código del bulto<input id="scan-in" autocomplete="off" autocapitalize="characters" placeholder="Ej.: LG${emp(p.empresaId).cod}0001"></label></div><button class="btn pri" data-act="scan" data-id="${id}">Escanear</button></div>
+  ${falta>0?`<div class="scanrow"><div><label style="margin-top:0">Código del bulto<input id="scan-in" autocomplete="off" autocapitalize="characters" placeholder="Ej.: LG${esc(emp(p.empresaId).cod)}0001"></label></div><button class="btn pri" data-act="scan" data-id="${id}">Escanear</button></div>
   <div class="actions"><button class="btn" data-act="sim" data-id="${id}">Simular escaneo</button>${'BarcodeDetector' in window?`<button class="btn" data-act="cam" data-id="${id}">Usar cámara</button>`:''}</div><video id="cam" playsinline muted></video>`:`<div class="actions"><button class="btn pri" data-act="listo" data-id="${id}">Marcar pedido listo</button></div>`}
   <div class="actions"><button class="btn" data-act="close">Cerrar</button></div>`);
   const i=$('#scan-in');if(i)i.addEventListener('keydown',e=>{if(e.key==='Enter')scan(id,i.value)});
@@ -613,35 +861,33 @@ function fPrep(id){
 function vEnv(){
   const L=db.pedidos.filter(p=>p.empresaId===S.empId);
   return `<h2>Mis envíos</h2><p class="lead">Seguí cada pedido desde que sale del depósito hasta la entrega.</p>`+
-  (L.length?L.map(p=>{const c=p.camionId?cam(p.camionId):null;return `<button class="card tap" data-act="ped" data-id="${p.id}"><div class="rowb"><b class="num">${p.num}</b>${chip(p.estado)}</div><div>${esc(dest(p.destinoId).nombre)}</div>${tl(p)}<div class="mute sm">${p.nBultos} bultos · ${money(p.precio)}${p.estado==='En camino'&&c&&c.locT?` · <a href="https://www.google.com/maps?q=${c.lat},${c.lng}" target="_blank" rel="noopener" style="color:var(--acc-t)">ver camión en el mapa</a>`:''}</div></button>`}).join(''):'<div class="empty">Todavía no tenés envíos. Pedí un presupuesto y, al aceptarlo, se crea el pedido.</div>');
+  (L.length?L.map(p=>`<button class="card tap" data-act="ped" data-id="${p.id}"><div class="rowb"><b class="num">${esc(p.num)}</b>${chip(p.estado)}</div><div>${esc(dest(p.destinoId).nombre)}</div>${tl(p)}<div class="mute sm">${p.nBultos} bultos · ${money(p.precio)}${p.estado==='En camino'&&p.locT?` · <a href="https://www.google.com/maps?q=${p.lat},${p.lng}" target="_blank" rel="noopener" style="color:var(--acc-t)">ver camión en el mapa (${fdt(p.locT)})</a>`:''}</div></button>`).join(''):'<div class="empty">Todavía no tenés envíos. Pedí un presupuesto y, al aceptarlo, se crea el pedido.</div>');
 }
 
 /* ===== CHOFER ===== */
 function vRuta(){
   const c=cam(S.camId);
-  const L=db.pedidos.filter(p=>p.camionId===c.id&&!['Entregado','No entregado'].includes(p.estado));
-  const hoy=db.pedidos.filter(p=>p.camionId===c.id&&['Entregado','No entregado'].includes(p.estado));
+  if(!c)return `<h2>Mi ruta</h2><div class="empty">Todavía no tenés un camión asignado. Avisale al administrador.</div>`;
+  const L=db.pedidos.filter(p=>p.camionId===c.id&&!FIN.includes(p.estado));
+  const hoy=db.pedidos.filter(p=>p.camionId===c.id&&FIN.includes(p.estado));
   return `<h2>Mi ruta</h2><p class="lead">${esc(c.patente)} · ${esc(c.tipo)}</p>
-  <div class="card"><div class="rowb"><div><b>Ubicación</b><div class="mute sm">${c.locT?'Compartida '+fdt(c.locT):'Todavía no la compartiste'}</div></div><button class="btn sm" data-act="geo">Compartir</button></div></div>
+  <div class="card"><div class="rowb"><div><b>Ubicación en vivo</b><div class="mute sm">${GEO!=null?'Compartiendo mientras la app esté abierta':(c.locT?'Última: '+fdt(c.locT):'Todavía no la compartiste')}</div></div><button class="btn sm ${GEO!=null?'danger':''}" data-act="geo">${GEO!=null?'Dejar de compartir':'Compartir'}</button></div></div>
   <h4 class="grp">Entregas pendientes (${L.length})</h4>
-  ${L.length?L.map((p,i)=>`<div class="card"><div class="rowb"><b>${i+1}. ${esc(dest(p.destinoId).nombre)}</b>${chip(p.estado)}</div><div class="mute sm">${esc(dest(p.destinoId).dir)}</div><div class="sm">${esc(emp(p.empresaId).nombre)} · ${p.nBultos} bulto${p.nBultos>1?'s':''}</div>
+  ${L.length?L.map((p,i)=>`<div class="card"><div class="rowb"><b>${i+1}. ${esc(dest(p.destinoId).nombre)}</b>${chip(p.estado)}</div><div class="mute sm">${esc(dest(p.destinoId).dir)}</div><div class="sm">${esc(emp(p.empresaId).nombre)} · ${p.nBultos} bulto${p.nBultos>1?'s':''}</div>${p.detalle?`<div class="mute sm">${esc(p.detalle)}</div>`:''}
   <div class="actions">${p.estado==='Listo'?`<button class="btn pri" data-act="salir" data-id="${p.id}">Salir a entregar</button>`:''}${p.estado==='En camino'?`<button class="btn pri" data-act="ent" data-id="${p.id}">Entregado</button><button class="btn danger" data-act="noent" data-id="${p.id}">No pude entregar</button>`:''}${p.estado==='Pendiente'||p.estado==='En preparación'?'<span class="mute sm">El depósito lo está preparando.</span>':''}</div></div>`).join(''):'<div class="empty">No tenés entregas asignadas por ahora.</div>'}
   ${hoy.length?`<h4 class="grp">Terminadas</h4>`+hoy.map(p=>`<button class="card tap" data-act="ped" data-id="${p.id}"><div class="rowb"><b>${esc(dest(p.destinoId).nombre)}</b>${chip(p.estado)}</div></button>`).join(''):''}`;
 }
 
-/* ===== registro de errores, CSV, PWA ===== */
-const ERRKEY='logisar_errlog';
-function getErrs(){try{return JSON.parse(localStorage.getItem(ERRKEY)||'[]')}catch(e){return[]}}
-function logErr(m){try{const l=getErrs();l.unshift({t:new Date().toISOString(),v:VERSION,m:String(m).slice(0,300)});localStorage.setItem(ERRKEY,JSON.stringify(l.slice(0,30)))}catch(e){}}
+/* ===== CSV, PWA y utilidades de interfaz ===== */
+const toCsv=rows=>'﻿'+rows.map(r=>r.map(c=>'"'+String(c==null?'':c).replace(/"/g,'""')+'"').join(';')).join('\n');
+let deferredPrompt=null,GEO=null,lastGeo={t:0,lat:0,lng:0},camStream=null;
 window.addEventListener('error',e=>logErr(e.message));
 window.addEventListener('unhandledrejection',e=>logErr(e.reason&&e.reason.message||e.reason));
-const toCsv=rows=>'\ufeff'+rows.map(r=>r.map(c=>'"'+String(c==null?'':c).replace(/"/g,'""')+'"').join(';')).join('\n');
-let deferredPrompt=null;
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;if(!S.role)render()});
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;if(!S.role&&S.state==='app')render()});
+window.addEventListener('online',()=>render(true));
+window.addEventListener('offline',()=>render(true));
 if('serviceWorker' in navigator&&/^https?:/.test(location.protocol))navigator.serviceWorker.register('sw-logisar.js').catch(e=>logErr('sw: '+e.message));
 
-/* ===== modal, aviso y utilidades de interfaz ===== */
-let camStream=null;
 function stopCam(){if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null}}
 function closeModal(){stopCam();$$('.mback').forEach(x=>x.remove())}
 function modal(html){
@@ -651,20 +897,21 @@ function modal(html){
   m.addEventListener('click',e=>{if(e.target===m)closeModal()});
   document.body.appendChild(m);
 }
-function toast(t,bad){const el=document.createElement('div');el.className='toast'+(bad?' bad':'');el.setAttribute('role','status');el.textContent=t;document.body.appendChild(el);setTimeout(()=>el.remove(),2600)}
-function setEst(o,e){o.estado=e;o.hist.push({e,t:Date.now()});logAdd(o.num+': '+e)}
+function toast(t,bad){const el=document.createElement('div');el.className='toast'+(bad?' bad':'');el.setAttribute('role','status');el.textContent=t;document.body.appendChild(el);setTimeout(()=>el.remove(),2800)}
+function setEst(o,e){o.estado=e;o.hist=(o.hist||[]).concat([{e,t:Date.now()}]);logAdd(o.num+': '+e)}
 function download(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:type||'text/plain'}));a.download=name;document.body.appendChild(a);a.click();a.remove()}
 function setTheme(t){document.documentElement.dataset.theme=t;try{localStorage.setItem('logisar_theme',t)}catch(e){}const m=document.querySelector('meta[name=theme-color]');if(m)m.content=t==='dark'?'#0c1722':'#edf1f5'}
+function needNet(e){return e&&(e.code==='unavailable'||/offline|network/i.test(e.message||''))}
 
 /* ===== escaneo ===== */
 function scan(pedId,code){
-  const o=ped(pedId);code=(code||'').trim().toUpperCase();if(!code)return;
+  const o=ped(pedId);code=(code||'').trim().toUpperCase();if(!o||!code)return;
   const b=db.bultos.find(x=>x.code===code);
   if(!b)return toast('No encontramos ese código',1);
   if(b.empresaId!==o.empresaId)return toast('Ese bulto es de otra empresa',1);
-  if(b.estado!=='stock')return toast(b.estado==='reservado'?'Ese bulto ya está reservado':'Ese bulto ya salió del depósito',1);
+  if(b.estado!=='stock')return toast(b.estado==='reservado'?'Ese bulto ya está reservado':'Ese bulto no está disponible',1);
   if(o.bultoIds.length>=o.nBultos)return toast('El pedido ya está completo',1);
-  b.estado='reservado';o.bultoIds.push(b.id);
+  b.estado='reservado';b.pedidoId=o.id;o.bultoIds=o.bultoIds.concat([b.id]);
   if(o.estado==='Pendiente')setEst(o,'En preparación');
   save();fPrep(pedId);render();toast('Bulto '+b.code+' agregado');
 }
@@ -690,33 +937,61 @@ function resize(f){
   });
 }
 
+/* ===== ubicación en vivo del chofer ===== */
+function pushLoc(lat,lng){
+  const c=cam(S.camId);if(!c)return;
+  const t=Date.now();
+  if(t-lastGeo.t<60000&&km2(lat,lng,lastGeo.lat,lastGeo.lng)<50)return;
+  lastGeo={t,lat,lng};
+  c.lat=lat;c.lng=lng;c.locT=t;
+  db.pedidos.filter(p=>p.camionId===c.id&&p.estado==='En camino').forEach(p=>{p.lat=lat;p.lng=lng;p.locT=t});
+  save();render(true);
+}
+function geoStart(){
+  if(!navigator.geolocation)return toast('Este dispositivo no permite compartir ubicación',1);
+  GEO=navigator.geolocation.watchPosition(p=>pushLoc(p.coords.latitude,p.coords.longitude),()=>{toast('No se pudo obtener la ubicación',1);geoStop()},{enableHighAccuracy:true,maximumAge:15000,timeout:20000});
+  toast('Compartiendo ubicación mientras la app esté abierta');render();
+}
+function geoStop(){if(GEO!=null&&navigator.geolocation)navigator.geolocation.clearWatch(GEO);GEO=null;render()}
+
 /* ===== acciones ===== */
 const ACT={
   logo(){
     ACT._n=(ACT._n||0)+1;clearTimeout(ACT._t);ACT._t=setTimeout(()=>{ACT._n=0},2000);
-    if(ACT._n>=5){ACT._n=0;modal(`<h3>Acceso admin</h3><label>PIN<input id="pin" type="password" inputmode="numeric" autocomplete="off"></label><div class="actions"><button class="btn pri" data-act="pin-ok">Entrar</button><button class="btn" data-act="close">Cancelar</button></div>`)}
+    if(ACT._n>=5){ACT._n=0;if(LIVE&&S.role!=='admin')return;modal(`<h3>Acceso admin</h3><label>PIN<input id="pin" type="password" inputmode="numeric" autocomplete="off"></label><div class="actions"><button class="btn pri" data-act="pin-ok">Entrar</button><button class="btn" data-act="close">Cancelar</button></div>`)}
   },
   'pin-ok'(){
     if($('#pin').value!==PIN)return toast('PIN incorrecto',1);
-    modal(`<h3>Herramientas de la demo</h3><p class="mute sm">Versión ${VERSION}. Los datos viven solo en este dispositivo.</p><p class="mute sm">Errores registrados: ${getErrs().length}</p><div class="actions"><button class="btn" data-act="export">Exportar datos (JSON)</button><button class="btn" data-act="errlog">Descargar registro de errores</button><button class="btn danger" data-act="reset">Reiniciar datos de ejemplo</button></div><div class="actions"><button class="btn" data-act="close">Cerrar</button></div>`);
+    const hayDemo=COLS.some(c=>db[c].some(x=>x.demo));
+    modal(`<h3>Herramientas</h3><p class="mute sm">Versión ${VERSION} · ${LIVE?'modo real (Firebase)':'modo demo local'}</p><p class="mute sm">Errores registrados: ${getErrs().length}</p>
+    <div class="actions"><button class="btn" data-act="export">Exportar datos (JSON)</button><button class="btn" data-act="errlog">Descargar registro de errores</button></div>
+    <div class="actions">${LIVE?(hayDemo?'<button class="btn danger" data-act="demo-off">Quitar datos de ejemplo</button>':'<button class="btn" data-act="demo-on">Cargar datos de ejemplo</button>'):'<button class="btn danger" data-act="reset">Reiniciar datos de ejemplo</button>'}</div><div class="actions"><button class="btn" data-act="close">Cerrar</button></div>`);
   },
-  csvStock(){
-    const rows=[['Código','Empresa','Producto','Cantidad','Lote','Vencimiento','Ubicación','Estado']];
-    db.bultos.filter(b=>b.estado!=='despachado'&&(S.role!=='empresa'||b.empresaId===S.empId)).forEach(b=>rows.push([b.code,emp(b.empresaId).nombre,prod(b.productoId).nombre,b.cant,b.lote,b.venc,b.ubic,b.estado]));
-    download('stock-logisar.csv',toCsv(rows),'text/csv;charset=utf-8');
-  },
-  csvPed(){
-    const rows=[['Pedido','Empresa','Destino','Bultos','Estado','Camión','Flete','Fecha']];
-    db.pedidos.filter(p=>S.role!=='empresa'||p.empresaId===S.empId).forEach(p=>rows.push([p.num,emp(p.empresaId).nombre,dest(p.destinoId).nombre,p.nBultos,p.estado,p.camionId?cam(p.camionId).patente:'',Math.round(p.precio),fd(p.fecha)]));
-    download('pedidos-logisar.csv',toCsv(rows),'text/csv;charset=utf-8');
-  },
-  install(){if(!deferredPrompt)return;deferredPrompt.prompt();deferredPrompt.userChoice.finally(()=>{deferredPrompt=null;render()})},
+  export(){download('logisar-datos.json',JSON.stringify(db,null,2),'application/json')},
   errlog(){download('errores-logisar.json',JSON.stringify(getErrs(),null,2),'application/json')},
-  export(){download('logisar-demo.json',JSON.stringify(db,null,2),'application/json')},
-  reset(){if(!confirm('Se borran los cambios y vuelven los datos de ejemplo. ¿Seguir?'))return;db=seed();save();closeModal();render();toast('Datos de ejemplo restaurados')},
+  reset(){if(!confirm('Se borran los cambios y vuelven los datos de ejemplo. ¿Seguir?'))return;db=seed();saveLocal();closeModal();render();toast('Datos de ejemplo restaurados')},
+  async 'demo-on'(){try{await seedLive();closeModal();toast('Datos de ejemplo cargados')}catch(e){writeFail(e)}},
+  'demo-off'(){
+    if(!confirm('Se borran solo los datos de ejemplo (empresas, pedidos, stock, etc. marcados como demo). Lo que cargaste vos queda. ¿Seguir?'))return;
+    COLS.forEach(c=>{db[c]=db[c].filter(x=>!x.demo)});save();closeModal();render();toast('Datos de ejemplo quitados');
+  },
   close(){closeModal()},
   theme(){setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');render()},
-  switch(){S.role=null;S.pick=null;S.tab=null;S.q='';render()},
+  switch(){
+    if(LIVE){geoStop();closeModal();auth.signOut();return}
+    S.role=null;S.pick=null;S.tab=null;S.q='';render();
+  },
+  reload(){location.reload()},
+  async gsign(){
+    S.authErr='';
+    const pv=new FB.auth.GoogleAuthProvider();pv.setCustomParameters({prompt:'select_account'});
+    try{await auth.signInWithPopup(pv)}
+    catch(e){
+      if(['auth/popup-blocked','auth/popup-closed-by-user','auth/cancelled-popup-request','auth/operation-not-supported-in-this-environment'].includes(e.code)){try{await auth.signInWithRedirect(pv)}catch(x){S.authErr=authMsg(x);render()}}
+      else{S.authErr=authMsg(e);render()}
+    }
+  },
+  install(){if(!deferredPrompt)return;deferredPrompt.prompt();deferredPrompt.userChoice.finally(()=>{deferredPrompt=null;render()})},
   pick(d){S.pick=d.r;render()},
   back(){S.pick=null;render()},
   role(d){S.role=d.r;S.empId=d.r==='empresa'?d.id:null;S.camId=d.r==='chofer'?d.id:null;S.tab=null;S.pick=null;S.q='';render();window.scrollTo(0,0)},
@@ -726,51 +1001,89 @@ const ACT={
   pnew(){fPres(null)},
   pedit(d){fPres(d.id)},
   psheet(d){fSheet(d.id)},
-  'pf-save'(d){
+  async 'pf-save'(d){
     const o=readForm();
     if(!o.destinoId)return toast('Elegí un destino',1);
     const isE=S.role==='empresa',r=isE?{lineas:[],total:0}:calcular(o);
-    let p=d.id?pres(d.id):null;
-    if(!p){db.seq.pres++;p={id:uid('pr'),num:'P-'+pad(db.seq.pres),fecha:Date.now(),valido:7};db.presupuestos.unshift(p)}
+    if(!isE&&d.st==='Enviado'){const tot=o.ajuste!=null?o.ajuste:r.total;if(!(tot>0))return toast('El total es cero: completá el tarifario o cargá un precio final',1)}
+    let p=d.id?pres(d.id):null,num=null;
+    if(!p)num=await nextNum('pres');
+    if(!p){p={id:uid('pr'),num:'P-'+pad(num),fecha:Date.now(),valido:7,origen:isE?'empresa':'admin'};db.presupuestos.unshift(p)}
     Object.assign(p,o,{lineas:r.lineas,total:r.total,estado:d.st});
+    p.visibleEmpresa=p.estado!=='Borrador';
+    p.precioFinal=isE?0:(d.st==='Enviado'?pTotal(p):(p.precioFinal||0));
     if(d.st==='Enviado')p.enviado=Date.now();
     logAdd(p.num+(isE?': solicitud de '+emp(p.empresaId).nombre:': '+d.st.toLowerCase()));
     save();closeModal();render();toast(isE?'Pedido de presupuesto enviado':d.st==='Enviado'?'Presupuesto enviado':'Borrador guardado');
   },
-  pst(d){
-    const p=pres(d.id);p.estado=d.st;
+  async pst(d){
+    const p=pres(d.id);if(!p)return;
+    if(p.estado!=='Enviado')return toast('Ese presupuesto ya no está en estado Enviado',1);
+    if(d.st==='Aceptado'&&estPres(p)==='Vencido')return toast('El presupuesto está vencido',1);
+    const num=d.st==='Aceptado'?await nextNum('ped'):null;
+    p.estado=d.st;p.respondido=Date.now();
     if(d.st==='Aceptado'){
-      db.seq.ped++;
-      const o={id:uid('pd'),num:'E-'+pad(db.seq.ped),empresaId:p.empresaId,destinoId:p.destinoId,nBultos:p.bultos,bultoIds:[],estado:'Pendiente',camionId:null,precio:pTotal(p),presId:p.id,fecha:Date.now(),cobro:'Pendiente',hist:[{e:'Pendiente',t:Date.now()}]};
+      const o={id:p.id,num:'E-'+pad(num),empresaId:p.empresaId,destinoId:p.destinoId,nBultos:p.bultos,bultoIds:[],estado:'Pendiente',camionId:null,precio:p.precioFinal!=null?p.precioFinal:pTotal(p),presId:p.id,fecha:Date.now(),cobro:'Pendiente',hist:[{e:'Pendiente',t:Date.now()}],detalle:p.detalle||''};
       db.pedidos.unshift(o);p.pedidoId=o.id;logAdd(p.num+' aceptado: se creó el pedido '+o.num);
     }else logAdd(p.num+': '+d.st.toLowerCase());
     save();closeModal();render();toast(d.st==='Aceptado'?'Presupuesto aceptado: pedido creado':'Presupuesto '+d.st.toLowerCase());
   },
+  prenew(d){const p=pres(d.id);if(!p)return;p.enviado=Date.now();logAdd(p.num+': validez renovada');save();closeModal();render();toast('Validez renovada por '+p.valido+' días')},
   print(){window.print()},
   wa(d){window.open('https://wa.me/?text='+encodeURIComponent(resumenTexto(pres(d.id))),'_blank')},
   copy(d){const t=resumenTexto(pres(d.id));if(navigator.clipboard)navigator.clipboard.writeText(t).then(()=>toast('Copiado'),()=>toast('No se pudo copiar',1));else toast('No se pudo copiar',1)},
   /* pedidos */
   ped(d){fPed(d.id)},
+  pdnew(){fPedNew()},
+  async 'pd-save'(){
+    const o=readForm();
+    if(!o.empresaId||!o.destinoId)return toast('Elegí empresa y destino',1);
+    const r=calcular(o),tot=o.ajuste!=null?o.ajuste:r.total;
+    if(!(tot>0))return toast('El total es cero: completá el tarifario o cargá un precio final',1);
+    const num=await nextNum('ped');
+    const p={id:uid('pd'),num:'E-'+pad(num),empresaId:o.empresaId,destinoId:o.destinoId,nBultos:o.bultos,bultoIds:[],estado:'Pendiente',camionId:null,precio:tot,presId:null,fecha:Date.now(),cobro:'Pendiente',hist:[{e:'Pendiente',t:Date.now()}],detalle:o.detalle};
+    db.pedidos.unshift(p);logAdd(p.num+': pedido directo para '+emp(o.empresaId).nombre);save();closeModal();render();toast('Pedido '+p.num+' creado');
+  },
   'asig-ok'(d){const o=ped(d.id),v=$('#asig').value;o.camionId=v||null;logAdd(o.num+(v?': camión '+cam(v).patente:': sin camión'));save();closeModal();render();toast('Camión guardado')},
+  cancelar(d){
+    const o=ped(d.id);if(!o||!confirm('¿Cancelar el pedido '+o.num+'? Los bultos vuelven al stock.'))return;
+    o.bultoIds.forEach(id=>{const b=db.bultos.find(x=>x.id===id);if(b){b.estado='stock';delete b.pedidoId}});
+    o.bultoIds=[];o.cobro='Sin cargo';setEst(o,'Cancelado');save();closeModal();render();toast('Pedido cancelado');
+  },
+  reprog(d){const o=ped(d.id);if(!o)return;delete o.motivo;setEst(o,'Listo');save();closeModal();render();toast('Entrega reprogramada: vuelve a estar lista')},
+  /* camiones */
+  camnew(){fCam(null)},camedit(d){fCam(d.id)},
+  'cam-save'(d){
+    const pt=$('#k-p').value.trim().toUpperCase(),ch=$('#k-c').value.trim();
+    if(!pt)return toast('Falta la patente',1);if(!ch)return toast('Falta el chofer',1);
+    if(db.camiones.some(k=>k.patente===pt&&k.id!==d.id))return toast('Esa patente ya está cargada',1);
+    let k=d.id?cam(d.id):null;if(!k){k={id:uid('c')};db.camiones.push(k)}
+    Object.assign(k,{patente:pt,chofer:ch,tipo:$('#k-t').value});save();closeModal();render();toast('Camión guardado');
+  },
+  'cam-del'(d){
+    if(db.pedidos.some(p=>p.camionId===d.id&&!FIN.includes(p.estado)))return toast('Tiene entregas en curso: no se puede borrar',1);
+    if(!confirm('¿Borrar el camión?'))return;db.camiones=db.camiones.filter(k=>k.id!==d.id);save();closeModal();render();
+  },
   /* empresas */
   enew(){fEmp(null)},eedit(d){fEmp(d.id)},
   'e-save'(d){
     const n=$('#e-n').value.trim();if(!n)return toast('Falta el nombre',1);
-    let c=$('#e-c').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'')||n.slice(0,2).toUpperCase();
+    const c=$('#e-c').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'')||n.slice(0,2).toUpperCase();
     if(db.empresas.some(e=>e.cod===c&&e.id!==d.id))return toast('Esa sigla ya la usa otra empresa',1);
     let e=d.id?emp(d.id):null;
-    if(!e){e={id:uid('e')};db.empresas.push(e)}
+    if(!e||!d.id){e={id:uid('e')};db.empresas.push(e)}
     Object.assign(e,{nombre:n,cod:c,tel:$('#e-t').value.trim(),contacto:$('#e-ct').value.trim()});
     save();closeModal();render();toast('Empresa guardada');
   },
   'e-del'(d){
-    if(db.bultos.some(b=>b.empresaId===d.id)||db.pedidos.some(p=>p.empresaId===d.id)||db.presupuestos.some(p=>p.empresaId===d.id))return toast('Tiene movimientos: no se puede borrar',1);
+    if(db.bultos.some(b=>b.empresaId===d.id)||db.pedidos.some(p=>p.empresaId===d.id)||db.presupuestos.some(p=>p.empresaId===d.id)||db.usuarios.some(u=>u.empresaId===d.id))return toast('Tiene movimientos o usuarios: no se puede borrar',1);
     if(!confirm('¿Borrar la empresa?'))return;
     db.empresas=db.empresas.filter(e=>e.id!==d.id);db.productos=db.productos.filter(p=>p.empresaId!==d.id);save();closeModal();render();
   },
-  /* tarifario */
+  /* tarifario y destinos */
   tnew(){fTar(null)},tedit(d){fTar(d.id)},
   ttog(d){const t=db.tarifas.find(x=>x.id===d.id);t.activo=!t.activo;save();render()},
+  tplan(){db.tarifas=db.tarifas.concat(TARIFAS_PLANTILLA(true));save();render();toast('Plantilla cargada: completá los valores')},
   't-save'(d){
     const n=$('#t-n').value.trim(),v=parseFloat($('#t-v').value);
     if(!n)return toast('Falta el nombre',1);if(isNaN(v))return toast('Falta el valor',1);
@@ -792,27 +1105,67 @@ const ACT={
     if(db.pedidos.some(p=>p.destinoId===d.id)||db.presupuestos.some(p=>p.destinoId===d.id))return toast('Se usa en pedidos o presupuestos',1);
     if(!confirm('¿Borrar el destino?'))return;db.destinos=db.destinos.filter(x=>x.id!==d.id);save();closeModal();render();
   },
+  /* equipo */
+  unew(){fUser(null)},uedit(d){fUser(d.id)},
+  utog(d){
+    const u=db.usuarios.find(x=>x.id===d.id);if(!u)return;
+    if(ME&&u.id===ME.email)return toast('No podés quitarte tu propio acceso',1);
+    u.activo=u.activo===false;save();render();
+  },
+  'u-save'(d){
+    const mail=$('#u-m').value.trim().toLowerCase(),nom=$('#u-n').value.trim(),rol=$('#u-r').value;
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail))return toast('El email no es válido',1);
+    if(!nom)return toast('Falta el nombre',1);
+    let eid=null,kid=null;
+    if(rol==='empresa'){eid=$('#u-e').value;if(!eid)return toast('Elegí la empresa',1)}
+    if(rol==='chofer'){kid=$('#u-c').value;if(!kid)return toast('Elegí el camión',1)}
+    let u=d.id?db.usuarios.find(x=>x.id===d.id):null;
+    if(!u){if(db.usuarios.some(x=>x.id===mail))return toast('Ese email ya está cargado',1);u={id:mail,activo:true};db.usuarios.push(u)}
+    if(ME&&u.id===ME.email&&rol!=='admin')return toast('No podés sacarte el rol de administrador',1);
+    Object.assign(u,{email:mail,nombre:nom,rol});
+    if(eid)u.empresaId=eid;else delete u.empresaId;
+    if(kid)u.camionId=kid;else delete u.camionId;
+    save();closeModal();render();toast('Persona guardada');
+  },
+  'u-del'(d){
+    if(ME&&d.id===ME.email)return toast('No podés quitarte tu propio acceso',1);
+    if(!confirm('¿Quitar el acceso de '+d.id+'?'))return;db.usuarios=db.usuarios.filter(x=>x.id!==d.id);save();closeModal();render();
+  },
   /* cobros */
   cobro(d){const o=ped(d.id),c=['Pendiente','Facturado','Cobrado'];o.cobro=c[(c.indexOf(o.cobro)+1)%3];save();render()},
   csv(){
     const rows=[['Pedido','Empresa','Destino','Fecha','Flete','Estado de cobro']];
     db.pedidos.filter(p=>p.estado==='Entregado').forEach(p=>rows.push([p.num,emp(p.empresaId).nombre,dest(p.destinoId).nombre,fd(p.hist[p.hist.length-1].t),Math.round(p.precio),p.cobro]));
-    download('liquidacion-fletes.csv','\ufeff'+rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(';')).join('\n'),'text/csv;charset=utf-8');
+    download('liquidacion-fletes.csv',toCsv(rows),'text/csv;charset=utf-8');
+  },
+  csvStock(){
+    const rows=[['Código','Empresa','Producto','Cantidad','Lote','Vencimiento','Ubicación','Estado']];
+    db.bultos.filter(b=>b.estado!=='baja'&&bEst(b)!=='despachado'&&(S.role!=='empresa'||b.empresaId===S.empId)).forEach(b=>rows.push([b.code,emp(b.empresaId).nombre,prod(b.productoId).nombre,b.cant,b.lote,b.venc,b.ubic,b.estado]));
+    download('stock-logisar.csv',toCsv(rows),'text/csv;charset=utf-8');
+  },
+  csvPed(){
+    const rows=[['Pedido','Empresa','Destino','Bultos','Estado','Camión','Flete','Fecha']];
+    db.pedidos.filter(p=>S.role!=='empresa'||p.empresaId===S.empId).forEach(p=>rows.push([p.num,emp(p.empresaId).nombre,dest(p.destinoId).nombre,p.nBultos,p.estado,p.camionId&&cam(p.camionId)?cam(p.camionId).patente:'',Math.round(p.precio),fd(p.fecha)]));
+    download('pedidos-logisar.csv',toCsv(rows),'text/csv;charset=utf-8');
   },
   /* operario */
-  'ing-ok'(){
+  async 'ing-ok'(){
     const eid=$('#ing-emp').value;if(!eid)return toast('Primero cargá una empresa',1);
-    let pid=$('#ing-prod').value;
+    let pid=$('#ing-prod').value,nuevo=null;
     if(pid==='__new'||!pid){
       const n=$('#ing-pn').value.trim();if(!n)return toast('Escribí el nombre del producto',1);
-      pid=uid('p');db.productos.push({id:pid,empresaId:eid,nombre:n,frio:$('#ing-pf').checked,fragil:$('#ing-pg').checked});
+      nuevo={id:uid('p'),empresaId:eid,nombre:n,frio:$('#ing-pf').checked,fragil:$('#ing-pg').checked};pid=nuevo.id;
     }
     const cant=parseInt($('#ing-cant').value,10);if(!(cant>0))return toast('La cantidad tiene que ser mayor a cero',1);
-    db.seq.bulto++;
-    const b={id:uid('b'),code:'LG'+emp(eid).cod+pad(db.seq.bulto),empresaId:eid,productoId:pid,cant,ubic:$('#ing-ubic').value.trim(),estado:'stock',lote:$('#ing-lote').value.trim(),venc:$('#ing-venc').value,t:Date.now()};
+    const lote=$('#ing-lote').value.trim(),venc=$('#ing-venc').value,ubic=$('#ing-ubic').value.trim();
+    const num=await nextNum('bulto');
+    if(nuevo)db.productos.push(nuevo);
+    const b={id:uid('b'),code:'LG'+emp(eid).cod+pad(num),empresaId:eid,productoId:pid,cant,ubic,estado:'stock',lote,venc,t:Date.now()};
     db.bultos.push(b);logAdd('Ingreso '+b.code+': '+prod(pid).nombre);save();render();fLabel(b.id);
   },
   label(d){fLabel(d.id)},
+  'lb-save'(d){const b=db.bultos.find(x=>x.id===d.id);if(!b)return;b.ubic=$('#lb-ub').value.trim();logAdd(b.code+': ubicación '+(b.ubic||'sin ubicar'));save();closeModal();render();toast('Ubicación guardada')},
+  'lb-baja'(d){const b=db.bultos.find(x=>x.id===d.id);if(!b||!confirm('¿Dar de baja el bulto '+b.code+'? Deja de contar en el stock.'))return;b.estado='baja';logAdd(b.code+': dado de baja');save();closeModal();render();toast('Bulto dado de baja')},
   'av-ok'(d){db.avisos=db.avisos.filter(a=>a.id!==d.id);save();render();toast('Aviso marcado como recibido')},
   prep(d){fPrep(d.id)},
   scan(d){scan(d.id,$('#scan-in').value)},
@@ -821,30 +1174,40 @@ const ACT={
     if(!b)return toast('No quedan bultos de esta empresa en stock',1);
     scan(d.id,b.code);
   },
+  unscan(d){
+    const o=ped(d.id),b=db.bultos.find(x=>x.id===d.b);if(!o||!b)return;
+    b.estado='stock';delete b.pedidoId;o.bultoIds=o.bultoIds.filter(x=>x!==b.id);
+    if(o.estado==='Listo')setEst(o,'En preparación');
+    save();fPrep(d.id);render();toast('Bulto quitado del pedido');
+  },
   cam(d){startCam(d.id)},
   listo(d){const o=ped(d.id);setEst(o,'Listo');save();closeModal();render();toast('Pedido listo para salir')},
   /* empresa */
   aviso(){modal(`<h3>Avisar un envío</h3><p class="mute sm">Contale al depósito qué vas a mandar.</p><label>Qué mandás<input id="av-t" placeholder="Ej.: Yerba mate, 10 cajas"></label><div class="actions"><button class="btn pri" data-act="av-save">Enviar aviso</button><button class="btn" data-act="close">Cancelar</button></div>`)},
   'av-save'(){const t=$('#av-t').value.trim();if(!t)return toast('Escribí qué vas a mandar',1);db.avisos.unshift({id:uid('av'),empresaId:S.empId,texto:t,fecha:Date.now()});logAdd('Aviso de '+emp(S.empId).nombre+': '+t);save();closeModal();toast('Aviso enviado al depósito')},
   /* chofer */
-  salir(d){const o=ped(d.id);setEst(o,'En camino');o.bultoIds.forEach(id=>{const b=db.bultos.find(x=>x.id===id);if(b)b.estado='despachado'});save();render();toast('Buen viaje')},
+  salir(d){const o=ped(d.id);setEst(o,'En camino');save();render();toast('Buen viaje')},
   ent(d){modal(`<h3>Confirmar entrega</h3><p class="mute sm">${esc(dest(ped(d.id).destinoId).nombre)}</p><label>Foto de la entrega (opcional)<input id="foto" type="file" accept="image/*" capture="environment"></label><div class="actions"><button class="btn pri" data-act="ent-ok" data-id="${d.id}">Confirmar entrega</button><button class="btn" data-act="close">Cancelar</button></div>`)},
   async 'ent-ok'(d){
     const o=ped(d.id),f=$('#foto').files[0];
-    o.foto=f?await resize(f):null;o.cobro=o.cobro||'Pendiente';setEst(o,'Entregado');save();closeModal();render();toast('Entrega confirmada');
+    const data=f?await resize(f):null;
+    if(data)savePhoto(o,data);
+    setEst(o,'Entregado');save();closeModal();render();toast('Entrega confirmada');
   },
   noent(d){modal(`<h3>No pude entregar</h3><label>Motivo<select id="mot"><option>Local cerrado</option><option>Nadie recibió</option><option>Dirección incorrecta</option><option>Rechazó la mercadería</option><option>Otro</option></select></label><div class="actions"><button class="btn danger" data-act="noent-ok" data-id="${d.id}">Registrar</button><button class="btn" data-act="close">Cancelar</button></div>`)},
-  'noent-ok'(d){const o=ped(d.id);o.motivo=$('#mot').value;o.cobro='Sin cargo';setEst(o,'No entregado');save();closeModal();render();toast('Registrado')},
-  geo(){
-    if(!navigator.geolocation)return toast('Este dispositivo no permite compartir ubicación',1);
-    navigator.geolocation.getCurrentPosition(p=>{const c=cam(S.camId);c.lat=p.coords.latitude;c.lng=p.coords.longitude;c.locT=Date.now();save();render();toast('Ubicación compartida')},()=>toast('No se pudo obtener la ubicación',1),{enableHighAccuracy:true,timeout:10000});
-  }
+  'noent-ok'(d){const o=ped(d.id);o.motivo=$('#mot').value;setEst(o,'No entregado');save();closeModal();render();toast('Registrado')},
+  geo(){if(GEO!=null)geoStop();else geoStart()}
 };
 
 /* ===== eventos ===== */
 document.addEventListener('click',e=>{
   const el=e.target.closest('[data-act]');if(!el)return;
-  const f=ACT[el.dataset.act];if(f){e.preventDefault();f(el.dataset,el)}
+  const f=ACT[el.dataset.act];if(!f)return;
+  e.preventDefault();
+  try{
+    const r=f(el.dataset,el);
+    if(r&&r.catch)r.catch(x=>{logErr('accion '+el.dataset.act+': '+(x.code||x.message));toast(needNet(x)?'Necesitás conexión para esta acción':'No se pudo completar: '+(x.code||x.message),1)});
+  }catch(x){logErr('accion '+el.dataset.act+': '+x.message);toast('Error: '+x.message,1)}
 });
 document.addEventListener('input',e=>{
   const t=e.target;
@@ -854,19 +1217,15 @@ document.addEventListener('input',e=>{
 document.addEventListener('change',e=>{
   const t=e.target;
   if(t.classList.contains('pf'))recomputeForm();
-  if(t.id==='ing-emp'||t.id==='ing-prod')fillProds2(t.id);
+  if(t.id==='ing-emp')fillProds();
+  if(t.id==='ing-prod')syncIngNew();
+  if(t.id==='u-r')syncUserBoxes();
 });
-function fillProds2(id){
-  if(id==='ing-emp')fillProds();
-  else{const n=$('#ing-new');if(n)n.style.display=$('#ing-prod').value==='__new'?'block':'none'}
-}
-/* completar productos al dibujar el ingreso */
-const _render=render;
-render=function(){_render();if(S.tab==='ing'&&S.role==='oper')fillProds()};
 
 /* ===== arranque ===== */
 try{const t=localStorage.getItem('logisar_theme');if(t)setTheme(t)}catch(e){}
-load();render();
+if(LIVE){render();bootLive().catch(e=>{logErr('boot: '+e.message);S.state='error';S.err=e.message;render()})}
+else{loadLocal();render()}
 setTimeout(()=>{const b=$('#boot');if(b){b.classList.add('out');setTimeout(()=>b.remove(),500)}},1300);
 
 </script>
