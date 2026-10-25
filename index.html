@@ -280,6 +280,14 @@ const APPS = [
     tags: ['plus', 'offline', 'csv'],
     pendientes: ['Crear proyecto Firebase y pegar la config (guía paso a paso lista)', 'Publicar reglas Firestore v0.3 y probarlas en el simulador (sin probar aún)', 'Mostrar la demo al cliente y juntar cambios', 'Definir tarifas reales con el cliente (km, carga fría, mínimo)', 'Probar lectura de códigos con cámara en celular real', 'Km automáticos con servicio de mapas']
   },
+  {
+    id: 'manejar', nombre: 'manej', ar: 'Ar', emoji: '🚕', panelAdmin: true,
+    color: '#22c55e', desc: 'Control de ganancias reales para choferes de Uber, Didi y Cabify. Cargan cada viaje en 2 toques; ven en gráficos cuánto ganan por hora y por km (sin que los gastos distorsionen), su mejor día y su mejor horario. Login con Google o email, demo gratis de 14 días, cobro manual desde el panel interno (volante + PIN).',
+    estado: 'pendiente', estadoLabel: 'v2.2 — funcional y probado con datos reales; falta Plan Flota, backup y cobro automático',
+    url: BASE + '/ManejAr/', beta: BASE + '/ManejAr/?demo=1', folleto: null,
+    tags: ['plus', 'offline', 'csv'],
+    pendientes: ['Plan Flota (dueño con 2 autos): revisar el flujo de creación desde Ajustes y probarlo con Firebase real', 'Backup automático diario 02:00 (opción recomendada: GitHub Actions + clave de servicio de Firebase)', 'Cobro automático con Mercado Pago (requiere Netlify; hoy el cobro es manual desde el panel)', 'Confirmar comisiones reales por plataforma (hoy: Uber 25%, Didi 20%, Cabify 20%)', 'Folleto de venta y precio mensual a definir', 'Íconos PNG para instalar como app']
+  },
 ];
 
 const STATUS_CONFIG = {
@@ -289,7 +297,7 @@ const STATUS_CONFIG = {
 };
 
 const CATEGORIAS = {
-  comercio: ['barbear','comprazona','pizzar','panar','carnear','lavar','rodix','securepro','puntoventa','empresar','centralbotar','ahorrar','logisar'],
+  comercio: ['barbear','comprazona','pizzar','panar','carnear','lavar','rodix','securepro','puntoventa','empresar','centralbotar','ahorrar','logisar','manejar'],
   salud:    ['saludar','miagenda','mtc','charlar'],
   ia:       ['mtc','timbrear','legalar','centralbotar','charlar'],
 };
