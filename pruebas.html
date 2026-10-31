@@ -65,7 +65,7 @@ const APPS = [
     pruebas: [
       { id: 'p1', label: 'Login Google funciona en raventechs.github.io/pizzAr/', detail: 'Probarlo en celular real, no en PC', tags: ['celular'] },
       { id: 'p2', label: 'Agregar productos al carrito y cobrar', detail: 'Flujo completo: producto → carrito → cobrar → venta registrada en Firestore', tags: ['celular'] },
-      { id: 'p3', label: 'CSV exporta correctamente', detail: '5 toques logo → PIN 2580 → Exportar CSV → verificar que el archivo tiene los datos', tags: ['celular', 'plus'] },
+      { id: 'p3', label: 'CSV exporta correctamente', detail: '5 toques logo → cuenta admin → Exportar CSV → verificar que el archivo tiene los datos', tags: ['celular', 'plus'] },
       { id: 'p4', label: 'Offline: cargar venta sin internet', detail: 'Activar modo avión → hacer una venta → reconectar → verificar que se sincronizó', tags: ['celular'] },
       { id: 'p5', label: 'Backup automático se descarga al entrar', detail: 'Borrar localStorage → entrar a la app → verificar que descarga el JSON automáticamente', tags: ['celular'] },
       { id: 'p6', label: 'Módulo COMANDAS: enviar a cocina', detail: 'Activar feature → agregar items → "Enviar a cocina" → verificar que aparece en tab Cocina', tags: ['dos-disp', 'plus'] },
@@ -82,7 +82,7 @@ const APPS = [
       { id: 'p2', label: 'Flujo completo de venta con recetas', detail: 'Cargar receta → vender → stock descuenta ingredientes automáticamente', tags: ['celular'] },
       { id: 'p3', label: 'Cierre de caja con WhatsApp', detail: 'Cerrar caja → resumen llega por WhatsApp', tags: ['celular'] },
       { id: 'p4', label: 'Offline: venta sin internet', detail: 'Avión → venta → reconectar → sincroniza', tags: ['celular'] },
-      { id: 'p5', label: 'CSV exporta ventas del día', detail: 'PIN 2580 → exportar → verificar archivo', tags: ['celular', 'plus'] },
+      { id: 'p5', label: 'CSV exporta ventas del día', detail: 'cuenta admin → exportar → verificar archivo', tags: ['celular', 'plus'] },
     ]
   },
   {
@@ -91,7 +91,7 @@ const APPS = [
       { id: 'p1', label: 'Login Google en raventechs.github.io/carneAr/', detail: 'Celular real, modo incógnito', tags: ['celular'] },
       { id: 'p2', label: 'Venta por kilo con precio por kg', detail: 'Ingresar 1.350 kg de asado → precio por kg → total correcto', tags: ['celular'] },
       { id: 'p3', label: 'Historial offline funciona', detail: 'Ver ventas del día sin conexión', tags: ['celular'] },
-      { id: 'p4', label: 'CSV exporta correctamente', detail: 'PIN 2580 → exportar → verificar', tags: ['celular', 'plus'] },
+      { id: 'p4', label: 'CSV exporta correctamente', detail: 'cuenta admin → exportar → verificar', tags: ['celular', 'plus'] },
       { id: 'p5', label: 'Módulo TICKET: sacar foto y leer items', detail: 'Activar feature ticket → sacar foto de ticket de balanza → verificar que IA extrae los items', tags: ['celular', 'plus'] },
       { id: 'p6', label: 'Módulo TICKET: cargar items a la venta', detail: 'Después de leer el ticket → "Cargar venta" → verificar que los items quedan registrados', tags: ['celular', 'plus'] },
       { id: 'p7', label: 'Offline: venta sin internet', detail: 'Avión → venta → reconectar → sincroniza', tags: ['celular'] },

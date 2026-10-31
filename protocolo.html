@@ -113,7 +113,7 @@ const SECTIONS = [
     id: 'tecnico',
     titulo: '🔧 Robustez Técnica',
     items: [
-      { id:'p1', label:'PIN admin 2580 funciona (5 toques en logo → abre panel)' },
+      { id:'p1', label:'Panel admin abre solo con la cuenta admin verificada (5 toques en logo → abre panel)' },
       { id:'p2', label:'CSV exporta datos correctamente y el archivo se descarga' },
       { id:'p3', label:'Service Worker — app funciona sin internet (modo offline)', note:'Probado con DevTools → Network → Offline' },
       { id:'p4', label:'Alerta de presupuesto Firebase configurada ($5 USD)', note:'Firebase Console → Billing → Budgets & alerts' },
@@ -129,7 +129,7 @@ const SECTIONS = [
       { id:'login', label:'Login Google funciona en la URL de producción' },
       { id:'base_features', label:'Todas las features del Plan Base funcionan' },
       { id:'plus_features', label:'Todas las features del Plan Plus funcionan' },
-      { id:'plus_toggle', label:'Features Plus se activan/desactivan desde panel admin (PIN 2580)' },
+      { id:'plus_toggle', label:'Features Plus se activan/desactivan desde panel admin (cuenta admin)' },
       { id:'plus_firestore', label:'Flags de features se guardan en Firestore con dot-notation' },
       { id:'persistencia', label:'Datos persisten entre sesiones (cerrar y reabrir app)' },
       { id:'offline_data', label:'Datos guardados offline se sincronizan al reconectar' },
