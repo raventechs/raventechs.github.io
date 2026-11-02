@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <!--
   ARCHIVO: vendedores/index.html
-  VERSIÓN: v1.2
+  VERSIÓN: v1.3
   FECHA: 02/11/2026
   PROYECTO: RavenTechs — App para vendedores
   CHANGELOG:
+  - v1.3 (02/11/2026): el error de ingreso muestra un diagnóstico (uid y correo del token).
   - v1.2 (02/11/2026): conectada al proyecto Firebase raventech-vendedores.
   - v1.1 (02/11/2026): el mensaje de WhatsApp incluye automáticamente el link del instructivo de la app (si tiene).
   - v1.0 (02/11/2026): catálogo de apps con ficha (explicación, demo, instructivo, folleto), envío del link de prueba por WhatsApp
@@ -319,7 +320,12 @@ $('btnGoogle').onclick = async () => {
     const p = new fb.GoogleAuthProvider(); p.addScope('email'); p.addScope('profile');
     if (fb.auth.currentUser && fb.auth.currentUser.isAnonymous) await fb.signOut(fb.auth);
     const r = await fb.signInWithPopup(fb.auth, p); await entrar(r.user);
-  } catch (e) { $('loginMsg').style.display = 'block'; $('loginMsg').textContent = 'No se pudo ingresar con Google: ' + (e.code || e.message); }
+  } catch (e) {
+    let diag = '';
+    try { const cu = fb.auth.currentUser; if (cu) { const t = await cu.getIdTokenResult(true); diag = '\n\nDiagnóstico · uid: ' + cu.uid + ' · correo en token: ' + (t.claims.email || 'NINGUNO') + ' · correo en perfil: ' + (emailDe(cu) || 'NINGUNO'); } } catch (x) {}
+    $('loginMsg').style.display = 'block'; $('loginMsg').style.whiteSpace = 'pre-wrap';
+    $('loginMsg').textContent = 'No se pudo ingresar con Google: ' + (e.code || e.message) + diag;
+  }
 };
 $('btnLocal').onclick = async () => {
   user = { email: 'prueba@local', nombre: 'Vendedor de prueba', codigo: 'PRUEBA', admin: true };
