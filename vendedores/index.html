@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <!--
   ARCHIVO: vendedores/index.html
-  VERSIÓN: v1.6
+  VERSIÓN: v1.7
   FECHA: 02/11/2026
   PROYECTO: RavenTechs — App para vendedores
   CHANGELOG:
+  - v1.7 (02/11/2026): se suma Traductor de Hábitos al catálogo (como Próximamente hasta terminar su puesta a punto).
   - v1.6 (02/11/2026): el link que se envía al cliente va a la landing de la prueba (raventechs.github.io/probar/), que reenvía el código del vendedor a la app.
   - v1.5 (02/11/2026): instructivos enlazados para TimbreAR, CompraZona y GasAR (ahora el mensaje de WhatsApp los incluye).
   - v1.4 (02/11/2026): folletos enlazados para BarbeAR, EmpresAR, manejAr, CompraZona y GasAR.
@@ -205,6 +206,10 @@ const APPS = [
     d:'Una agenda compartida para familias, equipos o grupos, con actividades en común, recordatorios y cada integrante con su propia agenda.',
     b:['Actividades del grupo en un solo lugar','Recordatorios','Agenda personal de cada integrante'],
     url:D('miagenda'), demo:D('miagenda'), ficha:'https://raventechs.github.io/folletos/folleto-miagenda.html', ayuda:D('miagenda')+'ayuda/' },
+  { id:'habitos', n:'Traductor de Hábitos', e:'🧬', r:'Personas', t:'Registro y análisis de hábitos con IA', ok:false,
+    d:'Registrá tus hábitos hablando o escribiendo (sueño, comida, ánimo, actividad, pulso) y descubrí cómo se relacionan entre sí, con observaciones sin juicios.',
+    b:['Registro por voz o texto','Descubre patrones entre tus hábitos','Perfil que crece con cada registro'],
+    url:D('habitos'), demo:D('habitos'), ficha:'https://raventechs.github.io/folletos/folleto-habitos.html', ayuda:D('habitos')+'ayuda/' },
   { id:'timbrear', n:'TimbreAR', e:'🔔', r:'Hogar', t:'Portero virtual para edificios', ok:true,
     d:'La visita escanea un QR en la entrada, elige el departamento y al residente le llega el aviso en su celular: atiende, habla y abre la puerta, sin instalar nada.',
     b:['Sin portero ni intercom','QR en la entrada','El residente atiende desde su celular'],
