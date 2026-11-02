@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <!--
   ARCHIVO: vendedores/index.html
-  VERSIÓN: v1.1
+  VERSIÓN: v1.2
   FECHA: 02/11/2026
   PROYECTO: RavenTechs — App para vendedores
   CHANGELOG:
+  - v1.2 (02/11/2026): conectada al proyecto Firebase raventech-vendedores.
   - v1.1 (02/11/2026): el mensaje de WhatsApp incluye automáticamente el link del instructivo de la app (si tiene).
   - v1.0 (02/11/2026): catálogo de apps con ficha (explicación, demo, instructivo, folleto), envío del link de prueba por WhatsApp
     al teléfono que el vendedor escriba, ingreso con Google solo para vendedores autorizados, código de vendedor en cada link,
@@ -135,12 +136,12 @@ th{color:var(--mut);font-weight:600}
    Pegar acá la configuración del proyecto de Firebase de vendedores (Configuración del proyecto → Tus apps → Web).
    Mientras esté vacía, la app funciona en modo prueba local (sin guardar en la nube). */
 const FIREBASE_CONFIG = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: ""
+  apiKey: "AIzaSyC4rplGPp-JCUNbUEu0bYgsv1AjVxM84CU",
+  authDomain: "raventech-vendedores.firebaseapp.com",
+  projectId: "raventech-vendedores",
+  storageBucket: "raventech-vendedores.firebasestorage.app",
+  messagingSenderId: "1097885314847",
+  appId: "1:1097885314847:web:83201fd76b47fccb004a2a"
 };
 const ADMIN_EMAIL = 'rgaraventa@gmail.com';
 const MODO_LOCAL = !FIREBASE_CONFIG.apiKey;
