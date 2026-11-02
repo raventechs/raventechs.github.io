@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <!--
   ARCHIVO: vendedores/index.html
-  VERSIÓN: v1.3
+  VERSIÓN: v1.4
   FECHA: 02/11/2026
   PROYECTO: RavenTechs — App para vendedores
   CHANGELOG:
+  - v1.4 (02/11/2026): folletos enlazados para BarbeAR, EmpresAR, manejAr, CompraZona y GasAR.
   - v1.3 (02/11/2026): el error de ingreso muestra un diagnóstico (uid y correo del token).
   - v1.2 (02/11/2026): conectada al proyecto Firebase raventech-vendedores.
   - v1.1 (02/11/2026): el mensaje de WhatsApp incluye automáticamente el link del instructivo de la app (si tiene).
@@ -173,7 +174,7 @@ const APPS = [
   { id:'barbear', n:'BarbeAR', e:'💈', r:'Servicios', t:'Turnos y caja para barberías', ok:true,
     d:'La barbería maneja su caja y sus turnos, y el cliente reserva solo desde un link, sin mensajes ni llamadas.',
     b:['Reservas online por link','Agenda y caja en un solo lugar','Menos ausencias y menos mensajes'],
-    url:D('barbear'), demo:D('barbear'), ficha:null, ayuda:D('barbear')+'ayuda/' },
+    url:D('barbear'), demo:D('barbear'), ficha:'https://raventechs.github.io/folletos/folleto-barbear.html', ayuda:D('barbear')+'ayuda/' },
   { id:'pelotear', n:'PeloteAR', e:'⚽', r:'Servicios', t:'Reservas de canchas', ok:true,
     d:'Complejos de canchas de fútbol 5, 7 y 11, pádel y tenis: reservas, precios de día y de noche, buffet y cierre de caja.',
     b:['Reservas y turnos fijos','Precio diurno y nocturno','Buffet y cierre de caja'],
@@ -185,7 +186,7 @@ const APPS = [
   { id:'empresar', n:'EmpresAR', e:'📋', r:'Servicios', t:'Control de documentos con vencimientos', ok:true,
     d:'Habilitaciones, seguros, VTV y documentación del personal: la empresa carga todo y recibe aviso antes de cada vencimiento.',
     b:['Alertas antes de que venza cada documento','Todo en un solo panel','Ideal para flotas y empresas reguladas'],
-    url:D('garrafar'), demo:D('garrafar'), ficha:null, ayuda:D('garrafar')+'ayuda/' },
+    url:D('garrafar'), demo:D('garrafar'), ficha:'https://raventechs.github.io/folletos/folleto-empresar.html', ayuda:D('garrafar')+'ayuda/' },
   { id:'rodix', n:'Rodix', e:'🚑', r:'Movilidad', t:'Gestión de flota de vehículos', ok:true,
     d:'Controla autos, camionetas y ambulancias: mantenimiento, alertas por categoría y checklist de insumos, con el equipo invitado por WhatsApp.',
     b:['Alertas de mantenimiento','Checklist de insumos','Choferes con acceso limitado'],
@@ -193,7 +194,7 @@ const APPS = [
   { id:'manejar', n:'manejAr', e:'🚕', r:'Movilidad', t:'Ganancias reales para choferes de apps', ok:true,
     d:'Para choferes de Uber, Didi y Cabify: muestra cuánto ganan de verdad después de combustible y gastos, y ofrece un plan para flotas.',
     b:['Ganancia real por viaje y por día','Control de combustible y gastos','Plan para dueños de flota'],
-    url:'https://raventechs.github.io/ManejAr/manejar.html', demo:'https://raventechs.github.io/ManejAr/manejar.html?demo=1', ficha:null, ayuda:'https://raventechs.github.io/ManejAr/ayuda/' },
+    url:'https://raventechs.github.io/ManejAr/manejar.html', demo:'https://raventechs.github.io/ManejAr/manejar.html?demo=1', ficha:'https://raventechs.github.io/folletos/folleto-manejar.html', ayuda:'https://raventechs.github.io/ManejAr/ayuda/' },
   { id:'saludar', n:'SaludAR', e:'💊', r:'Personas', t:'Recordatorios de medicación', ok:true,
     d:'Avisa a tiempo cada toma de medicación y cada turno médico, y permite que la familia acompañe a un adulto mayor.',
     b:['Notificaciones a la hora justa','Modo familiar con un veedor','Turnos médicos en el mismo lugar'],
@@ -209,11 +210,11 @@ const APPS = [
   { id:'comprazona', n:'CompraZona', e:'🛒', r:'Comercio', t:'Marketplace local de garrafas y agua', ok:true,
     d:'Los vecinos piden garrafas y agua a las empresas de su zona con el mapa y el historial de pedidos; las empresas reciben los pedidos en tiempo real.',
     b:['Mapa de empresas cercanas','Pedidos en tiempo real para la empresa','Repetir un pedido con un toque'],
-    url:D('comprazona'), demo:D('comprazona'), ficha:null, ayuda:null },
+    url:D('comprazona'), demo:D('comprazona'), ficha:'https://raventechs.github.io/folletos/folleto-comprazona.html', ayuda:null },
   { id:'gasar', n:'GasAR', e:'🔥', r:'Comercio', t:'Distribuidoras de gas', ok:true,
     d:'Para distribuidoras de gas: la central, las camionetas y los revendedores trabajan en el mismo sistema, con ventas, caja y cierre.',
     b:['Central, camionetas y revendedores','Ventas y caja ordenadas','Modo práctica para aprender'],
-    url:'https://raventechs.github.io/gasar/gasar-admin.html', demo:'https://raventechs.github.io/gasar/gasar-admin.html', ficha:null, ayuda:null },
+    url:'https://raventechs.github.io/gasar/gasar-admin.html', demo:'https://raventechs.github.io/gasar/gasar-admin.html', ficha:'https://raventechs.github.io/gasar/gasar-folleto.html', ayuda:null },
   { id:'mtc', n:'MTC', e:'🧠', r:'Próximamente', t:'Asistente de IA', ok:false,
     d:'Un asistente de inteligencia artificial para estudiar y organizar ideas. Todavía está en desarrollo.', b:['En desarrollo'],
     url:D('mdtc'), demo:null, ficha:'https://raventechs.github.io/folletos/folleto-mtc.html', ayuda:D('mdtc')+'ayuda/' },
