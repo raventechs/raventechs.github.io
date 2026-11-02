@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<!--
+  ARCHIVO: vendedores/index.html
+  VERSIÓN: v1.0
+  FECHA: 02/11/2026
+  PROYECTO: RavenTechs — App para vendedores
+  CHANGELOG:
+  - v1.0 (02/11/2026): catálogo de apps con ficha (explicación, demo, instructivo, folleto), envío del link de prueba por WhatsApp
+    al teléfono que el vendedor escriba, ingreso con Google solo para vendedores autorizados, código de vendedor en cada link,
+    registro de envíos y panel de administración con botones. Modo prueba local mientras no esté cargada la configuración de Firebase.
+  PENDIENTE:
+    - Crear el proyecto de Firebase de vendedores, pegar su configuración en FIREBASE_CONFIG y publicar qa/rules/vendedores.rules (repo gasar).
+-->
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RavenTechs · Vendedores</title>
+<meta name="theme-color" content="#0b1220">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-apple-180.png">
+<style>
+:root{--bg:#0b1220;--card:#131c2e;--ln:#24324d;--tx:#eaf0fb;--mut:#93a3c0;--ac:#4da3ff;--v:#25d366;--a:#f2b84b;--r:#ff6b6b}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--tx);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100vh;padding-bottom:40px}
+header{position:sticky;top:0;z-index:5;background:#0b1220ee;backdrop-filter:blur(6px);border-bottom:1px solid var(--ln);padding:12px 16px;display:flex;align-items:center;gap:10px}
+header img{width:34px;height:34px;border-radius:9px}
+header h1{font-size:17px;flex:1}
+header .chip{background:var(--card);border:1px solid var(--ln);color:var(--tx);border-radius:99px;padding:7px 12px;font-size:13px}
+main{max-width:760px;margin:0 auto;padding:16px}
+.vista{display:none}.vista.on{display:block}
+h2{font-size:15px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;margin:20px 0 8px}
+input,textarea,select{width:100%;background:#0f1a2d;border:1px solid var(--ln);border-radius:12px;color:var(--tx);padding:12px 14px;font:inherit}
+textarea{min-height:130px;resize:vertical}
+label{display:block;font-size:12px;color:var(--mut);text-transform:uppercase;letter-spacing:.06em;margin:12px 0 6px}
+button{font:inherit;cursor:pointer}
+.btn{display:block;width:100%;background:var(--ac);color:#06101f;border:none;border-radius:12px;padding:14px;font-weight:800;margin-top:12px}
+.btn.wa{background:var(--v);color:#04210f;font-size:17px}
+.btn.sec{background:transparent;border:1px solid var(--ln);color:var(--tx);font-weight:600}
+.btn:disabled{opacity:.45}
+.fila{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:8px 0 4px}
+.chips button{background:var(--card);border:1px solid var(--ln);color:var(--tx);border-radius:99px;padding:7px 14px;white-space:nowrap;font-size:14px}
+.chips button.on{background:var(--ac);color:#06101f;border-color:var(--ac);font-weight:700}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+@media(min-width:620px){.grid{grid-template-columns:repeat(3,1fr)}}
+.tarj{background:var(--card);border:1px solid var(--ln);border-radius:16px;padding:14px;text-align:left;color:var(--tx);display:flex;flex-direction:column;gap:6px;min-height:150px}
+.tarj .em{font-size:30px}
+.tarj b{font-size:16px}
+.tarj span{font-size:13px;color:var(--mut);line-height:1.3}
+.badge{display:inline-block;font-size:11px;border-radius:99px;padding:2px 8px;background:#3a2f12;color:var(--a);width:fit-content}
+.volver{background:none;border:none;color:var(--ac);padding:6px 0;font-weight:600}
+.ficha-h{display:flex;gap:14px;align-items:center;margin:8px 0 6px}
+.ficha-h .em{font-size:44px}
+.ficha-h h3{font-size:22px}
+.ficha-h p{color:var(--mut);font-size:14px}
+.box{background:var(--card);border:1px solid var(--ln);border-radius:16px;padding:14px;margin-top:12px}
+.box ul{margin:8px 0 0 18px}.box li{margin:4px 0}
+.links{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px}
+.links a{display:block;text-align:center;text-decoration:none;background:var(--card);border:1px solid var(--ln);color:var(--tx);border-radius:12px;padding:12px 6px;font-size:14px;font-weight:600}
+.links a.off{opacity:.4;pointer-events:none}
+.aviso{background:#3a1d1d;color:#ffb3b3;border-radius:12px;padding:10px 12px;margin-top:10px;font-size:14px}
+.ok{background:#12301f;color:#9be5b4;border-radius:12px;padding:10px 12px;margin-top:10px;font-size:14px}
+.login{text-align:center;padding:40px 8px}
+.login img{width:96px;height:96px;border-radius:22px;margin-bottom:14px}
+.login h2{text-transform:none;font-size:24px;color:var(--tx);letter-spacing:0;margin:0 0 6px}
+.login p{color:var(--mut);margin-bottom:18px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{border-bottom:1px solid var(--ln);padding:8px 6px;text-align:left;vertical-align:top}
+th{color:var(--mut);font-weight:600}
+.vend{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--ln)}
+.vend small{color:var(--mut);display:block}
+.mini{background:var(--card);border:1px solid var(--ln);color:var(--tx);border-radius:10px;padding:7px 12px;font-size:13px}
+.mini.on{background:#12301f;border-color:#1f6b3b;color:#9be5b4}
+.prev{font-size:13px;color:var(--mut);margin-top:6px}
+</style>
+</head>
+<body>
+<header>
+  <img src="icon-192.png" alt="">
+  <h1>RavenTechs · Vendedores</h1>
+  <button class="chip" id="chipAdmin" style="display:none" onclick="irAdmin()">⚙️ Admin</button>
+  <button class="chip" id="chipSalir" style="display:none" onclick="salir()">Salir</button>
+</header>
+<main>
+
+  <!-- INGRESO -->
+  <section class="vista" id="vLogin">
+    <div class="login">
+      <img src="icon-192.png" alt="">
+      <h2>Vendé las apps de RavenTechs</h2>
+      <p>Elegí una app, mostrale la demo a tu cliente y enviale el link por WhatsApp con un toque.</p>
+      <button class="btn" id="btnGoogle">Ingresar con Google</button>
+      <button class="btn sec" id="btnLocal" style="display:none">Entrar en modo prueba (sin guardar)</button>
+      <div class="aviso" id="loginMsg" style="display:none"></div>
+    </div>
+  </section>
+
+  <!-- CATÁLOGO -->
+  <section class="vista" id="vCatalogo">
+    <input id="buscar" placeholder="Buscar una app o un rubro…" oninput="pintarCatalogo()">
+    <div class="chips" id="cats"></div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <!-- FICHA -->
+  <section class="vista" id="vFicha">
+    <button class="volver" onclick="irCatalogo()">← Todas las apps</button>
+    <div id="fichaBody"></div>
+  </section>
+
+  <!-- ADMIN -->
+  <section class="vista" id="vAdmin">
+    <button class="volver" onclick="irCatalogo()">← Volver</button>
+    <h2>Vendedores</h2>
+    <div class="box">
+      <label>Correo de Google del vendedor</label>
+      <input id="vEmail" type="email" placeholder="vendedor@gmail.com" autocapitalize="off">
+      <label>Nombre</label>
+      <input id="vNombre" placeholder="Nombre y apellido">
+      <button class="btn" onclick="agregarVendedor()">+ Agregar vendedor</button>
+      <div id="adminMsg"></div>
+    </div>
+    <div class="box" id="listaVend"></div>
+    <h2>Últimos envíos</h2>
+    <div class="box" id="listaEnvios"></div>
+  </section>
+
+</main>
+
+<script type="module">
+/* ═════════ CONFIGURACIÓN ═════════
+   Pegar acá la configuración del proyecto de Firebase de vendedores (Configuración del proyecto → Tus apps → Web).
+   Mientras esté vacía, la app funciona en modo prueba local (sin guardar en la nube). */
+const FIREBASE_CONFIG = {
+  apiKey: "",
+  authDomain: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: ""
+};
+const ADMIN_EMAIL = 'rgaraventa@gmail.com';
+const MODO_LOCAL = !FIREBASE_CONFIG.apiKey;
+
+/* ═════════ CATÁLOGO ═════════ */
+const D = (dom) => 'https://' + dom + '.raventechsapp.com/';
+const APPS = [
+  { id:'carnear', n:'CarneAR', e:'🥩', r:'Comercio', t:'Caja para carnicerías', ok:true,
+    d:'Sistema de caja pensado para carnicerías: vende por unidad o por peso, controla el stock, los gastos y el cierre de caja, y suma sucursales cuando el negocio crece.',
+    b:['Cobro rápido con varios medios de pago','Cierre de caja y gastos del día','Varias sucursales y cajeros con su propio acceso'],
+    url:D('carnear'), demo:D('carnear'), ficha:'https://raventechs.github.io/folletos/folleto-carnear.html', ayuda:D('carnear')+'ayuda/' },
+  { id:'pizzar', n:'PizzAR', e:'🍕', r:'Comercio', t:'Caja y comandas para pizzerías', ok:true,
+    d:'Desde la comanda hasta el cierre de caja: la pizzería anota los pedidos, cobra, controla los gastos y recibe el resumen del día por WhatsApp.',
+    b:['Comandas y pedidos ordenados','Cierre de caja enviado por WhatsApp','Cajeros con acceso por link'],
+    url:D('pizzar'), demo:D('pizzar'), ficha:'https://raventechs.github.io/folletos/folleto-pizzar.html', ayuda:D('pizzar')+'ayuda/' },
+  { id:'panar', n:'PanAR', e:'🥖', r:'Comercio', t:'Caja para panaderías', ok:true,
+    d:'La panadería organiza ventas, gastos y cierre de caja desde el celular, con el resumen del turno listo para enviar.',
+    b:['Ventas y gastos del día','Cierre de caja por WhatsApp','Cajeros por sucursal'],
+    url:D('panar'), demo:D('panar'), ficha:'https://raventechs.github.io/folletos/folleto-panar.html', ayuda:D('panar')+'ayuda/' },
+  { id:'puntoventa', n:'PuntoVenta', e:'🏪', r:'Comercio', t:'Punto de venta multi-sucursal', ok:true,
+    d:'Para negocios con varios locales: ventas, compras y gastos desde el celular, cuenta corriente de clientes con control de morosidad y visibilidad en tiempo real para el dueño.',
+    b:['Hasta 30 sucursales','Cuenta corriente y morosidad','El dueño ve todo en tiempo real'],
+    url:D('puntoventa'), demo:D('puntoventa'), ficha:'https://raventechs.github.io/folletos/folleto-puntoventa.html', ayuda:D('puntoventa')+'ayuda/' },
+  { id:'lavar', n:'lavAR', e:'🚗', r:'Servicios', t:'Lavaderos con fidelización por patente', ok:true,
+    d:'El lavadero registra cada servicio por patente, fideliza a sus clientes con beneficios y maneja sucursales, empleados y gastos.',
+    b:['Fidelización automática por patente','Sucursales, gastos y empleados','Caja y reportes del día'],
+    url:D('lavar'), demo:D('lavar'), ficha:'https://raventechs.github.io/folletos/folleto-lavar.html', ayuda:D('lavar')+'ayuda/' },
+  { id:'barbear', n:'BarbeAR', e:'💈', r:'Servicios', t:'Turnos y caja para barberías', ok:true,
+    d:'La barbería maneja su caja y sus turnos, y el cliente reserva solo desde un link, sin mensajes ni llamadas.',
+    b:['Reservas online por link','Agenda y caja en un solo lugar','Menos ausencias y menos mensajes'],
+    url:D('barbear'), demo:D('barbear'), ficha:null, ayuda:D('barbear')+'ayuda/' },
+  { id:'pelotear', n:'PeloteAR', e:'⚽', r:'Servicios', t:'Reservas de canchas', ok:true,
+    d:'Complejos de canchas de fútbol 5, 7 y 11, pádel y tenis: reservas, precios de día y de noche, buffet y cierre de caja.',
+    b:['Reservas y turnos fijos','Precio diurno y nocturno','Buffet y cierre de caja'],
+    url:D('pelotear'), demo:D('pelotear')+'demo/', ficha:'https://raventechs.github.io/folletos/folleto-pelotear.html', ayuda:D('pelotear')+'ayuda/' },
+  { id:'securepro', n:'SecuroPro', e:'🛡️', r:'Servicios', t:'CRM para instaladores de seguridad', ok:true,
+    d:'Para empresas de seguridad electrónica: clientes, instalaciones, presupuestos y equipo de técnicos en un sistema simple.',
+    b:['Clientes e instalaciones ordenados','Presupuestos con catálogo','Equipo de técnicos'],
+    url:D('securepro'), demo:D('securepro'), ficha:'https://raventechs.github.io/folletos/folleto-securepro.html', ayuda:D('securepro')+'ayuda/' },
+  { id:'empresar', n:'EmpresAR', e:'📋', r:'Servicios', t:'Control de documentos con vencimientos', ok:true,
+    d:'Habilitaciones, seguros, VTV y documentación del personal: la empresa carga todo y recibe aviso antes de cada vencimiento.',
+    b:['Alertas antes de que venza cada documento','Todo en un solo panel','Ideal para flotas y empresas reguladas'],
+    url:D('garrafar'), demo:D('garrafar'), ficha:null, ayuda:D('garrafar')+'ayuda/' },
+  { id:'rodix', n:'Rodix', e:'🚑', r:'Movilidad', t:'Gestión de flota de vehículos', ok:true,
+    d:'Controla autos, camionetas y ambulancias: mantenimiento, alertas por categoría y checklist de insumos, con el equipo invitado por WhatsApp.',
+    b:['Alertas de mantenimiento','Checklist de insumos','Choferes con acceso limitado'],
+    url:D('rodix'), demo:D('rodix'), ficha:'https://raventechs.github.io/folletos/folleto-rodix.html', ayuda:D('rodix')+'ayuda/' },
+  { id:'manejar', n:'manejAr', e:'🚕', r:'Movilidad', t:'Ganancias reales para choferes de apps', ok:true,
+    d:'Para choferes de Uber, Didi y Cabify: muestra cuánto ganan de verdad después de combustible y gastos, y ofrece un plan para flotas.',
+    b:['Ganancia real por viaje y por día','Control de combustible y gastos','Plan para dueños de flota'],
+    url:'https://raventechs.github.io/ManejAr/manejar.html', demo:'https://raventechs.github.io/ManejAr/manejar.html?demo=1', ficha:null, ayuda:'https://raventechs.github.io/ManejAr/ayuda/' },
+  { id:'saludar', n:'SaludAR', e:'💊', r:'Personas', t:'Recordatorios de medicación', ok:true,
+    d:'Avisa a tiempo cada toma de medicación y cada turno médico, y permite que la familia acompañe a un adulto mayor.',
+    b:['Notificaciones a la hora justa','Modo familiar con un veedor','Turnos médicos en el mismo lugar'],
+    url:D('saludar'), demo:D('saludar'), ficha:'https://raventechs.github.io/folletos/folleto-saludar.html', ayuda:D('saludar')+'ayuda/' },
+  { id:'miagenda', n:'MiAgenda', e:'📅', r:'Personas', t:'Agenda grupal', ok:true,
+    d:'Una agenda compartida para familias, equipos o grupos, con actividades en común, recordatorios y cada integrante con su propia agenda.',
+    b:['Actividades del grupo en un solo lugar','Recordatorios','Agenda personal de cada integrante'],
+    url:D('miagenda'), demo:D('miagenda'), ficha:'https://raventechs.github.io/folletos/folleto-miagenda.html', ayuda:D('miagenda')+'ayuda/' },
+  { id:'timbrear', n:'TimbreAR', e:'🔔', r:'Hogar', t:'Portero virtual para edificios', ok:true,
+    d:'La visita escanea un QR en la entrada, elige el departamento y al residente le llega el aviso en su celular: atiende, habla y abre la puerta, sin instalar nada.',
+    b:['Sin portero ni intercom','QR en la entrada','El residente atiende desde su celular'],
+    url:D('timbrear'), demo:D('timbrear')+'demo.html', ficha:'https://raventechs.github.io/folletos/folleto-timbrear.html', ayuda:null },
+  { id:'comprazona', n:'CompraZona', e:'🛒', r:'Comercio', t:'Marketplace local de garrafas y agua', ok:true,
+    d:'Los vecinos piden garrafas y agua a las empresas de su zona con el mapa y el historial de pedidos; las empresas reciben los pedidos en tiempo real.',
+    b:['Mapa de empresas cercanas','Pedidos en tiempo real para la empresa','Repetir un pedido con un toque'],
+    url:D('comprazona'), demo:D('comprazona'), ficha:null, ayuda:null },
+  { id:'gasar', n:'GasAR', e:'🔥', r:'Comercio', t:'Distribuidoras de gas', ok:true,
+    d:'Para distribuidoras de gas: la central, las camionetas y los revendedores trabajan en el mismo sistema, con ventas, caja y cierre.',
+    b:['Central, camionetas y revendedores','Ventas y caja ordenadas','Modo práctica para aprender'],
+    url:'https://raventechs.github.io/gasar/gasar-admin.html', demo:'https://raventechs.github.io/gasar/gasar-admin.html', ficha:null, ayuda:null },
+  { id:'mtc', n:'MTC', e:'🧠', r:'Próximamente', t:'Asistente de IA', ok:false,
+    d:'Un asistente de inteligencia artificial para estudiar y organizar ideas. Todavía está en desarrollo.', b:['En desarrollo'],
+    url:D('mdtc'), demo:null, ficha:'https://raventechs.github.io/folletos/folleto-mtc.html', ayuda:D('mdtc')+'ayuda/' },
+  { id:'charlar', n:'CharlAR', e:'🗣️', r:'Próximamente', t:'Compañía digital por voz', ok:false,
+    d:'Compañía por voz para adultos mayores, configurada por la familia. Todavía está en desarrollo.', b:['En desarrollo'],
+    url:D('charlar'), demo:null, ficha:null, ayuda:D('charlar')+'ayuda/' },
+  { id:'ahorrar', n:'AhorrAR', e:'💸', r:'Próximamente', t:'Descuentos y beneficios por zona', ok:false,
+    d:'Descuentos y beneficios cerca de cada persona, para consumidores y comercios. Todavía está en desarrollo.', b:['En desarrollo'],
+    url:D('ahorrar'), demo:null, ficha:null, ayuda:D('ahorrar')+'ayuda/' },
+  { id:'legalar', n:'legalAR', e:'⚖️', r:'Próximamente', t:'Consulta legal orientativa con IA', ok:false,
+    d:'Orientación legal rápida con inteligencia artificial para abogados y público general. Todavía está en desarrollo.', b:['En desarrollo'],
+    url:D('legalar'), demo:null, ficha:'https://raventechs.github.io/folletos/folleto-legalar.html', ayuda:D('legalar')+'ayuda/' },
+  { id:'logisar', n:'LogisAR', e:'🚚', r:'Próximamente', t:'Logística y distribución', ok:false,
+    d:'Stock por empresa, presupuestos, hojas de ruta y app del chofer para operadores con depósito central. Hoy es una demo.', b:['En desarrollo'],
+    url:'https://raventechs.github.io/logisar-demo/', demo:'https://raventechs.github.io/logisar-demo/', ficha:null, ayuda:null }
+];
+const RUBROS = ['Todas','Comercio','Servicios','Movilidad','Personas','Hogar','Próximamente'];
+
+/* ═════════ UTILIDADES ═════════ */
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function normTel(t) {
+  let d = String(t || '').replace(/\D/g, '').replace(/^00/, '');
+  if (d.startsWith('54')) { if (!d.startsWith('549') && d.length === 12) d = '549' + d.slice(2); return d; }
+  d = d.replace(/^0/, '');
+  if (d.length === 12) { for (const a of [2, 3, 4]) { if (d.substr(a, 2) === '15') { d = d.slice(0, a) + d.slice(a + 2); break; } } }
+  return d.length === 10 ? '549' + d : d;
+}
+function telBonito(d) { return d ? '+' + d.replace(/^(54)(9)(\d{2,4})(\d{4})(\d{4})$/, '$1 $2 $3 $4-$5') : ''; }
+const ls = { get(k, def) { try { return JSON.parse(localStorage.getItem(k)) ?? def; } catch (e) { return def; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+
+/* ═════════ CAPA DE DATOS (Firebase o local) ═════════ */
+let fb = null, user = null;   // user = {email, nombre, codigo, admin}
+const datos = {
+  async getVendedor(email) {
+    if (MODO_LOCAL) return ls.get('v_vendedores', {})[email] || null;
+    const s = await fb.getDoc(fb.doc(fb.db, 'vendedores', email)); return s.exists() ? s.data() : null;
+  },
+  async listVendedores() {
+    if (MODO_LOCAL) return Object.entries(ls.get('v_vendedores', {})).map(([email, v]) => ({ email, ...v }));
+    const s = await fb.getDocs(fb.collection(fb.db, 'vendedores')); return s.docs.map(d => ({ email: d.id, ...d.data() }));
+  },
+  async saveVendedor(email, v) {
+    if (MODO_LOCAL) { const all = ls.get('v_vendedores', {}); all[email] = v; ls.set('v_vendedores', all); return; }
+    await fb.setDoc(fb.doc(fb.db, 'vendedores', email), v);
+  },
+  async logEnvio(e) {
+    if (MODO_LOCAL) { const all = ls.get('v_envios', []); all.unshift({ ...e, ts: Date.now() }); ls.set('v_envios', all.slice(0, 200)); return; }
+    await fb.addDoc(fb.collection(fb.db, 'envios'), { ...e, ts: fb.serverTimestamp() });
+  },
+  async listEnvios() {
+    if (MODO_LOCAL) return ls.get('v_envios', []);
+    const s = await fb.getDocs(fb.collection(fb.db, 'envios'));
+    return s.docs.map(d => { const x = d.data(); return { ...x, ts: x.ts && x.ts.toMillis ? x.ts.toMillis() : 0 }; }).sort((a, b) => b.ts - a.ts).slice(0, 50);
+  }
+};
+function codigoDe(nombre, email) {
+  const base = (nombre || email).normalize('NFD').replace(/[^A-Za-z]/g, '').toUpperCase().slice(0, 3) || 'VEN';
+  return base + String(Math.floor(100 + Math.random() * 900));
+}
+
+/* ═════════ INGRESO ═════════ */
+function vista(id) {
+  document.querySelectorAll('.vista').forEach(v => v.classList.remove('on'));
+  $(id).classList.add('on'); window.scrollTo(0, 0);
+}
+async function iniciarFirebase() {
+  const [app, auth, fs] = await Promise.all([
+    import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js'),
+    import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js'),
+    import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js')
+  ]);
+  const a = app.initializeApp(FIREBASE_CONFIG);
+  fb = { auth: auth.getAuth(a), db: fs.getFirestore(a), ...auth, ...fs };
+}
+function emailDe(u) { return ((u && (u.email || ((u.providerData || []).find(p => p.email) || {}).email)) || '').toLowerCase(); }
+async function entrar(u) {
+  const email = emailDe(u);
+  if (!email) { $('loginMsg').style.display = 'block'; $('loginMsg').textContent = 'Google no devolvió el correo. Probá de nuevo desde Chrome.'; return; }
+  let v = await datos.getVendedor(email);
+  const admin = email === ADMIN_EMAIL;
+  if (!admin && (!v || !v.activo)) {
+    $('loginMsg').style.display = 'block';
+    $('loginMsg').textContent = 'Tu cuenta (' + email + ') todavía no está habilitada. Pedile a Ruben que te agregue como vendedor.';
+    if (fb) await fb.signOut(fb.auth);
+    return;
+  }
+  if (admin && !v) { v = { nombre: 'Ruben', codigo: 'RUB001', activo: true }; try { await datos.saveVendedor(email, v); } catch (e) {} }
+  user = { email, nombre: v.nombre, codigo: v.codigo, admin };
+  $('chipSalir').style.display = 'inline-block';
+  $('chipAdmin').style.display = admin ? 'inline-block' : 'none';
+  irCatalogo();
+}
+window.salir = async () => {
+  if (fb && fb.auth.currentUser) await fb.signOut(fb.auth);
+  user = null; ls.set('v_local_user', null);
+  $('chipSalir').style.display = 'none'; $('chipAdmin').style.display = 'none';
+  vista('vLogin');
+};
+$('btnGoogle').onclick = async () => {
+  $('loginMsg').style.display = 'none';
+  if (MODO_LOCAL) { $('loginMsg').style.display = 'block'; $('loginMsg').textContent = 'Todavía no está conectada la nube. Usá el modo prueba para ver cómo funciona.'; return; }
+  try {
+    const p = new fb.GoogleAuthProvider(); p.addScope('email'); p.addScope('profile');
+    if (fb.auth.currentUser && fb.auth.currentUser.isAnonymous) await fb.signOut(fb.auth);
+    const r = await fb.signInWithPopup(fb.auth, p); await entrar(r.user);
+  } catch (e) { $('loginMsg').style.display = 'block'; $('loginMsg').textContent = 'No se pudo ingresar con Google: ' + (e.code || e.message); }
+};
+$('btnLocal').onclick = async () => {
+  user = { email: 'prueba@local', nombre: 'Vendedor de prueba', codigo: 'PRUEBA', admin: true };
+  $('chipSalir').style.display = 'inline-block'; $('chipAdmin').style.display = 'inline-block'; irCatalogo();
+};
+
+/* ═════════ CATÁLOGO Y FICHA ═════════ */
+let rubro = 'Todas', actual = null;
+window.irCatalogo = () => { vista('vCatalogo'); pintarCatalogo(); };
+window.pintarCatalogo = () => {
+  $('cats').innerHTML = RUBROS.map(r => `<button class="${r === rubro ? 'on' : ''}" onclick="setRubro('${r}')">${r}</button>`).join('');
+  const q = $('buscar').value.trim().toLowerCase();
+  const lista = APPS.filter(a => (rubro === 'Todas' || a.r === rubro) && (!q || (a.n + ' ' + a.t + ' ' + a.r + ' ' + a.d).toLowerCase().includes(q)));
+  $('grid').innerHTML = lista.length ? lista.map(a =>
+    `<button class="tarj" onclick="abrirFicha('${a.id}')"><span class="em">${a.e}</span><b>${esc(a.n)}</b><span>${esc(a.t)}</span>${a.ok ? '' : '<i class="badge">Próximamente</i>'}</button>`).join('')
+    : '<p style="color:var(--mut);padding:20px 0">No hay apps con esa búsqueda.</p>';
+};
+window.setRubro = r => { rubro = r; pintarCatalogo(); };
+window.abrirFicha = id => {
+  actual = APPS.find(a => a.id === id); if (!actual) return;
+  const a = actual;
+  const link = (u, txt) => u ? `<a href="${esc(u)}" target="_blank" rel="noopener">${txt}</a>` : `<a class="off">${txt}</a>`;
+  $('fichaBody').innerHTML = `
+    <div class="ficha-h"><span class="em">${a.e}</span><div><h3>${esc(a.n)}</h3><p>${esc(a.t)}</p></div></div>
+    ${a.ok ? '' : '<div class="aviso">Esta app todavía está en desarrollo: se puede mostrar, pero no enviar como prueba.</div>'}
+    <div class="box"><p>${esc(a.d)}</p><ul>${a.b.map(x => '<li>' + esc(x) + '</li>').join('')}</ul></div>
+    <div class="links">${link(a.demo, '▶ Ver demo')}${link(a.ayuda, '📖 Instructivo')}${link(a.ficha, '📄 Folleto')}</div>
+    ${a.ok ? `
+    <h2>Enviar la prueba por WhatsApp</h2>
+    <div class="box">
+      <label>Teléfono del cliente</label>
+      <input id="tel" type="tel" inputmode="tel" placeholder="Ej: 11 2345 6789" oninput="actualizarMensaje()">
+      <div class="prev" id="telPrev"></div>
+      <label>Nombre del cliente (opcional)</label>
+      <input id="cliNombre" placeholder="Ej: Marcela" oninput="actualizarMensaje()">
+      <label>Mensaje (lo podés editar)</label>
+      <textarea id="msg"></textarea>
+      <div class="aviso" id="envMsg" style="display:none"></div>
+      <button class="btn wa" id="btnEnviar" onclick="enviar()">Enviar por WhatsApp</button>
+    </div>` : ''}`;
+  vista('vFicha'); if (a.ok) actualizarMensaje(true);
+};
+function linkConCodigo() {
+  const u = actual.url, sep = u.includes('?') ? '&' : '?';
+  return u + sep + 'ref=' + encodeURIComponent(user ? user.codigo : '');
+}
+let msgEditado = false;
+window.actualizarMensaje = (inicial) => {
+  const t = normTel($('tel').value);
+  $('telPrev').textContent = t ? 'Se enviará a ' + telBonito(t) : '';
+  if (inicial) msgEditado = false;
+  if (!msgEditado) {
+    const nom = $('cliNombre').value.trim();
+    $('msg').value = `Hola${nom ? ' ' + nom : ''}! Soy ${user.nombre} de RavenTechs. Te paso la prueba gratis de ${actual.n} (${actual.t.toLowerCase()}): ${linkConCodigo()}\n\nPodés probarla 14 días desde el celular, sin instalar nada. Si te interesa o tenés dudas, escribime por acá.`;
+  }
+};
+document.addEventListener('input', e => { if (e.target && e.target.id === 'msg') msgEditado = true; });
+window.enviar = async () => {
+  const tel = normTel($('tel').value), m = $('msg').value.trim();
+  const box = $('envMsg'); box.style.display = 'block'; box.className = 'aviso';
+  if (tel.length < 11 || tel.length > 15) { box.textContent = 'Revisá el teléfono: tiene que incluir el código de área (por ejemplo 11 2345 6789).'; return; }
+  if (!m) { box.textContent = 'El mensaje no puede estar vacío.'; return; }
+  $('btnEnviar').disabled = true;
+  try {
+    await datos.logEnvio({ vendedorEmail: user.email, vendedor: user.nombre, codigo: user.codigo, appId: actual.id, app: actual.n, telefono: tel, cliente: $('cliNombre').value.trim() });
+    box.className = 'ok'; box.textContent = 'Listo: se abrió WhatsApp con el mensaje. Tocá enviar allá.';
+  } catch (e) { box.textContent = 'No se pudo registrar el envío (' + (e.code || e.message) + '), pero igual abrimos WhatsApp.'; }
+  window.open('https://wa.me/' + tel + '?text=' + encodeURIComponent(m), '_blank');
+  $('btnEnviar').disabled = false;
+};
+
+/* ═════════ ADMIN ═════════ */
+window.irAdmin = async () => { vista('vAdmin'); await pintarAdmin(); };
+async function pintarAdmin() {
+  const vs = await datos.listVendedores(), es = await datos.listEnvios();
+  const cuenta = {}; es.forEach(e => cuenta[e.vendedorEmail] = (cuenta[e.vendedorEmail] || 0) + 1);
+  $('listaVend').innerHTML = vs.length ? vs.map(v => `<div class="vend"><div><b>${esc(v.nombre)}</b> · ${esc(v.codigo)}<small>${esc(v.email)} · ${cuenta[v.email] || 0} envíos</small></div>
+    <button class="mini ${v.activo ? 'on' : ''}" onclick="toggleVend('${esc(v.email)}')">${v.activo ? '✅ Activo' : '⏸ Pausado'}</button></div>`).join('') : '<p style="color:var(--mut)">Todavía no hay vendedores cargados.</p>';
+  $('listaEnvios').innerHTML = es.length ? `<table><tr><th>Cuándo</th><th>Vendedor</th><th>App</th><th>Teléfono</th></tr>${es.map(e => `<tr><td>${e.ts ? new Date(e.ts).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : ''}</td><td>${esc(e.vendedor)}</td><td>${esc(e.app)}</td><td>${esc(telBonito(e.telefono))}${e.cliente ? '<br><small>' + esc(e.cliente) + '</small>' : ''}</td></tr>`).join('')}</table>` : '<p style="color:var(--mut)">Todavía no se envió ningún link.</p>';
+}
+window.agregarVendedor = async () => {
+  const email = $('vEmail').value.trim().toLowerCase(), nombre = $('vNombre').value.trim();
+  const m = $('adminMsg');
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || !nombre) { m.innerHTML = '<div class="aviso">Escribí un correo válido y el nombre.</div>'; return; }
+  try {
+    const ya = await datos.getVendedor(email);
+    await datos.saveVendedor(email, { nombre, codigo: ya ? ya.codigo : codigoDe(nombre, email), activo: true });
+    $('vEmail').value = ''; $('vNombre').value = ''; m.innerHTML = '<div class="ok">Vendedor agregado. Ya puede ingresar con esa cuenta de Google.</div>';
+    await pintarAdmin();
+  } catch (e) { m.innerHTML = '<div class="aviso">No se pudo guardar: ' + esc(e.code || e.message) + '</div>'; }
+};
+window.toggleVend = async email => {
+  const v = await datos.getVendedor(email); if (!v) return;
+  await datos.saveVendedor(email, { ...v, activo: !v.activo }); await pintarAdmin();
+};
+
+/* ═════════ ARRANQUE ═════════ */
+(async function () {
+  if (MODO_LOCAL) {
+    $('btnLocal').style.display = 'block';
+    const aviso = $('loginMsg'); aviso.style.display = 'block'; aviso.style.background = '#2b2410'; aviso.style.color = '#f2d17a';
+    aviso.textContent = 'Modo prueba: la app todavía no está conectada a la nube, así que nada se guarda en el servidor.';
+    vista('vLogin'); return;
+  }
+  try { await iniciarFirebase(); } catch (e) { vista('vLogin'); $('loginMsg').style.display = 'block'; $('loginMsg').textContent = 'No se pudo conectar: ' + e.message; return; }
+  vista('vLogin');
+  fb.onAuthStateChanged(fb.auth, async u => { if (u && !u.isAnonymous && !user) await entrar(u); });
+})();
+</script>
+<script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js',{scope:'/vendedores/'}).catch(function(){})})}</script>
+</body>
+</html>
