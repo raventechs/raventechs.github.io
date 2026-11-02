@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <!--
   ARCHIVO: vendedores/index.html
-  VERSIÓN: v1.5
+  VERSIÓN: v1.6
   FECHA: 02/11/2026
   PROYECTO: RavenTechs — App para vendedores
   CHANGELOG:
+  - v1.6 (02/11/2026): el link que se envía al cliente va a la landing de la prueba (raventechs.github.io/probar/), que reenvía el código del vendedor a la app.
   - v1.5 (02/11/2026): instructivos enlazados para TimbreAR, CompraZona y GasAR (ahora el mensaje de WhatsApp los incluye).
   - v1.4 (02/11/2026): folletos enlazados para BarbeAR, EmpresAR, manejAr, CompraZona y GasAR.
   - v1.3 (02/11/2026): el error de ingreso muestra un diagnóstico (uid y correo del token).
@@ -371,8 +372,8 @@ window.abrirFicha = id => {
   vista('vFicha'); if (a.ok) actualizarMensaje(true);
 };
 function linkConCodigo() {
-  const u = actual.url, sep = u.includes('?') ? '&' : '?';
-  return u + sep + 'ref=' + encodeURIComponent(user ? user.codigo : '');
+  // El cliente llega a la landing de la prueba (explica qué hacer) y desde ahí abre la app con el mismo código de vendedor.
+  return 'https://raventechs.github.io/probar/?app=' + encodeURIComponent(actual.id) + '&ref=' + encodeURIComponent(user ? user.codigo : '');
 }
 let msgEditado = false;
 window.actualizarMensaje = (inicial) => {

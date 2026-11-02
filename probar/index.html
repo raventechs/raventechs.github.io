@@ -1,0 +1,112 @@
+<!--
+  ARCHIVO: probar/index.html
+  VERSIÓN: v1.0
+  FECHA: 02/11/2026
+  PROYECTO: RavenTechs — Landing de entrega instantánea de la prueba (Pilar 1 del embudo de demos)
+  CHANGELOG:
+  - v1.0 (02/11/2026): una sola página para todas las apps (?app=<id>&ref=<código del vendedor>). Muestra qué es la app,
+    los 3 primeros pasos, botón para abrir la prueba (reenvía el código del vendedor), instructivo, folleto y WhatsApp.
+  PENDIENTE:
+  - Medir visitas por vendedor (requiere colección en Firestore y reglas)
+  - Los datos de las apps salen del catálogo de vendedores/index.html: si cambia allá, regenerar esta página
+-->
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Tu prueba gratis — RavenTechs</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--c:#f0b84a;--bg:#0a0c12;--bg2:#12151f;--tx:#eef0f6;--mu:#8b93ad;--bd:rgba(255,255,255,.1)}
+body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--tx);overflow-wrap:anywhere}
+.w{max-width:560px;margin:0 auto;padding:20px 18px 40px}
+.hero{text-align:center;padding:34px 8px 22px;background:radial-gradient(ellipse 80% 60% at 50% 0%,color-mix(in srgb,var(--c) 22%,transparent),transparent 70%)}
+.badge{display:inline-block;border:1px solid var(--bd);background:rgba(255,255,255,.05);color:var(--mu);padding:6px 14px;border-radius:99px;font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.emo{font-size:64px;margin:18px 0 6px}
+h1{font-size:30px;line-height:1.15;margin-bottom:8px}
+h1 span{color:var(--c)}
+.sub{color:var(--mu);font-size:16px;line-height:1.5;margin:0 auto 22px;max-width:440px}
+.btn{display:block;text-align:center;text-decoration:none;font-weight:800;font-size:17px;padding:16px 20px;border-radius:14px;margin:10px 0;border:2px solid var(--c)}
+.pri{background:var(--c);color:#fff;box-shadow:0 8px 28px color-mix(in srgb,var(--c) 35%,transparent)}
+.sec{background:transparent;color:var(--tx)}
+.wa{background:#25D366;border-color:#25D366;color:#fff}
+.card{background:var(--bg2);border:1px solid var(--bd);border-radius:16px;padding:18px;margin-top:18px}
+.card h2{font-size:13px;color:var(--c);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px}
+.step{display:flex;gap:12px;align-items:flex-start;margin:12px 0;line-height:1.45}
+.n{flex:0 0 32px;height:32px;border-radius:50%;background:var(--c);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}
+ul{list-style:none}li{padding:8px 0;border-bottom:1px solid var(--bd);display:flex;gap:10px}li:last-child{border:0}li:before{content:'✓';color:var(--c);font-weight:800}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.grid a{display:block;background:var(--bg2);border:1px solid var(--bd);border-radius:14px;padding:14px;text-align:center;color:var(--tx);text-decoration:none;font-weight:700;font-size:14px}
+.grid a span{display:block;font-size:26px}
+.aviso{margin-top:14px;font-size:14px;color:var(--mu);text-align:center;line-height:1.5}
+footer{text-align:center;color:var(--mu);font-size:12px;margin-top:30px}footer b{color:var(--c)}
+</style></head><body><div class="w" id="app"></div>
+<script>
+const APPS = {"carnear": {"n": "CarneAR", "e": "🥩", "t": "Caja para carnicerías", "d": "Sistema de caja pensado para carnicerías: vende por unidad o por peso, controla el stock, los gastos y el cierre de caja, y suma sucursales cuando el negocio crece.", "b": ["Cobro rápido con varios medios de pago", "Cierre de caja y gastos del día", "Varias sucursales y cajeros con su propio acceso"], "ok": true, "url": "https://carnear.raventechsapp.com/", "demo": "https://carnear.raventechsapp.com/", "ficha": "https://raventechs.github.io/folletos/folleto-carnear.html", "ayuda": "https://carnear.raventechsapp.com/ayuda/", "c": "#c0392b", "dias": true, "practica": true}, "pizzar": {"n": "PizzAR", "e": "🍕", "t": "Caja y comandas para pizzerías", "d": "Desde la comanda hasta el cierre de caja: la pizzería anota los pedidos, cobra, controla los gastos y recibe el resumen del día por WhatsApp.", "b": ["Comandas y pedidos ordenados", "Cierre de caja enviado por WhatsApp", "Cajeros con acceso por link"], "ok": true, "url": "https://pizzar.raventechsapp.com/", "demo": "https://pizzar.raventechsapp.com/", "ficha": "https://raventechs.github.io/folletos/folleto-pizzar.html", "ayuda": "https://pizzar.raventechsapp.com/ayuda/", "c": "#e74c3c", "dias": true, "practica": true}, "panar": {"n": "PanAR", "e": "🥖", "t": "Caja para panaderías", "d": "La panadería organiza ventas, gastos y cierre de caja desde el celular, con el resumen del turno listo para enviar.", "b": ["Ventas y gastos del día", "Cierre de caja por WhatsApp", "Cajeros por sucursal"], "ok": true, "url": "https://panar.raventechsapp.com/", "demo": "https://panar.raventechsapp.com/", "ficha": "https://raventechs.github.io/folletos/folleto-panar.html", "ayuda": "https://panar.raventechsapp.com/ayuda/", "c": "#e67e22", "dias": true, "practica": true}, "puntoventa": {"n": "PuntoVenta", "e": "🏪", "t": "Punto de venta multi-sucursal", "d": "Para negocios con varios locales: ventas, compras y gastos desde el celular, cuenta corriente de clientes con control de morosidad y visibilidad en tiempo real para el dueño.", "b": ["Hasta 30 sucursales", "Cuenta corriente y morosidad", "El dueño ve todo en tiempo real"], "ok": true, "url": "https://puntoventa.raventechsapp.com/", "demo": "https://puntoventa.raventechsapp.com/", "ficha": "https://raventechs.github.io/folletos/folleto-puntoventa.html", "ayuda": "https://puntoventa.raventechsapp.com/ayuda/", "c": "#16a085", "dias": true, "practica": true}, "lavar": {"n": "lavAR", "e": "🚗", "t": "Lavaderos con fidelización por patente", "d": "El lavadero registra cada servicio por patente, fideliza a sus clientes con beneficios y maneja sucursales, empleados y gastos.", "b": ["Fidelización automática por patente", "Sucursales, gastos y empleados", "Caja y reportes del día"], "ok": true, "url": "https://lavar.raventechsapp.com/", "demo": "https://lavar.raventechsapp.com/", "ficha": "https://raventechs.github.io/folletos/folleto-lavar.html", "ayuda": "https://lavar.raventechsapp.com/ayuda/", "c": "#2980b9", "dias": true, "practica": true}, "barbear": {"n": "BarbeAR", "e": "💈", "t": "Turnos y caja para barberías", "d": "La barbería maneja su caja y sus turnos, y el cliente reserva solo desde un link, sin mensajes ni llamadas.", "b": ["Reservas online por link", "Agenda y caja en un solo lugar", "Menos ausencias y menos mensajes"], "ok": true, "url": "https://barbear.raventechsapp.com/", "demo": "https://barbear.raventechsapp.com/", "ficha": "https://raventechs.github.io/folletos/folleto-barbear.html", "ayuda": "https://barbear.raventechsapp.com/ayuda/", "c": "#d4a017", "dias": true, "practica": true}, "pelotear": {"n": "PeloteAR", "e": "⚽", "t": "Reservas de canchas", "d": "Complejos de canchas de fútbol 5, 7 y 11, pádel y tenis: reservas, precios de día y de noche, buffet y cierre de caja.", "b": ["Reservas y turnos fijos", "Precio diurno y nocturno", "Buffet y cierre de caja"], "ok": true, "url": "https://pelotear.raventechsapp.com/", "demo": "https://pelotear.raventechsapp.com/demo/", "ficha": "https://raventechs.github.io/folletos/folleto-pelotear.html", "ayuda": "https://pelotear.raventechsapp.com/ayuda/", "c": "#27ae60", "dias": true, "practica": true}, "securepro": {"n": "SecuroPro", "e": "🛡️", "t": "CRM para instaladores de seguridad", "d": "Para empresas de seguridad electrónica: clientes, instalaciones, presupuestos y equipo de técnicos en un sistema simple.", "b": ["Clientes e instalaciones ordenados", "Presupuestos con catálogo", "Equipo de técnicos"], "ok": true, "url": "https://securepro.raventechsapp.com/", "demo": "https://securepro.raventechsapp.com/", "ficha": "https://raventechs.github.io/folletos/folleto-securepro.html", "ayuda": "https://securepro.raventechsapp.com/ayuda/", "c": "#27ae60", "dias": true, "practica": true}, "empresar": {"n": "EmpresAR", "e": "📋", "t": "Control de documentos con vencimientos", "d": "Habilitaciones, seguros, VTV y documentación del personal: la empresa carga todo y recibe aviso antes de cada vencimiento.", "b": ["Alertas antes de que venza cada documento", "Todo en un solo panel", "Ideal para flotas y empresas reguladas"], "ok": true, "url": "https://garrafar.raventechsapp.com/", "demo": "https://garrafar.raventechsapp.com/", "ficha": "https://raventechs.github.io/folletos/folleto-empresar.html", "ayuda": "https://garrafar.raventechsapp.com/ayuda/", "c": "#0ea5e9", "dias": true, "practica": true}, "rodix": {"n": "Rodix", "e": "🚑", "t": "Gestión de flota de vehículos", "d": "Controla autos, camionetas y ambulancias: mantenimiento, alertas por categoría y checklist de insumos, con el equipo invitado por WhatsApp.", "b": ["Alertas de mantenimiento", "Checklist de insumos", "Choferes con acceso limitado"], "ok": true, "url": "https://rodix.raventechsapp.com/", "demo": "https://rodix.raventechsapp.com/", "ficha": "https://raventechs.github.io/folletos/folleto-rodix.html", "ayuda": "https://rodix.raventechsapp.com/ayuda/", "c": "#8e44ad", "dias": true, "practica": true}, "manejar": {"n": "manejAr", "e": "🚕", "t": "Ganancias reales para choferes de apps", "d": "Para choferes de Uber, Didi y Cabify: muestra cuánto ganan de verdad después de combustible y gastos, y ofrece un plan para flotas.", "b": ["Ganancia real por viaje y por día", "Control de combustible y gastos", "Plan para dueños de flota"], "ok": true, "url": "https://raventechs.github.io/ManejAr/manejar.html", "demo": "https://raventechs.github.io/ManejAr/manejar.html?demo=1", "ficha": "https://raventechs.github.io/folletos/folleto-manejar.html", "ayuda": "https://raventechs.github.io/ManejAr/ayuda/", "c": "#22c55e", "dias": true, "practica": false}, "saludar": {"n": "SaludAR", "e": "💊", "t": "Recordatorios de medicación", "d": "Avisa a tiempo cada toma de medicación y cada turno médico, y permite que la familia acompañe a un adulto mayor.", "b": ["Notificaciones a la hora justa", "Modo familiar con un veedor", "Turnos médicos en el mismo lugar"], "ok": true, "url": "https://saludar.raventechsapp.com/", "demo": "https://saludar.raventechsapp.com/", "ficha": "https://raventechs.github.io/folletos/folleto-saludar.html", "ayuda": "https://saludar.raventechsapp.com/ayuda/", "c": "#06b6d4", "dias": true, "practica": true}, "miagenda": {"n": "MiAgenda", "e": "📅", "t": "Agenda grupal", "d": "Una agenda compartida para familias, equipos o grupos, con actividades en común, recordatorios y cada integrante con su propia agenda.", "b": ["Actividades del grupo en un solo lugar", "Recordatorios", "Agenda personal de cada integrante"], "ok": true, "url": "https://miagenda.raventechsapp.com/", "demo": "https://miagenda.raventechsapp.com/", "ficha": "https://raventechs.github.io/folletos/folleto-miagenda.html", "ayuda": "https://miagenda.raventechsapp.com/ayuda/", "c": "#3498db", "dias": true, "practica": true}, "timbrear": {"n": "TimbreAR", "e": "🔔", "t": "Portero virtual para edificios", "d": "La visita escanea un QR en la entrada, elige el departamento y al residente le llega el aviso en su celular: atiende, habla y abre la puerta, sin instalar nada.", "b": ["Sin portero ni intercom", "QR en la entrada", "El residente atiende desde su celular"], "ok": true, "url": "https://timbrear.raventechsapp.com/", "demo": "https://timbrear.raventechsapp.com/demo.html", "ficha": "https://raventechs.github.io/folletos/folleto-timbrear.html", "ayuda": "https://timbrear.raventechsapp.com/ayuda/", "c": "#c8a84b", "dias": false, "practica": false}, "comprazona": {"n": "CompraZona", "e": "🛒", "t": "Marketplace local de garrafas y agua", "d": "Los vecinos piden garrafas y agua a las empresas de su zona con el mapa y el historial de pedidos; las empresas reciben los pedidos en tiempo real.", "b": ["Mapa de empresas cercanas", "Pedidos en tiempo real para la empresa", "Repetir un pedido con un toque"], "ok": true, "url": "https://comprazona.raventechsapp.com/", "demo": "https://comprazona.raventechsapp.com/", "ficha": "https://raventechs.github.io/folletos/folleto-comprazona.html", "ayuda": "https://comprazona.raventechsapp.com/ayuda/", "c": "#f97316", "dias": false, "practica": false}, "gasar": {"n": "GasAR", "e": "🔥", "t": "Distribuidoras de gas", "d": "Para distribuidoras de gas: la central, las camionetas y los revendedores trabajan en el mismo sistema, con ventas, caja y cierre.", "b": ["Central, camionetas y revendedores", "Ventas y caja ordenadas", "Modo práctica para aprender"], "ok": true, "url": "https://raventechs.github.io/gasar/gasar-admin.html", "demo": "https://raventechs.github.io/gasar/gasar-admin.html", "ficha": "https://raventechs.github.io/gasar/gasar-folleto.html", "ayuda": "https://raventechs.github.io/gasar/ayuda/", "c": "#0a57c8", "dias": false, "practica": false}, "mtc": {"n": "MTC", "e": "🧠", "t": "Asistente de IA", "d": "Un asistente de inteligencia artificial para estudiar y organizar ideas. Todavía está en desarrollo.", "b": ["En desarrollo"], "ok": false, "url": "https://mdtc.raventechsapp.com/", "demo": null, "ficha": "https://raventechs.github.io/folletos/folleto-mtc.html", "ayuda": "https://mdtc.raventechsapp.com/ayuda/", "c": "#f0b84a", "dias": false, "practica": false}, "charlar": {"n": "CharlAR", "e": "🗣️", "t": "Compañía digital por voz", "d": "Compañía por voz para adultos mayores, configurada por la familia. Todavía está en desarrollo.", "b": ["En desarrollo"], "ok": false, "url": "https://charlar.raventechsapp.com/", "demo": null, "ficha": null, "ayuda": "https://charlar.raventechsapp.com/ayuda/", "c": "#f0b84a", "dias": false, "practica": false}, "ahorrar": {"n": "AhorrAR", "e": "💸", "t": "Descuentos y beneficios por zona", "d": "Descuentos y beneficios cerca de cada persona, para consumidores y comercios. Todavía está en desarrollo.", "b": ["En desarrollo"], "ok": false, "url": "https://ahorrar.raventechsapp.com/", "demo": null, "ficha": null, "ayuda": "https://ahorrar.raventechsapp.com/ayuda/", "c": "#f0b84a", "dias": false, "practica": false}, "legalar": {"n": "legalAR", "e": "⚖️", "t": "Consulta legal orientativa con IA", "d": "Orientación legal rápida con inteligencia artificial para abogados y público general. Todavía está en desarrollo.", "b": ["En desarrollo"], "ok": false, "url": "https://legalar.raventechsapp.com/", "demo": null, "ficha": "https://raventechs.github.io/folletos/folleto-legalar.html", "ayuda": "https://legalar.raventechsapp.com/ayuda/", "c": "#f0b84a", "dias": false, "practica": false}, "logisar": {"n": "LogisAR", "e": "🚚", "t": "Logística y distribución", "d": "Stock por empresa, presupuestos, hojas de ruta y app del chofer para operadores con depósito central. Hoy es una demo.", "b": ["En desarrollo"], "ok": false, "url": "https://raventechs.github.io/logisar-demo/", "demo": "https://raventechs.github.io/logisar-demo/", "ficha": null, "ayuda": null, "c": "#f0b84a", "dias": false, "practica": false}};
+const WA = '5491136547592';
+const q = new URLSearchParams(location.search);
+const id = (q.get('app') || '').toLowerCase();
+const ref = (q.get('ref') || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 24);
+const root = document.getElementById('app');
+
+function el(tag, attrs, ...kids) {
+  const e = document.createElement(tag);
+  for (const k in (attrs || {})) { if (k === 'class') e.className = attrs[k]; else e.setAttribute(k, attrs[k]); }
+  kids.flat().forEach(c => e.append(c && c.nodeType ? c : document.createTextNode(c ?? '')));
+  return e;
+}
+const conRef = u => ref ? u + (u.includes('?') ? '&' : '?') + 'ref=' + encodeURIComponent(ref) : u;
+const wa = txt => 'https://wa.me/' + WA + '?text=' + encodeURIComponent(txt);
+
+function lista() {
+  document.title = 'Probá una app gratis — RavenTechs';
+  root.append(el('div', { class: 'hero' }, el('div', { class: 'badge' }, 'RavenTechs'), el('h1', {}, 'Elegí qué app querés probar')));
+  const g = el('div', { class: 'grid' });
+  Object.entries(APPS).filter(([, a]) => a.ok).forEach(([k, a]) =>
+    g.append(el('a', { href: '?app=' + k + (ref ? '&ref=' + encodeURIComponent(ref) : '') }, el('span', {}, a.e), a.n)));
+  root.append(g, pie());
+}
+function pie() { return el('footer', {}, 'Una app de ', el('b', {}, 'RavenTechs')); }
+
+function landing(a) {
+  document.title = 'Tu prueba gratis de ' + a.n + ' — RavenTechs';
+  document.documentElement.style.setProperty('--c', a.c);
+  const dias = a.dias ? '14 días gratis' : 'Probala gratis';
+  const hero = el('div', { class: 'hero' },
+    el('div', { class: 'badge' }, a.t),
+    el('div', { class: 'emo' }, a.e),
+    el('h1', {}, 'Tu prueba de ', el('span', {}, a.n), a.dias ? ' por 14 días' : ''),
+    el('p', { class: 'sub' }, a.d));
+  root.append(hero);
+
+  if (!a.ok) {
+    root.append(el('div', { class: 'card' }, el('h2', {}, 'Próximamente'), el('p', {}, a.n + ' todavía está en desarrollo. Escribinos y te avisamos cuando esté lista.')),
+      el('a', { class: 'btn wa', href: wa('Hola RavenTechs, quiero que me avisen cuando esté lista ' + a.n) }, '📲 Avisame por WhatsApp'), pie());
+    return;
+  }
+
+  root.append(el('a', { class: 'btn pri', href: conRef(a.url) }, '▶ Abrir ' + a.n + ' — ' + dias));
+  if (a.demo && a.demo !== a.url) root.append(el('a', { class: 'btn sec', href: a.demo }, '👀 Solo mirar la demo'));
+
+  const pasos = [
+    ['Tocá el botón de arriba.', ' Se abre en tu celular, no hace falta instalar nada de la tienda.'],
+    ['Ingresá con Google.', a.dias ? ' Con eso se crea tu prueba y tenés 14 días para usar todo.' : ' Elegí tu cuenta de Gmail para guardar tus datos.'],
+    a.practica ? ['Probá con datos de ejemplo.', ' En Configuración tocá “Cargar datos de práctica” para ver la app funcionando; después los quitás con un toque y tus datos reales no se tocan.']
+               : ['Mirá la guía paso a paso.', ' Es corta y te muestra cómo empezar.']
+  ];
+  root.append(el('div', { class: 'card' }, el('h2', {}, 'Empezá en 3 pasos'),
+    ...pasos.map((p, i) => el('div', { class: 'step' }, el('div', { class: 'n' }, String(i + 1)), el('div', {}, el('b', {}, p[0]), p[1])))));
+
+  root.append(el('div', { class: 'card' }, el('h2', {}, 'Qué te da ' + a.n), el('ul', {}, a.b.map(x => el('li', {}, x)))));
+
+  const rec = el('div', { class: 'grid' });
+  if (a.ayuda) rec.append(el('a', { href: a.ayuda }, el('span', {}, '📖'), 'Instructivo'));
+  if (a.ficha) rec.append(el('a', { href: a.ficha }, el('span', {}, '📄'), 'Folleto'));
+  if (rec.children.length) root.append(rec);
+
+  root.append(el('a', { class: 'btn wa', href: wa('Hola RavenTechs, estoy probando ' + a.n + (ref ? ' (código ' + ref + ')' : '') + ' y tengo una consulta') }, '📲 Tengo una duda'),
+    el('p', { class: 'aviso' }, 'Si te gusta, escribinos y la activamos. Tus datos no se pierden al terminar la prueba.'), pie());
+}
+
+if (APPS[id]) landing(APPS[id]); else lista();
+</script></body></html>
