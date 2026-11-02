@@ -77,11 +77,11 @@ self.addEventListener("notificationclick", (event) => {
 
   let url;
   if (app === 'timbrear') {
-    url = sesionId ? `/timbrear/timbrear-residente.html?sesion=${sesionId}` : '/timbrear/timbrear-residente.html';
+    url = sesionId ? `https://timbrear.raventechsapp.com/timbrear-residente.html?sesion=${sesionId}` : 'https://timbrear.raventechsapp.com/timbrear-residente.html';
   } else if (app === 'miagenda') {
-    url = '/miagenda/';
+    url = 'https://miagenda.raventechsapp.com/';
   } else if (app === 'saludar') {
-    url = '/saludar/';
+    url = 'https://saludar.raventechsapp.com/';
   } else {
     url = '/';
   }
