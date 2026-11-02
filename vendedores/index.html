@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <!--
   ARCHIVO: vendedores/index.html
-  VERSIÓN: v1.0
+  VERSIÓN: v1.1
   FECHA: 02/11/2026
   PROYECTO: RavenTechs — App para vendedores
   CHANGELOG:
+  - v1.1 (02/11/2026): el mensaje de WhatsApp incluye automáticamente el link del instructivo de la app (si tiene).
   - v1.0 (02/11/2026): catálogo de apps con ficha (explicación, demo, instructivo, folleto), envío del link de prueba por WhatsApp
     al teléfono que el vendedor escriba, ingreso con Google solo para vendedores autorizados, código de vendedor en cada link,
     registro de envíos y panel de administración con botones. Modo prueba local mientras no esté cargada la configuración de Firebase.
@@ -371,7 +372,7 @@ window.actualizarMensaje = (inicial) => {
   if (inicial) msgEditado = false;
   if (!msgEditado) {
     const nom = $('cliNombre').value.trim();
-    $('msg').value = `Hola${nom ? ' ' + nom : ''}! Soy ${user.nombre} de RavenTechs. Te paso la prueba gratis de ${actual.n} (${actual.t.toLowerCase()}): ${linkConCodigo()}\n\nPodés probarla 14 días desde el celular, sin instalar nada. Si te interesa o tenés dudas, escribime por acá.`;
+    $('msg').value = `Hola${nom ? ' ' + nom : ''}! Soy ${user.nombre} de RavenTechs. Te paso la prueba gratis de ${actual.n} (${actual.t.toLowerCase()}):\n${linkConCodigo()}\n${actual.ayuda ? '\nAcá tenés el instructivo paso a paso:\n' + actual.ayuda + '\n' : ''}\nPodés probarla 14 días desde el celular, sin instalar nada. Si te interesa o tenés dudas, escribime por acá.`;
   }
 };
 document.addEventListener('input', e => { if (e.target && e.target.id === 'msg') msgEditado = true; });
