@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <!--
   ARCHIVO: vendedores/index.html
-  VERSIÓN: v1.7
+  VERSIÓN: v1.8
   FECHA: 02/11/2026
   PROYECTO: RavenTechs — App para vendedores
   CHANGELOG:
+  - v1.8 (02/11/2026): constancia de envíos para el administrador (resumen de hoy/7 días/total, filtros por vendedor y app, planilla CSV, hasta 300 envíos);
+    si un envío no se puede registrar queda guardado en el celular del vendedor y se registra solo al volver a entrar; botón "Pasarle la app" por WhatsApp a cada vendedor.
   - v1.7 (02/11/2026): se suma Traductor de Hábitos al catálogo (como Próximamente hasta terminar su puesta a punto).
   - v1.6 (02/11/2026): el link que se envía al cliente va a la landing de la prueba (raventechs.github.io/probar/), que reenvía el código del vendedor a la app.
   - v1.5 (02/11/2026): instructivos enlazados para TimbreAR, CompraZona y GasAR (ahora el mensaje de WhatsApp los incluye).
@@ -126,12 +128,22 @@ th{color:var(--mut);font-weight:600}
       <input id="vEmail" type="email" placeholder="vendedor@gmail.com" autocapitalize="off">
       <label>Nombre</label>
       <input id="vNombre" placeholder="Nombre y apellido">
+      <label>WhatsApp del vendedor (opcional, para pasarle la app)</label>
+      <input id="vTel" type="tel" inputmode="tel" placeholder="Ej: 11 2345 6789">
       <button class="btn" onclick="agregarVendedor()">+ Agregar vendedor</button>
       <div id="adminMsg"></div>
     </div>
     <div class="box" id="listaVend"></div>
-    <h2>Últimos envíos</h2>
-    <div class="box" id="listaEnvios"></div>
+    <h2>Constancia de envíos</h2>
+    <div class="box" id="resumenEnvios"></div>
+    <div class="box">
+      <label>Vendedor</label>
+      <select id="fVend" onchange="pintarEnvios()"></select>
+      <label>App</label>
+      <select id="fApp" onchange="pintarEnvios()"></select>
+      <div id="listaEnvios" style="margin-top:10px"></div>
+      <button class="btn" onclick="bajarCSV()">⬇ Descargar planilla (CSV)</button>
+    </div>
   </section>
 
 </main>
@@ -274,10 +286,28 @@ const datos = {
   },
   async listEnvios() {
     if (MODO_LOCAL) return ls.get('v_envios', []);
-    const s = await fb.getDocs(fb.collection(fb.db, 'envios'));
-    return s.docs.map(d => { const x = d.data(); return { ...x, ts: x.ts && x.ts.toMillis ? x.ts.toMillis() : 0 }; }).sort((a, b) => b.ts - a.ts).slice(0, 50);
+    let s;
+    try { s = await fb.getDocs(fb.query(fb.collection(fb.db, 'envios'), fb.orderBy('ts', 'desc'), fb.limit(300))); }
+    catch (e) { s = await fb.getDocs(fb.collection(fb.db, 'envios')); }
+    return s.docs.map(d => { const x = d.data(); return { ...x, ts: x.ts && x.ts.toMillis ? x.ts.toMillis() : (x.enviadoEn || 0) }; }).sort((a, b) => b.ts - a.ts).slice(0, 300);
   }
 };
+// Cada envío deja constancia en la nube. Si no hay conexión, queda guardado en el celular y se registra solo al volver a entrar.
+const PEND = 'v_pend';
+async function registrarEnvio(e) {
+  e.enviadoEn = e.enviadoEn || Date.now();
+  try { await datos.logEnvio(e); return true; }
+  catch (err) { const p = ls.get(PEND, []); p.push(e); ls.set(PEND, p.slice(-50)); return false; }
+}
+async function reintentarPendientes() {
+  const p = ls.get(PEND, []); if (!p.length || !user) return;
+  const resto = [];
+  for (const e of p) {
+    if (e.vendedorEmail !== user.email) { resto.push(e); continue; }
+    try { await datos.logEnvio(e); } catch (x) { resto.push(e); }
+  }
+  ls.set(PEND, resto);
+}
 function codigoDe(nombre, email) {
   const base = (nombre || email).normalize('NFD').replace(/[^A-Za-z]/g, '').toUpperCase().slice(0, 3) || 'VEN';
   return base + String(Math.floor(100 + Math.random() * 900));
@@ -311,6 +341,7 @@ async function entrar(u) {
   }
   if (admin && !v) { v = { nombre: 'Ruben', codigo: 'RUB001', activo: true }; try { await datos.saveVendedor(email, v); } catch (e) {} }
   user = { email, nombre: v.nombre, codigo: v.codigo, admin };
+  reintentarPendientes();
   $('chipSalir').style.display = 'inline-block';
   $('chipAdmin').style.display = admin ? 'inline-block' : 'none';
   irCatalogo();
@@ -397,31 +428,80 @@ window.enviar = async () => {
   if (tel.length < 11 || tel.length > 15) { box.textContent = 'Revisá el teléfono: tiene que incluir el código de área (por ejemplo 11 2345 6789).'; return; }
   if (!m) { box.textContent = 'El mensaje no puede estar vacío.'; return; }
   $('btnEnviar').disabled = true;
-  try {
-    await datos.logEnvio({ vendedorEmail: user.email, vendedor: user.nombre, codigo: user.codigo, appId: actual.id, app: actual.n, telefono: tel, cliente: $('cliNombre').value.trim() });
-    box.className = 'ok'; box.textContent = 'Listo: se abrió WhatsApp con el mensaje. Tocá enviar allá.';
-  } catch (e) { box.textContent = 'No se pudo registrar el envío (' + (e.code || e.message) + '), pero igual abrimos WhatsApp.'; }
+  const registrado = await registrarEnvio({ vendedorEmail: user.email, vendedor: user.nombre, codigo: user.codigo, appId: actual.id, app: actual.n, telefono: tel, cliente: $('cliNombre').value.trim() });
+  if (registrado) { box.className = 'ok'; box.textContent = 'Listo: se abrió WhatsApp con el mensaje y el envío quedó registrado. Tocá enviar allá.'; }
+  else { box.textContent = 'Se abrió WhatsApp, pero el envío no se pudo registrar ahora. Quedó guardado en tu celular y se registra solo la próxima vez que entres.'; }
   window.open('https://wa.me/' + tel + '?text=' + encodeURIComponent(m), '_blank');
   $('btnEnviar').disabled = false;
 };
 
 /* ═════════ ADMIN ═════════ */
 window.irAdmin = async () => { vista('vAdmin'); await pintarAdmin(); };
+let enviosCache = [], vendCache = [];
+const fechaCorta = ms => ms ? new Date(ms).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—';
 async function pintarAdmin() {
-  const vs = await datos.listVendedores(), es = await datos.listEnvios();
-  const cuenta = {}; es.forEach(e => cuenta[e.vendedorEmail] = (cuenta[e.vendedorEmail] || 0) + 1);
-  $('listaVend').innerHTML = vs.length ? vs.map(v => `<div class="vend"><div><b>${esc(v.nombre)}</b> · ${esc(v.codigo)}<small>${esc(v.email)} · ${cuenta[v.email] || 0} envíos</small></div>
-    <button class="mini ${v.activo ? 'on' : ''}" onclick="toggleVend('${esc(v.email)}')">${v.activo ? '✅ Activo' : '⏸ Pausado'}</button></div>`).join('') : '<p style="color:var(--mut)">Todavía no hay vendedores cargados.</p>';
-  $('listaEnvios').innerHTML = es.length ? `<table><tr><th>Cuándo</th><th>Vendedor</th><th>App</th><th>Teléfono</th></tr>${es.map(e => `<tr><td>${e.ts ? new Date(e.ts).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : ''}</td><td>${esc(e.vendedor)}</td><td>${esc(e.app)}</td><td>${esc(telBonito(e.telefono))}${e.cliente ? '<br><small>' + esc(e.cliente) + '</small>' : ''}</td></tr>`).join('')}</table>` : '<p style="color:var(--mut)">Todavía no se envió ningún link.</p>';
+  vendCache = await datos.listVendedores(); enviosCache = await datos.listEnvios();
+  const cuenta = {}; enviosCache.forEach(e => cuenta[e.vendedorEmail] = (cuenta[e.vendedorEmail] || 0) + 1);
+  $('listaVend').innerHTML = vendCache.length ? vendCache.map(v => `<div class="vend"><div><b>${esc(v.nombre)}</b> · ${esc(v.codigo)}<small>${esc(v.email)} · ${cuenta[v.email] || 0} ${(cuenta[v.email] || 0) === 1 ? 'envío' : 'envíos'}</small></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+    <button class="mini" onclick="pasarApp('${esc(v.email)}')">📲 Pasarle la app</button>
+    <button class="mini ${v.activo ? 'on' : ''}" onclick="toggleVend('${esc(v.email)}')">${v.activo ? '✅ Activo' : '⏸ Pausado'}</button></div></div>`).join('') : '<p style="color:var(--mut)">Todavía no hay vendedores cargados.</p>';
+  // filtros (conservan la selección)
+  const selV = $('fVend').value, selA = $('fApp').value;
+  const vends = [...new Map(enviosCache.map(e => [e.vendedorEmail, e.vendedor || e.vendedorEmail])).entries()];
+  const apps = [...new Set(enviosCache.map(e => e.app).filter(Boolean))].sort();
+  $('fVend').innerHTML = '<option value="">Todos los vendedores</option>' + vends.map(([m, n]) => `<option value="${esc(m)}">${esc(n)}</option>`).join('');
+  $('fApp').innerHTML = '<option value="">Todas las apps</option>' + apps.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
+  if (vends.some(x => x[0] === selV)) $('fVend').value = selV;
+  if (apps.includes(selA)) $('fApp').value = selA;
+  // resumen
+  const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+  const nHoy = enviosCache.filter(e => e.ts >= hoy.getTime()).length;
+  const n7 = enviosCache.filter(e => e.ts >= Date.now() - 7 * 86400000).length;
+  const porApp = {}; enviosCache.forEach(e => { if (e.app) porApp[e.app] = (porApp[e.app] || 0) + 1; });
+  const top = Object.entries(porApp).sort((x, y) => y[1] - x[1]).slice(0, 5).map(([n, c]) => esc(n) + ' (' + c + ')').join(' · ');
+  $('resumenEnvios').innerHTML = `<p><b>${nHoy}</b> hoy · <b>${n7}</b> en los últimos 7 días · <b>${enviosCache.length}</b> en total (se muestran hasta 300)</p>
+    ${top ? '<p style="color:var(--mut);margin-top:6px">Más enviadas: ' + top + '</p>' : ''}`;
+  pintarEnvios();
 }
+function enviosFiltrados() {
+  const v = $('fVend').value, a = $('fApp').value;
+  return enviosCache.filter(e => (!v || e.vendedorEmail === v) && (!a || e.app === a));
+}
+window.pintarEnvios = () => {
+  const es = enviosFiltrados();
+  $('listaEnvios').innerHTML = es.length ? `<table><tr><th>Cuándo</th><th>Vendedor</th><th>App</th><th>Cliente</th></tr>${es.slice(0, 100).map(e =>
+    `<tr><td>${fechaCorta(e.ts)}</td><td>${esc(e.vendedor || e.vendedorEmail)}<small style="display:block;color:var(--mut)">${esc(e.codigo || '')}</small></td><td>${esc(e.app)}</td><td>${esc(e.cliente || '')}<small style="display:block;color:var(--mut)">${esc(telBonito(e.telefono))}</small></td></tr>`).join('')}</table>`
+    + (es.length > 100 ? `<p style="color:var(--mut);margin-top:8px">Se muestran 100 de ${es.length}. La planilla incluye todos.</p>` : '')
+    : '<p style="color:var(--mut)">Todavía no hay envíos con ese filtro.</p>';
+};
+window.bajarCSV = () => {
+  const es = enviosFiltrados();
+  const q = x => '"' + String(x == null ? '' : x).replace(/"/g, '""') + '"';
+  const filas = [['Fecha', 'Vendedor', 'Código', 'Correo del vendedor', 'App', 'Cliente', 'Teléfono']].concat(es.map(e =>
+    [e.ts ? new Date(e.ts).toLocaleString('es-AR') : '', e.vendedor, e.codigo, e.vendedorEmail, e.app, e.cliente, e.telefono]));
+  const csv = '﻿' + filas.map(f => f.map(q).join(';')).join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a'); const d = new Date();
+  a.href = URL.createObjectURL(blob);
+  a.download = 'envios-vendedores-' + d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') + '.csv';
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+};
+window.pasarApp = email => {
+  const v = vendCache.find(x => x.email === email); if (!v) return;
+  const msg = `Hola ${v.nombre}! Te sumé como vendedor de RavenTechs.\n\nEntrá con tu cuenta de Google (${v.email}) desde Chrome:\nhttps://raventechs.github.io/vendedores/\n\nTu código de vendedor es ${v.codigo}. Elegí una app, escribí el teléfono del cliente y enviale la prueba gratis por WhatsApp con un toque.\n\nConsejo: en Chrome tocá "Instalar" para tenerla como una app en tu celular.`;
+  window.open('https://wa.me/' + (v.telefono ? v.telefono : '') + '?text=' + encodeURIComponent(msg), '_blank');
+};
 window.agregarVendedor = async () => {
   const email = $('vEmail').value.trim().toLowerCase(), nombre = $('vNombre').value.trim();
   const m = $('adminMsg');
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || !nombre) { m.innerHTML = '<div class="aviso">Escribí un correo válido y el nombre.</div>'; return; }
   try {
     const ya = await datos.getVendedor(email);
-    await datos.saveVendedor(email, { nombre, codigo: ya ? ya.codigo : codigoDe(nombre, email), activo: true });
-    $('vEmail').value = ''; $('vNombre').value = ''; m.innerHTML = '<div class="ok">Vendedor agregado. Ya puede ingresar con esa cuenta de Google.</div>';
+    const tel = normTel($('vTel').value);
+    await datos.saveVendedor(email, { ...(ya || {}), nombre, codigo: ya ? ya.codigo : codigoDe(nombre, email), activo: true, ...(tel.length >= 11 ? { telefono: tel } : {}) });
+    $('vEmail').value = ''; $('vNombre').value = ''; $('vTel').value = '';
+    m.innerHTML = '<div class="ok">Vendedor agregado. Ya puede ingresar con esa cuenta de Google. Tocá “📲 Pasarle la app” en su fila para mandársela por WhatsApp.</div>';
     await pintarAdmin();
   } catch (e) { m.innerHTML = '<div class="aviso">No se pudo guardar: ' + esc(e.code || e.message) + '</div>'; }
 };
