@@ -124,7 +124,7 @@ const APPS = [
     id: 'barbear', nombre: 'Barbe', ar: 'AR', emoji: '💈', panelAdmin: true,
     color: '#C9A227', desc: 'Caja + turnos + reservas online para barberías. Clientes reservan solos por link, el barbero completa turno y se factura automático.',
     estado: 'operativa', estadoLabel: 'Operativa — turnos + reservas online',
-    url: 'https://barbear.raventechsapp.com', beta: null, folleto: null,
+    url: 'https://barbear.raventechsapp.com', beta: null, folleto: BASE + '/folletos/folleto-barbear.html',
     tags: ['plus', 'turnos'],
     pendientes: []
   },
@@ -132,7 +132,7 @@ const APPS = [
     id: 'comprazona', nombre: 'Compra', ar: 'Zona', emoji: '⛽',
     color: '#f0b84a', desc: '★ Marketplace de garrafas y agua para La Matanza. App cliente + panel empresa + admin multi-tenant.',
     estado: 'operativa', estadoLabel: 'MVP funcional — prioritaria',
-    url: 'https://comprazona.raventechsapp.com', beta: null, folleto: null,
+    url: 'https://comprazona.raventechsapp.com', beta: null, folleto: BASE + '/folletos/folleto-comprazona.html',
     tags: ['plus', 'marketplace'],
     pendientes: ['Publicar reglas Firestore v0.2', 'Configurar App Check reCAPTCHA v3', 'Actualizar zona en Firestore']
   },
@@ -140,7 +140,7 @@ const APPS = [
     id: 'pizzar', nombre: 'Pizz', ar: 'AR', emoji: '🍕',
     color: '#e74c3c', desc: 'Caja registradora para pizzerías. Catálogo, stock, roles cajero/dueño, cierre de caja.',
     estado: 'operativa', estadoLabel: 'Operativa',
-    url: 'https://pizzar.raventechsapp.com', beta: BASE + '/pizzar-beta/', folleto: BASE + '/folletos/pizzar.html',
+    url: 'https://pizzar.raventechsapp.com', beta: BASE + '/pizzar-beta/', folleto: BASE + '/folletos/folleto-pizzar.html',
     tags: ['offline', 'plus', 'csv'],
     pendientes: ['Alertas presupuesto Firebase P4', 'Probar comandas digitales en vivo', 'Promover beta a producción']
   },
@@ -148,7 +148,7 @@ const APPS = [
     id: 'panar', nombre: 'Pan', ar: 'AR', emoji: '🥖',
     color: '#e67e22', desc: 'Caja registradora para panaderías. Recetas, stock, cierre de caja con WhatsApp.',
     estado: 'operativa', estadoLabel: 'Operativa',
-    url: 'https://panar.raventechsapp.com', beta: BASE + '/panar-beta/', folleto: BASE + '/folletos/panar.html',
+    url: 'https://panar.raventechsapp.com', beta: BASE + '/panar-beta/', folleto: BASE + '/folletos/folleto-panar.html',
     tags: ['offline', 'plus', 'csv'],
     pendientes: ['Alertas presupuesto Firebase P4', 'Probar descuento stock por receta', 'Promover beta a producción']
   },
@@ -156,7 +156,7 @@ const APPS = [
     id: 'carnear', nombre: 'Carne', ar: 'AR', emoji: '🥩',
     color: '#c0392b', desc: '★ Caja registradora para carnicerías. Ventas por kilo, stock, proveedores. Campaña activa con demo abierta.',
     estado: 'operativa', estadoLabel: 'En producción — campaña activa', panelAdmin: true,
-    url: 'https://carnear.raventechsapp.com', beta: BASE + '/carnear-beta/', folleto: BASE + '/folletos/carnear.html',
+    url: 'https://carnear.raventechsapp.com', beta: BASE + '/carnear-beta/', folleto: BASE + '/folletos/folleto-carnear.html',
     tags: ['offline', 'plus', 'csv'],
     pendientes: ['Alertas presupuesto Firebase P4', 'Validar escáner tickets en historial y stock']
   },
@@ -164,7 +164,7 @@ const APPS = [
     id: 'lavar', nombre: 'lav', ar: 'AR', emoji: '🚗', panelAdmin: true,
     color: '#2980b9', desc: 'Sistema para lavaderos de autos. Multi-sucursal, empleados por link, fidelización por patente.',
     estado: 'operativa', estadoLabel: 'Operativa — panel admin ⚙️',
-    url: 'https://lavar.raventechsapp.com', beta: BASE + '/lavar-beta/', folleto: BASE + '/folletos/lavar.html',
+    url: 'https://lavar.raventechsapp.com', beta: BASE + '/lavar-beta/', folleto: BASE + '/folletos/folleto-lavar.html',
     tags: ['offline', 'plus'],
     pendientes: ['Alertas presupuesto Firebase P4', 'Probar fidelización por patente', 'Probar multi-sucursal', 'Cajero pendiente (sistema propio empleados)', 'Promover beta a producción']
   },
@@ -172,7 +172,7 @@ const APPS = [
     id: 'rodix', nombre: 'Rodix', ar: '', emoji: '🚑', panelAdmin: true,
     color: '#8e44ad', desc: 'Gestión de flotas. Vencimientos, checklist de insumos, historial de service. Usado con ambulancias.',
     estado: 'operativa', estadoLabel: 'Operativa — panel admin ⚙️',
-    url: 'https://rodix.raventechsapp.com', beta: BASE + '/rodix-beta/', folleto: BASE + '/folletos/rodix.html',
+    url: 'https://rodix.raventechsapp.com', beta: BASE + '/rodix-beta/', folleto: BASE + '/folletos/folleto-rodix.html',
     tags: ['plus', 'csv'],
     pendientes: ['Alertas presupuesto Firebase P4', 'Probar vencimientos y alertas', 'Probar checklist insumos', 'Probar historial service']
   },
@@ -180,7 +180,7 @@ const APPS = [
     id: 'securepro', nombre: 'Secure', ar: 'Pro', emoji: '🔒', panelAdmin: true,
     color: '#16a085', desc: 'CRM para instaladores de seguridad electrónica. Clientes, presupuestos, mantenimientos.',
     estado: 'operativa', estadoLabel: 'Operativa — panel admin ⚙️',
-    url: 'https://securepro.raventechsapp.com', beta: BASE + '/securepro-beta/', folleto: BASE + '/folletos/securepro.html',
+    url: 'https://securepro.raventechsapp.com', beta: BASE + '/securepro-beta/', folleto: BASE + '/folletos/folleto-securepro.html',
     tags: ['plus', 'csv'],
     pendientes: ['Alertas presupuesto Firebase P4', 'Orden de trabajo digital + firma cliente', 'Presupuesto con aprobación online']
   },
@@ -188,7 +188,7 @@ const APPS = [
     id: 'puntoventa', nombre: 'Punto', ar: 'Venta', emoji: '🏪',
     color: '#f0b84a', desc: 'Punto de venta multi-local hasta 30 sucursales. Cuenta corriente y morosidad de clientes.',
     estado: 'operativa', estadoLabel: 'Operativa',
-    url: 'https://puntoventa.raventechsapp.com', beta: BASE + '/puntoventa-beta/', folleto: BASE + '/folletos/puntoventa.html',
+    url: 'https://puntoventa.raventechsapp.com', beta: BASE + '/puntoventa-beta/', folleto: BASE + '/folletos/folleto-puntoventa.html',
     tags: ['plus', 'csv'],
     pendientes: ['Alertas presupuesto Firebase P4', 'Probar crear sucursal nueva', 'Probar cuenta corriente y morosidad', 'Límite crédito + reporte morosos']
   },
@@ -196,7 +196,7 @@ const APPS = [
     id: 'empresar', nombre: 'Empres', ar: 'AR', emoji: '🏢',
     color: '#27ae60', desc: 'Control de documentación con vencimientos. Habilitaciones, seguros, VTV, personal y más. Plus: ventas, stock, flota.',
     estado: 'operativa', estadoLabel: 'v2.0 — Documentación con vencimientos',
-    url: 'https://garrafar.raventechsapp.com', beta: null, folleto: BASE + '/folletos/empresar.html',
+    url: 'https://garrafar.raventechsapp.com', beta: null, folleto: BASE + '/folletos/folleto-empresar.html',
     tags: ['plus'],
     pendientes: ['Alertas presupuesto Firebase P4', 'Módulos Plus: ventas, stock, flota (próxima versión)']
   },
@@ -204,15 +204,23 @@ const APPS = [
     id: 'saludar', nombre: 'Salud', ar: 'AR', emoji: '💊',
     color: '#e74c3c', desc: 'Control de medicación y turnos médicos. Notificaciones locales, grupo familiar PLUS.',
     estado: 'pendiente', estadoLabel: 'Notificaciones pendientes',
-    url: 'https://saludar.raventechsapp.com', beta: null, folleto: BASE + '/folletos/saludar.html',
+    url: 'https://saludar.raventechsapp.com', beta: null, folleto: BASE + '/folletos/folleto-saludar.html',
     tags: ['plus', 'salud', 'push'],
     pendientes: ['Sistema de recordatorios (saludar-recordatorios)', 'Migrar a Cloudflare Workers', 'Alertas presupuesto Firebase P4']
+  },
+  {
+    id: 'habitos', nombre: 'Traductor de', ar: 'Hábitos', emoji: '🧬',
+    color: '#1E8C6E', desc: 'Registro de hábitos por voz o texto con IA: descubre patrones entre sueño, comida, ánimo y actividad.',
+    estado: 'pendiente', estadoLabel: 'v2.0 lista · falta dominio y Worker de IA',
+    url: 'https://habitos.raventechsapp.com', beta: null, folleto: BASE + '/folletos/folleto-habitos.html',
+    tags: ['salud', 'ia'],
+    pendientes: ['Anular la clave vieja de Groq y crear el Worker de IA', 'Dominio habitos.raventechsapp.com (CNAME + GitHub Pages)', 'Autorizar el dominio en Firebase Auth y pegar las reglas (qa/rules/habitos.rules)', 'Probarla en el celular']
   },
   {
     id: 'miagenda', nombre: 'Mi', ar: 'Agenda', emoji: '📅',
     color: '#3b82f6', desc: 'Agenda grupal para estudiantes. Exámenes, TPs, compromisos. Acceso compartido por link.',
     estado: 'pendiente', estadoLabel: 'Notificaciones push pendientes',
-    url: 'https://miagenda.raventechsapp.com', beta: null, folleto: BASE + '/folletos/miagenda.html',
+    url: 'https://miagenda.raventechsapp.com', beta: null, folleto: BASE + '/folletos/folleto-miagenda.html',
     tags: ['push'],
     pendientes: ['Alertas presupuesto Firebase P4', 'Push validado ✅ — cron cada 30min activo']
   },
@@ -220,7 +228,7 @@ const APPS = [
     id: 'mtc', nombre: 'MTC', ar: '', emoji: '🧠',
     color: '#4fd1c5', desc: 'Motor de Traducción Cognitiva. IA educativa adaptativa para niños, adultos mayores y personas con Alzheimer.',
     estado: 'pendiente', estadoLabel: 'Key Anthropic en Netlify Drop',
-    url: 'https://mtc.raventechsapp.com', beta: null, folleto: BASE + '/folletos/mtc.html',
+    url: 'https://mtc.raventechsapp.com', beta: null, folleto: BASE + '/folletos/folleto-mtc.html',
     tags: ['ia', 'plus', 'push'],
     pendientes: ['Netlify Functions proxy para Anthropic key (key se revoca en GitHub)', 'Juegos cognitivos para adultos mayores', 'Modo día difícil']
   },
@@ -228,7 +236,7 @@ const APPS = [
     id: 'timbrear', nombre: 'Timbre', ar: 'Ar', emoji: '🔔',
     color: '#c8a84b', desc: 'Timbre virtual para edificios y locales. QR en entrada → visitante toca depto → audio/texto bidireccional en tiempo real. Sin app, sin instalación.',
     estado: 'operativa', estadoLabel: 'v1.0 — Audio + texto bidireccional ✅',
-    url: 'https://timbrear.raventechsapp.com/portero-virtual.html?edificio=raventechs-hq', beta: null, folleto: null,
+    url: 'https://timbrear.raventechsapp.com/portero-virtual.html?edificio=raventechs-hq', beta: null, folleto: BASE + '/folletos/folleto-timbrear.html',
     tags: ['push', 'audio', 'tiempo-real'],
     pendientes: ['Push app cerrada — validar Xiaomi', 'Video bidireccional Plus', 'Modo no molestar + foto visitante']
   },
@@ -236,7 +244,7 @@ const APPS = [
     id: 'legalar', nombre: 'Legal', ar: 'AR', emoji: '⚖️',
     color: '#6366f1', desc: 'Consulta legal orientativa con IA. Para abogados y usuarios que necesitan orientación rápida.',
     estado: 'pendiente', estadoLabel: 'Worker listo — crear en Cloudflare',
-    url: 'https://legalar.raventechsapp.com/legalar.html', beta: null, folleto: BASE + '/folletos/legalar.html',
+    url: 'https://legalar.raventechsapp.com/legalar.html', beta: null, folleto: BASE + '/folletos/folleto-legalar.html',
     tags: ['ia'],
     pendientes: ['Crear Worker LegalAR en Cloudflare (código listo)', 'Reemplazar WORKER-LEGALAR en la URL', 'Agregar raventechs.github.io en Firebase Auth']
   },
@@ -244,7 +252,7 @@ const APPS = [
     id: 'pelotear', nombre: 'Pelote', ar: 'AR', emoji: '⚽',
     color: '#27ae60', desc: 'Gestión de complejos deportivos. Canchas, reservas de turnos, precios diurno/nocturno, buffet, cierre de caja y multi-predio.',
     estado: 'operativa', estadoLabel: 'v1.0 — Reservas + canchas + caja ✅',
-    url: 'https://pelotear.raventechsapp.com', beta: null, folleto: null,
+    url: 'https://pelotear.raventechsapp.com', beta: null, folleto: BASE + '/folletos/folleto-pelotear.html',
     tags: ['reservas', 'offline', 'plus'],
     pendientes: ['Alertas presupuesto Firebase P4', 'Offline-first (hoy usa Railway)', 'Modularizar >2500 líneas', 'Notificaciones turno por WhatsApp']
   },
@@ -252,7 +260,7 @@ const APPS = [
     id: 'centralbotar', nombre: 'Central', ar: 'botAR', emoji: '🤖',
     color: '#25d366', desc: 'Chatbot WhatsApp/Instagram/Messenger con IA. Dashboard multi-tenant para negocios.',
     estado: 'pendiente', estadoLabel: 'Worker listo — crear en Cloudflare',
-    url: 'https://magnificent-jalebi-8408d5.netlify.app/centralbotar.html', beta: null, folleto: null,
+    url: 'https://magnificent-jalebi-8408d5.netlify.app/centralbotar.html', beta: null, folleto: BASE + '/folletos/folleto-centralbotar.html',
     tags: ['ia'],
     pendientes: ['Crear Worker CentralbotAR en Cloudflare (código listo)', 'Reemplazar WORKER-CENTRALBOTAR en la URL', 'Renovar token Meta (vence cada 60 días)']
   },
@@ -284,7 +292,7 @@ const APPS = [
     id: 'manejar', nombre: 'manej', ar: 'Ar', emoji: '🚕', panelAdmin: true,
     color: '#22c55e', desc: 'Control de ganancias reales para choferes de Uber, Didi y Cabify. Cargan cada viaje en 2 toques; ven en gráficos cuánto ganan por hora y por km (sin que los gastos distorsionen), su mejor día y su mejor horario. Login con Google o email, demo gratis de 14 días, cobro manual desde el panel interno (volante + PIN).',
     estado: 'pendiente', estadoLabel: 'v2.2 — funcional y probado con datos reales; falta Plan Flota, backup y cobro automático',
-    url: BASE + '/ManejAr/', beta: BASE + '/ManejAr/?demo=1', folleto: null,
+    url: BASE + '/ManejAr/', beta: BASE + '/ManejAr/?demo=1', folleto: BASE + '/folletos/folleto-manejar.html',
     tags: ['plus', 'offline', 'csv'],
     pendientes: ['Plan Flota (dueño con 2 autos): revisar el flujo de creación desde Ajustes y probarlo con Firebase real', 'Backup automático diario 02:00 (opción recomendada: GitHub Actions + clave de servicio de Firebase)', 'Cobro automático con Mercado Pago (requiere Netlify; hoy el cobro es manual desde el panel)', 'Confirmar comisiones reales por plataforma (hoy: Uber 25%, Didi 20%, Cabify 20%)', 'Folleto de venta y precio mensual a definir', 'Íconos PNG para instalar como app']
   },
@@ -298,8 +306,8 @@ const STATUS_CONFIG = {
 
 const CATEGORIAS = {
   comercio: ['barbear','comprazona','pizzar','panar','carnear','lavar','rodix','securepro','puntoventa','empresar','centralbotar','ahorrar','logisar','manejar'],
-  salud:    ['saludar','miagenda','mtc','charlar'],
-  ia:       ['mtc','timbrear','legalar','centralbotar','charlar'],
+  salud:    ['saludar','miagenda','mtc','charlar','habitos'],
+  ia:       ['mtc','timbrear','legalar','centralbotar','charlar','habitos'],
 };
 
 let filtroActivo = 'todas';
