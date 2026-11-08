@@ -1,6 +1,8 @@
-// sw.js — vendedores v1.1 (network-first)
-const C='vendedores-v1.8';
-self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(['/vendedores/','/vendedores/index.html'])).catch(()=>{}));self.skipWaiting()});
-self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
-self.addEventListener('fetch',e=>{const r=e.request;if(r.method!=='GET'||new URL(r.url).origin!==location.origin)return;
-e.respondWith(fetch(r).then(res=>{const cp=res.clone();caches.open(C).then(c=>c.put(r,cp));return res}).catch(()=>caches.match(r)))});
+/* RavenTechs: la app de vendedores se mudó a https://ventas.raventechsapp.com/vendedores/
+   Este service worker solo limpia lo guardado y se desregistra para que el celular siga la redirección. */
+self.addEventListener('install',function(){self.skipWaiting()});
+self.addEventListener('activate',function(e){e.waitUntil((async function(){
+  try{var ks=await caches.keys();await Promise.all(ks.map(function(k){return caches.delete(k)}))}catch(x){}
+  try{await self.registration.unregister()}catch(x){}
+  try{var cs=await self.clients.matchAll({type:'window'});cs.forEach(function(c){c.navigate(c.url)})}catch(x){}
+})())});
