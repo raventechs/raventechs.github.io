@@ -144,13 +144,14 @@ tr:hover td{background:var(--surface2);cursor:pointer}
     <button class="chip" data-app="Rodix">🚑 Rodix</button>
     <button class="chip" data-app="SecurePro">🔒 SecurePro</button>
     <button class="chip" data-app="PuntoVenta">🏪 PuntoVenta</button>
+    <button class="chip" data-app="FichAR">⏱️ FichAR</button>
     <input class="search" id="searchInput" placeholder="🔍 Buscar...">
   </div>
 
   <main>
     <div class="stats">
       <div class="stat"><div class="stat-n" id="statTotal">—</div><div class="stat-l">Clientes totales</div></div>
-      <div class="stat"><div class="stat-n" id="statApps">7</div><div class="stat-l">Apps activas</div></div>
+      <div class="stat"><div class="stat-n" id="statApps">8</div><div class="stat-l">Apps activas</div></div>
     </div>
     <div class="sec-title">Clientes</div>
     <div id="tableContainer"><div class="loading-msg">Cargando clientes de todas las apps...</div></div>
@@ -186,8 +187,11 @@ var APP_CONFIGS = {
   lavAR:      { emoji:'🚗', color:'#2980b9', config:{ apiKey:'AIzaSyDVcK9reiQuC6YUpX16DMjyYhtYiH40hbc', authDomain:'lavar-b8b84.firebaseapp.com', projectId:'lavar-b8b84', storageBucket:'lavar-b8b84.firebasestorage.app', messagingSenderId:'1064006581602', appId:'1:1064006581602:web:fb5f0eea1dcff93d7a003b' } },
   Rodix:      { emoji:'🚑', color:'#8e44ad', config:{ apiKey:'AIzaSyDH4GvbdtPqJwUlnRDqtOUoofkL4PTXiew', authDomain:'vehigest-ar.firebaseapp.com', projectId:'vehigest-ar', storageBucket:'vehigest-ar.firebasestorage.app', messagingSenderId:'150404378851', appId:'1:150404378851:web:940ba835e20c4edeb215d6' } },
   SecurePro:  { emoji:'🔒', color:'#16a085', config:{ apiKey:'AIzaSyDgpyUd8AExCLy29fwkjc5-mEALA57Wtig', authDomain:'pro-a247e.firebaseapp.com', projectId:'pro-a247e', storageBucket:'pro-a247e.firebasestorage.app', messagingSenderId:'3470750973', appId:'1:3470750973:web:f3d029ed18093ecaf1ba94' } },
-  PuntoVenta: { emoji:'🏪', color:'#f0b84a', config:{ apiKey:'AIzaSyAP9PEuKM9ck-a9ltWorlFunxPYXw7trtE', authDomain:'puntoventa-f316c.firebaseapp.com', projectId:'puntoventa-f316c', storageBucket:'puntoventa-f316c.firebasestorage.app', messagingSenderId:'229168693051', appId:'1:229168693051:web:9dcb7d95f39edc4c17011e' } }
+  PuntoVenta: { emoji:'🏪', color:'#f0b84a', config:{ apiKey:'AIzaSyAP9PEuKM9ck-a9ltWorlFunxPYXw7trtE', authDomain:'puntoventa-f316c.firebaseapp.com', projectId:'puntoventa-f316c', storageBucket:'puntoventa-f316c.firebasestorage.app', messagingSenderId:'229168693051', appId:'1:229168693051:web:9dcb7d95f39edc4c17011e' } },
+  // FichAR corre temporalmente en el proyecto legalar (colecciones fichar_*). Al migrar, cambiar config y FICHAR_COL.
+  FichAR:     { emoji:'⏱️', color:'#22c55e', config:{ apiKey:'AIzaSyA8OTufri4hI_wjh5KefownuJuZ9QydMMk', authDomain:'legalar.firebaseapp.com', projectId:'legalar', storageBucket:'legalar.firebasestorage.app', messagingSenderId:'340858674664', appId:'1:340858674664:web:39a0fc7e823587440c585d' } }
 };
+var FICHAR_COL = 'fichar_empresas';
 
 // ── FEATURES POR APP ──
 var APP_FEATURES = {
@@ -197,7 +201,8 @@ var APP_FEATURES = {
   lavAR:      ['fidelizacion','multiSucursal','gastos'],
   Rodix:      ['multiFlota','alertasAvanzadas'],
   SecurePro:  ['multiUsuario','presupuestosIlimitados'],
-  PuntoVenta: ['limiteNegocios','cuentaCorriente','empleados']
+  PuntoVenta: ['limiteNegocios','cuentaCorriente','empleados'],
+  FichAR:     []
 };
 
 // ── INICIALIZAR APPS FIREBASE ──
@@ -294,7 +299,36 @@ function cargarTodosLosClientes() {
   });
 }
 
+// FichAR: una fila por empresa con estado de prueba, personas y última marca (carga de datos)
+function fichEstado(data) {
+  var dh = data.demoHasta && data.demoHasta.toMillis ? data.demoHasta.toMillis() : null;
+  if (dh == null) return 'cliente activo';
+  var d = Math.ceil((dh - Date.now()) / 864e5);
+  return d > 0 ? 'prueba · ' + d + ' días' : 'prueba vencida';
+}
+function cargarFichAR() {
+  var db = getFirebaseApp('FichAR').db;
+  return db.collection(FICHAR_COL).get().then(function(snap) {
+    var ps = [];
+    snap.forEach(function(d) {
+      var data = d.data();
+      var c = {
+        uid: d.id, email: data.ownerEmail || '—', nombre: data.nombre || '—', app: 'FichAR',
+        features: {}, status: fichEstado(data), raw: data,
+        personas: (data.miembros || []).length + ' / ' + (data.limiteEmpleados || 5), ultima: null, marcas7: 0
+      };
+      todosClientes.push(c);
+      ps.push(d.ref.collection('marcas').where('t', '>', Date.now() - 7 * 864e5).get().then(function(m) {
+        c.marcas7 = m.size;
+        m.forEach(function(x) { var t = x.data().t; if (!c.ultima || t > c.ultima) c.ultima = t; });
+      }).catch(function() {}));
+    });
+    return Promise.allSettled(ps);
+  }).catch(function(e) { console.warn('Error cargando FichAR:', e.message); });
+}
+
 function cargarApp(appName) {
+  if (appName === 'FichAR') return cargarFichAR();
   var inst = getFirebaseApp(appName);
   var db = inst.db;
   var uid = SUPERADMIN_UIDS[appName];
@@ -359,7 +393,7 @@ function renderTabla() {
       '<td><span class="badge" style="background:' + color + '22;color:' + color + '">' + emoji + ' ' + c.app + '</span></td>' +
       '<td>' + c.email + '</td>' +
       '<td>' + c.nombre + '</td>' +
-      '<td style="color:var(--muted);font-size:0.75rem">' + (feats.join(', ') || '—') + '</td>' +
+      '<td style="color:var(--muted);font-size:0.75rem">' + (c.app === 'FichAR' ? (c.status + ' · ' + c.personas + ' personas · ' + c.marcas7 + ' marcas 7d') : (feats.join(', ') || '—')) + '</td>' +
       '<td><button class="chip" style="font-size:0.7rem;padding:3px 10px" onclick="event.stopPropagation();abrirPanel(\'' + c.uid + '\',\'' + c.app + '\')">Ver →</button></td>' +
       '</tr>';
   }).join('');
@@ -374,6 +408,7 @@ function renderTabla() {
 function abrirPanel(uid, appName) {
   var c = todosClientes.find(function(x) { return x.uid === uid && x.app === appName; });
   if (!c) return;
+  if (appName === 'FichAR') return abrirPanelFichAR(c);
   document.getElementById('panelTitle').textContent = APP_CONFIGS[appName].emoji + ' ' + c.email;
   var feats = APP_FEATURES[appName] || [];
   var body =
@@ -392,6 +427,40 @@ function abrirPanel(uid, appName) {
     '<button class="btn-guardar" onclick="guardarFeatures(\'' + uid + '\',\'' + appName + '\')">Guardar features</button>';
   document.getElementById('panelBody').innerHTML = body;
   document.getElementById('panel').classList.add('open');
+}
+
+function abrirPanelFichAR(c) {
+  var d = c.raw;
+  document.getElementById('panelTitle').textContent = '⏱️ ' + c.nombre;
+  document.getElementById('panelBody').innerHTML =
+    '<div class="psec-title">Empresa</div>' +
+    '<div class="prow"><span class="prow-l">Dueño</span><span class="prow-v">' + c.email + '</span></div>' +
+    '<div class="prow"><span class="prow-l">Estado</span><span class="prow-v">' + c.status + '</span></div>' +
+    '<div class="prow"><span class="prow-l">Personas</span><span class="prow-v">' + c.personas + '</span></div>' +
+    '<div class="prow"><span class="prow-l">Marcas últimos 7 días</span><span class="prow-v">' + c.marcas7 + '</span></div>' +
+    '<div class="prow"><span class="prow-l">Última marca</span><span class="prow-v">' + (c.ultima ? new Date(c.ultima).toLocaleString('es-AR') : 'sin marcas') + '</span></div>' +
+    '<div class="prow"><span class="prow-l">Alta</span><span class="prow-v">' + (d.creado ? new Date(d.creado).toLocaleDateString('es-AR') : '—') + '</span></div>' +
+    '<div class="prow"><span class="prow-l">ID</span><span class="prow-v" style="font-size:0.68rem;color:var(--muted)">' + c.uid + '</span></div>' +
+    '<div class="psec-title">Plan</div>' +
+    '<div class="feature-row"><span>Límite de personas</span><input id="fchLim" type="number" min="1" value="' + (d.limiteEmpleados || 5) + '" style="width:80px;padding:6px;border-radius:8px"></div>' +
+    '<button class="btn-guardar" onclick="fichGuardar(\'' + c.uid + '\',\'lim\')">Guardar límite</button>' +
+    '<button class="btn-guardar" onclick="fichGuardar(\'' + c.uid + '\',\'activar\')">✅ Activar como cliente</button>' +
+    '<button class="btn-guardar" onclick="fichGuardar(\'' + c.uid + '\',\'extender\')">⏳ Extender prueba 14 días</button>' +
+    '<button class="btn-guardar" onclick="fichGuardar(\'' + c.uid + '\',\'pausar\')">⏸️ Pausar (no borra datos)</button>';
+  document.getElementById('panel').classList.add('open');
+}
+
+function fichGuardar(id, accion) {
+  var TS = firebase.firestore.Timestamp, cambios = {};
+  if (accion === 'lim') cambios.limiteEmpleados = Math.max(1, parseInt(document.getElementById('fchLim').value, 10) || 5);
+  if (accion === 'activar') cambios.demoHasta = null;
+  if (accion === 'extender') cambios.demoHasta = TS.fromMillis(Date.now() + 14 * 864e5);
+  if (accion === 'pausar') cambios.demoHasta = TS.fromMillis(Date.now() - 60000);
+  getFirebaseApp('FichAR').db.collection(FICHAR_COL).doc(id).update(cambios).then(function() {
+    var c = todosClientes.find(function(x) { return x.uid === id && x.app === 'FichAR'; });
+    if (c) { Object.assign(c.raw, cambios); c.status = fichEstado(c.raw); c.personas = (c.raw.miembros || []).length + ' / ' + (c.raw.limiteEmpleados || 5); abrirPanelFichAR(c); }
+    renderTabla();
+  }).catch(function(e) { alert('No se pudo guardar: ' + e.message); });
 }
 
 function guardarFeatures(uid, appName) {

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Folleto FichAR — RavenTechs</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --accent:#22c55e;
+  --bg:#0a0c12;--bg2:#12151f;--bg3:#1a1f2e;
+  --text:#eef0f6;--text2:#8b93ad;
+  --border:rgba(255,255,255,0.08);
+  --glow:#22c55e26;
+}
+html{scroll-behavior:smooth;overflow-x:hidden;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px 40px;text-align:center;background:radial-gradient(ellipse 80% 60% at 50% 0%, var(--glow) 0%, transparent 70%);}
+.badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text2);padding:6px 16px;border-radius:100px;font-size:12px;font-weight:600;letter-spacing:0.5px;margin-bottom:28px;text-transform:uppercase;}
+.hero-emoji{font-size:72px;margin-bottom:20px;display:block;animation:floatEmoji 3s ease-in-out infinite;}
+@keyframes floatEmoji{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+.hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(32px,7vw,60px);font-weight:800;line-height:1.1;margin-bottom:20px;background:linear-gradient(135deg,#fff 0%,#22c55e 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero p{font-size:clamp(15px,4vw,18px);color:var(--text2);max-width:520px;line-height:1.6;margin-bottom:36px;}
+.cta-btn{display:inline-block;padding:15px 36px;border-radius:100px;background:#22c55e;color:#fff;font-weight:700;font-size:16px;text-decoration:none;transition:all .2s;box-shadow:0 0 32px #22c55e66;font-family:'Space Grotesk',sans-serif;}
+.cta-btn:hover{opacity:0.85;transform:translateY(-2px);}
+.preguntas{padding:60px 24px;max-width:680px;margin:0 auto;}
+.preguntas h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(22px,5vw,36px);font-weight:700;margin-bottom:32px;text-align:center;}
+.pregunta-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px;opacity:0;transform:translateY(20px);transition:all .5s;}
+.pregunta-card.visible{opacity:1;transform:none;}
+.pregunta-card p{font-size:16px;font-weight:600;margin-bottom:8px;}
+.pregunta-card span{font-size:14px;color:var(--text2);}
+.features{padding:60px 24px;max-width:740px;margin:0 auto;}
+.features h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(22px,5vw,36px);font-weight:700;margin-bottom:32px;text-align:center;}
+.feat-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.feat{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;opacity:0;transform:translateY(16px);transition:all .4s;}
+.feat.visible{opacity:1;transform:none;}
+.feat:first-child{grid-column:1/-1;border-color:#22c55e44;background:linear-gradient(135deg,var(--bg2),#22c55e11);}
+.feat-icon{font-size:24px;margin-bottom:10px;display:block;}
+.feat-title{font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.feat-desc{font-size:12px;color:var(--text2);line-height:1.4;}
+.plus-section{padding:40px 24px;max-width:680px;margin:0 auto;}
+.plus-badge{display:inline-block;background:#22c55e22;border:1px solid #22c55e55;color:#22c55e;padding:4px 12px;border-radius:100px;font-size:11px;font-weight:700;margin-bottom:20px;}
+.plus-list{list-style:none;}
+.plus-list li{padding:10px 0;border-bottom:1px solid var(--border);font-size:14px;color:var(--text2);display:flex;gap:10px;}
+.plus-list li::before{content:'✦';color:#22c55e;flex-shrink:0;}
+.footer-cta{padding:60px 24px;text-align:center;background:radial-gradient(ellipse 60% 80% at 50% 100%, var(--glow) 0%, transparent 70%);}
+.footer-cta h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(24px,6vw,40px);font-weight:800;margin-bottom:16px;}
+.footer-cta p{color:var(--text2);font-size:15px;margin-bottom:32px;}
+.footer-brand{margin-top:40px;font-size:12px;color:var(--text2);}
+.footer-brand span{color:#22c55e;font-weight:600;}
+</style>
+</head>
+<body>
+<section class="hero">
+  <div class="badge">⏱️ Control horario para empresas</div>
+  <span class="hero-emoji">⏱️</span>
+  <h1>Chau tarjeta de fichaje.
+Tu equipo marca desde el celular.</h1>
+  <p>Entrada, break y salida con un toque. Vos ves las horas de cada empleado por día, semana y mes.</p>
+  <a href="https://fichar.raventechsapp.com/" class="cta-btn" target="_blank">Probá FichAR 14 días gratis →</a>
+</section>
+
+<section class="preguntas">
+  <h2>¿Te suena esto?</h2>
+  <div class="pregunta-card"><p>¿Sumás a mano las horas de cada empleado a fin de mes?</p><span>FichAR te da los totales por día, semana y mes, listos para liquidar.</span></div><div class="pregunta-card"><p>¿Alguien marca por un compañero o desde la casa?</p><span>Al marcar se confirma que está en el local. La hora la pone el servidor, no el teléfono.</span></div><div class="pregunta-card"><p>¿Se rompió el reloj o se perdieron las tarjetas?</p><span>Todo queda guardado en la nube. Nadie puede borrar ni editar una marca.</span></div>
+</section>
+
+<section class="features">
+  <h2>Qué incluye FichAR</h2>
+  <div class="feat-grid">
+    <div class="feat"><span class="feat-icon">👆</span><div class="feat-title">Marcar en un toque</div><div class="feat-desc">Entrada, break y salida con un botón grande. El empleado no ve nada más.</div></div><div class="feat"><span class="feat-icon">📍</span><div class="feat-title">Ubicación solo al marcar</div><div class="feat-desc">Confirma que está en el local. Sin seguimiento.</div></div><div class="feat"><span class="feat-icon">📊</span><div class="feat-title">Panel del dueño</div><div class="feat-desc">Quién está ahora, horas por empleado y gráfico por día</div></div><div class="feat"><span class="feat-icon">⏰</span><div class="feat-title">Llegadas tarde</div><div class="feat-desc">Horario y tolerancia configurables</div></div><div class="feat"><span class="feat-icon">🔒</span><div class="feat-title">Marcas a prueba de trampa</div><div class="feat-desc">Hora del servidor, no se editan, solo el dueño anula</div></div><div class="feat"><span class="feat-icon">📄</span><div class="feat-title">Exportar a Excel</div><div class="feat-desc">CSV listo para el contador o la liquidación</div></div>
+  </div>
+</section>
+
+<section class="plus-section">
+  <div class="plus-badge">✦ PLUS</div>
+  <h2 style="font-family:Space Grotesk,sans-serif;font-size:22px;font-weight:700;margin-bottom:20px;">Además</h2>
+  <ul class="plus-list">
+    <li>Sumar empleados con un código de invitación por WhatsApp</li><li>Ranking de horas y alertas de jornadas sin salida</li><li>Se instala como app en Android y iPhone, sin tiendas</li>
+  </ul>
+</section>
+
+<section class="footer-cta">
+  <h2>Empezá hoy, sin instalar nada.</h2>
+  <p>Funciona desde el navegador del celular. Sin relojes ni tarjetas.</p>
+  <a href="https://fichar.raventechsapp.com/" class="cta-btn" target="_blank">Abrir FichAR →</a>
+  <div class="footer-brand">Una app de <span>RavenTechs</span> · raventechs.github.io</div>
+</section>
+
+<script>
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.pregunta-card, .feat').forEach(el => observer.observe(el));
+document.querySelectorAll('.feat').forEach((el, i) => { el.style.transitionDelay = (i * 0.08) + 's'; });
+</script>
+</body>
+</html>
